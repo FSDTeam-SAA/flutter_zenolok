@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
           
-                        SizedBox(height: 12),
+                        SizedBox(height: 30),
           
                         /// [Api Error messages]
                         ///
@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
           
-                        SizedBox(height: 18),
+                        SizedBox(height: 30),
           
                         // OR divider
                         Row(
@@ -183,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ],
                         ),
           
-                        SizedBox(height: 18),
+                        SizedBox(height: 30),
           
                         // Email field
                         TextFormField(
