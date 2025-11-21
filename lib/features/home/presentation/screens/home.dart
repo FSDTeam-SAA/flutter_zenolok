@@ -620,10 +620,16 @@ class _DayCell extends StatelessWidget {
     final streaks = events.where((e) => e.allDay && e.end != null).toList();
     final CalendarEvent? streak = streaks.isNotEmpty ? streaks.first : null;
 
-    // normal events (timed + single-day all-day)
+// normal events (timed + single-day all-day)
     final dayEvents = events.where((e) => !(e.allDay && e.end != null)).toList();
 
-    final hasAnyEvents = dayEvents.isNotEmpty || streak != null;
+// ✅ only first streak day OR any non-streak events should get grey card
+    final bool isStreakStart =
+        streak != null && _dOnly(day).isAtSameMomentAs(_dOnly(streak.start));
+    final bool hasGreyCard = dayEvents.isNotEmpty || isStreakStart;
+
+
+    final hasAnyEvents = dayEvents.isNotEmpty;// || streak != null;
     final numberColor = isSunday ? const Color(0xFF9E9E9E) : Colors.black;
 
     // gaps between cards
@@ -639,12 +645,13 @@ class _DayCell extends StatelessWidget {
             vertical: cardInsetV,
             horizontal: cardInsetH,
           ),
-          decoration: hasAnyEvents
+          decoration: hasGreyCard
               ? BoxDecoration(
             color: const Color(0xFFE0E1E3),
             borderRadius: BorderRadius.circular(16),
           )
               : null,
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

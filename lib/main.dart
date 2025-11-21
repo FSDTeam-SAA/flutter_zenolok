@@ -1,5 +1,5 @@
 // // import 'package:flutter/material.dart';
-import 'package:flutter_zenolok/features/auth/presentation/screens/login_screen.dart';
+// // import 'package:flutter_zenolok/features/auth/presentation/screens/login_screen.dart';
 // // import 'package:get/get_navigation/src/root/get_material_app.dart';
 // //
 // // import 'core/init/app_initializer.dart';
@@ -32,7 +32,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'features/appground_screen.dart';
-import 'features/auth/presentation/screens/login_screen.dart';
 
 void main() => runApp(const CalendarApp());
 
@@ -62,7 +61,7 @@ class CalendarApp extends StatelessWidget {
         cardColor: Colors.white,
         canvasColor: Colors.white,
       ),
-      home: const LoginScreen(),
+      home: const AppGroundScreen(),
     );
   }
 }
