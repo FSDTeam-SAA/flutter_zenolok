@@ -6,6 +6,8 @@ import 'package:flutter_zenolok/features/home/presentation/screens/setting_scree
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../auth/presentation/screens/allday_screen.dart';
+import '../../../auth/presentation/screens/chat_screen.dart';
 import 'notification_screen.dart';
 
 
@@ -415,6 +417,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     _GhostPill(
                       label: 'TODAY',
                       icon: Icons.refresh_rounded,
+
                       onTap: () => setState(() {
                         _focused.value = DateTime.now();
                         _selected = _dOnly(DateTime.now());
@@ -987,18 +990,47 @@ class _StreakTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // chat icon with red badge (2)
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.chat_bubble_outline_rounded,
-                  size: 18, color: Colors.black45),
-              Positioned(
-                right: -6,
-                top: -6,
-                child: _Badge(number: 2),
-              ),
-            ],
+          // chat icon with red badge (2) -> opens ChatScreen
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      ChatScreen(event: event), // ← pass this event
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0); // slide from right
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+
+                    final tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  size: 18,
+                  color: Colors.black45,
+                ),
+                Positioned(
+                  right: -6,
+                  top: -6,
+                  child: _Badge(number: 2),
+                ),
+              ],
+            ),
           ),
+
+
         ],
       ),
     );
@@ -1037,8 +1069,21 @@ class _AllDayTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // grey refresh icon
-          const Icon(Icons.refresh_rounded,
-              size: 18, color: Colors.black26),
+          IconButton(
+            icon: const Icon(
+              Icons.refresh_rounded,
+              size: 18,
+              color: Colors.black26,
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const AllDayScreen(),
+                ),
+              );
+            },
+          )
+          ,
         ],
       ),
     );
@@ -1140,27 +1185,48 @@ class _TimedTile extends StatelessWidget {
               const SizedBox(width: 8),
 
               // bell with badge + expand chevron up
-              Row(
-                children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      const Icon(Icons.notifications_none_rounded,
-                          size: 18, color: Colors.black45),
-                      if (event.checklist.isNotEmpty)
-                        Positioned(
-                          right: -6,
-                          top: -6,
-                          child: _Badge(number: 2),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.keyboard_arrow_up_rounded,
-                      size: 18, color: Colors.black45),
-                ],
-              ),
-            ],
+      Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ChatScreen(event: event),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(
+                      Icons.notifications_none_rounded,
+                      size: 18,
+                      color: Colors.black45,
+                    ),
+                    if (event.checklist.isNotEmpty)
+                      const Positioned(
+                        right: -6,
+                        top: -6,
+                        child: _Badge(number: 2),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.keyboard_arrow_up_rounded,
+                  size: 18,
+                  color: Colors.black45,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+
+
+      ],
           ),
 
           // checklist
@@ -1383,8 +1449,135 @@ class _WhiteRoundPlus extends StatelessWidget {
   }
 }
 
+
+
 /// ---------------------------------------------------------------------------
-/// FULL-SCREEN EDITOR
+/// “Red box” area – 3 event rows + todos
+/// ---------------------------------------------------------------------------
+
+
+
+/// (Optional) your older mock tiles if you still use them elsewhere
+class _TimedEventTile extends StatelessWidget {
+  const _TimedEventTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7F8),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 70,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      '8:00 AM',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      '9:00 AM',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Container(
+                width: 3,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Body check',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      '20, Farm Road',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.notifications_none_rounded,
+                      size: 18, color: Colors.black38),
+                  Positioned(
+                    right: -1,
+                    top: -1,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF3B30),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        '2',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.expand_more_rounded,
+                  size: 18, color: Colors.black26),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+/// ---------------------------------------------------------------------------
+/// FULL-SCREEN EDITOR  (pixel-perfect version)
 /// ---------------------------------------------------------------------------
 
 class EventEditorScreen extends StatefulWidget {
@@ -1409,8 +1602,8 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   bool _allDay = true;
   bool _multiDay = false;
 
-  TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
-  TimeOfDay _endTime = const TimeOfDay(hour: 10, minute: 0);
+  TimeOfDay _startTime = const TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay _endTime = const TimeOfDay(hour: 0, minute: 0);
 
   @override
   void initState() {
@@ -1471,9 +1664,11 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
 
   void _save() {
     if (!_form.currentState!.validate()) return;
+
     final start = _allDay ? _startDate : _combine(_startDate, _startTime);
     final DateTime? end =
     _allDay ? (_multiDay ? _endDate : null) : _combine(_startDate, _endTime);
+
     Navigator.pop(
       context,
       CalendarEvent(
@@ -1491,213 +1686,266 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const hint = TextStyle(color: Colors.black54);
-    const input = TextStyle(color: Colors.black);
+    const labelColor = Color(0xFFB8BBC5);
+    const dividerColor = Color(0xFFE5E6EB);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        leadingWidth: 68,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leadingWidth: 56,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: Color(0xFF8E8E93),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('New event'),
+        titleSpacing: 0,
+        title: const SizedBox.shrink(),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline_rounded,color: Colors.red,),
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              color: Color(0xFFFF4B5C),
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           IconButton(
-            icon: const Icon(Icons.check,color: Colors.green,),
+            icon: const Icon(
+              Icons.check_rounded,
+              color: Color(0xFF3AC3FF),
+            ),
             onPressed: _save,
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Form(
         key: _form,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
           children: [
-            // title
-            TextFormField(
-              controller: _title,
-              decoration: const InputDecoration(
-                hintText: 'Title',
-                hintStyle: TextStyle(fontSize: 22, color: Colors.black38),
-                border: InputBorder.none,
-              ),
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
-            ),
-            const SizedBox(height: 6),
-
-            // category chips
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            // ── TITLE + SHARE ICON ROW ──────────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                for (final c in EventCategory.values)
-                  ChoiceChip(
-                    selected: _category == c,
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(c.icon, size: 16, color: c.color),
-                        const SizedBox(width: 6),
-                        Text(c.label, style: const TextStyle(color: Colors.black)),
-                      ],
+                Expanded(
+                  child: TextFormField(
+                    controller: _title,
+                    decoration: const InputDecoration(
+                      hintText: 'Title',
+                      hintStyle: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFFD1D3DA),
+                      ),
+                      border: InputBorder.none,
+                      isCollapsed: true,
                     ),
-                    selectedColor: c.pastel,
-                    onSelected: (_) => setState(() => _category = c),
-                    side: BorderSide(color: Colors.black.withOpacity(.08)),
-                    backgroundColor: const Color(0xFFF6F7FB),
-                    labelStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
+                    validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.ios_share_rounded,
+                    size: 18,
+                    color: Color(0xFFC7CAD3),
+                  ),
+                  onPressed: () {
+                    // TODO: share action
+                  },
+                ),
               ],
             ),
+            const SizedBox(height: 4),
 
-            const SizedBox(height: 18),
+            // ── COLORED MARKERS + SUBTITLE ─────────────────────────────────
+            Row(
+              children: const [
+                _CategoryMarker(color: Color(0xFF3AA1FF)),
+                SizedBox(width: 4),
 
-            // date & time section
-            _EditorSection(
-              icon: Icons.event_rounded,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    Expanded(
-                      child: _OutlinedBtn(
-                        text: DateFormat('EEE, MMM d').format(_startDate),
-                        onTap: () => _pickDate(isStart: true),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    if (_allDay && _multiDay)
-                      Expanded(
-                        child: _OutlinedBtn(
-                          text: 'End: ${DateFormat('EEE, MMM d').format(_endDate)}',
-                          onTap: () => _pickDate(isStart: false),
-                        ),
-                      ),
-                  ]),
-                  const SizedBox(height: 8),
-                  Row(
+                Text(
+                  'Family Dinner  ',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF848892),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                _CategoryMarker(color: Color(0xFFFFC542)),
+                SizedBox(width: 8),
+                Text(
+                  'Formula submission',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF848892),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // ── CATEGORY ICON + CHIPS ROW ──────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.grid_view_rounded,
+                  size: 18,
+                  color: Color(0xFFD0D3DB),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
-                      Expanded(
-                        child: SwitchListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('All day', style: TextStyle(color: Colors.black)),
-                          value: _allDay,
-                          activeColor: const Color(0xFF18A957),
-                          activeTrackColor: const Color(0xFFBDECCB),
-                          onChanged: (v) => setState(() {
-                            _allDay = v;
-                            if (!v) _multiDay = false;
-                          }),
-                        ),
-                      ),
-                      if (_allDay)
-                        Expanded(
-                          child: SwitchListTile(
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                            title:
-                            const Text('Multi-day', style: TextStyle(color: Colors.black)),
-                            value: _multiDay,
-                            activeColor: const Color(0xFF18A957),
-                            activeTrackColor: const Color(0xFFBDECCB),
-                            onChanged: (v) => setState(() => _multiDay = v),
-                          ),
+                      for (final c in EventCategory.values)
+                        _CategoryPill(
+                          label: c.label,
+                          color: c.color,
+                          selected: _category == c,
+                          onTap: () => setState(() => _category = c),
                         ),
                     ],
                   ),
-                  if (!_allDay) ...[
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      Expanded(
-                        child: _OutlinedBtn(
-                          text: _startTime.format(context),
-                          onTap: () => _pickTime(isStart: true),
-                          icon: Icons.schedule_rounded,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _OutlinedBtn(
-                          text: _endTime.format(context),
-                          onTap: () => _pickTime(isStart: false),
-                          icon: Icons.schedule_rounded,
-                        ),
-                      ),
-                    ]),
-                  ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // ── DATE ROW (calendar + bell + repeat) ────────────────────────
+            _EditorRow(
+              icon: Icons.event_outlined,
+              label: 'Date',
+              labelColor: labelColor,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(
+                    Icons.notifications_none_rounded,
+                    size: 18,
+                    color: Color(0xFFE0E1E7),
+                  ),
+                  SizedBox(width: 12),
+                  Icon(
+                    Icons.autorenew_rounded,
+                    size: 18,
+                    color: Color(0xFFE0E1E7),
+                  ),
                 ],
               ),
+              onTap: () => _pickDate(isStart: true),
             ),
+            const Divider(color: dividerColor, height: 16),
 
-            const SizedBox(height: 12),
+            // ── TIME ROW (00:00 AM — 00:00 AM + All day) ───────────────────
+            _EditorRow(
+              icon: Icons.access_time_rounded,
+              label: DateFormat('hh : mm a')
+                  .format(_combine(_startDate, _startTime)),
+              labelColor: Colors.black,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '—  ${DateFormat('hh : mm a').format(_combine(_startDate, _endTime))}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _AllDayPill(
+                    value: _allDay,
+                    onChanged: (v) => setState(() {
+                      _allDay = v;
+                      if (!v) _multiDay = false;
+                    }),
+                  ),
+                ],
+              ),
+              onTap: !_allDay
+                  ? () async {
+                await _pickTime(isStart: true);
+                await _pickTime(isStart: false);
+              }
+                  : null,
+            ),
+            const Divider(color: dividerColor, height: 16),
 
-            // location
-            _EditorSection(
+            // ── LOCATION ROW ───────────────────────────────────────────────
+            _EditorRow(
               icon: Icons.place_outlined,
-              child: TextField(
+              label: 'Location',
+              labelColor: labelColor,
+              expandMiddle: true,
+              middleChild: TextField(
                 controller: _location,
-                style: input,
                 decoration: const InputDecoration(
+                  isCollapsed: true,
                   hintText: 'Location',
-                  hintStyle: hint,
                   border: InputBorder.none,
                 ),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
 
-            // Todos
-            _EditorSection(
-              icon: Icons.check_circle_outline_rounded,
-              child: Column(
-                children: [
-                  for (int i = 0; i < _todos.length; i++) ...[
-                    Row(
-                      children: [
-                        const Icon(Icons.radio_button_unchecked,
-                            size: 18, color: Colors.black26),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(_todos[i], style: input)),
-                        IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          onPressed: () => setState(() => _todos.removeAt(i)),
-                        ),
-                      ],
+            // ── TODO PILL / BUBBLE ────────────────────────────────────────
+            _TodoBubble(
+              todos: _todos,
+              newTodoController: _newTodo,
+              onRemove: (i) => setState(() => _todos.removeAt(i)),
+              onSubmit: (v) {
+                final t = v.trim();
+                if (t.isEmpty) return;
+                setState(() {
+                  _todos.add('[ ] $t');
+                  _newTodo.clear();
+                });
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // ── "Let's JAM" ROW ───────────────────────────────────────────
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.lock_outline_rounded,
+                      size: 16, color: labelColor),
+                  SizedBox(width: 4),
+                  Text(
+                    "Let's JAM",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: labelColor,
+                      fontWeight: FontWeight.w500,
                     ),
-                    if (i != _todos.length - 1) const SizedBox(height: 6),
-                  ],
-                  TextField(
-                    controller: _newTodo,
-                    style: input,
-                    decoration: const InputDecoration(
-                      hintText: 'New todo',
-                      hintStyle: hint,
-                      border: InputBorder.none,
-                    ),
-                    onSubmitted: (v) {
-                      final t = v.trim();
-                      if (t.isEmpty) return;
-                      setState(() {
-                        _todos.add('[ ] $t');
-                        _newTodo.clear();
-                      });
-                    },
                   ),
+                  SizedBox(width: 4),
+                  Icon(Icons.keyboard_arrow_down_rounded,
+                      size: 18, color: labelColor),
                 ],
               ),
             ),
@@ -1708,175 +1956,224 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   }
 }
 
-class _EditorSection extends StatelessWidget {
-  const _EditorSection({required this.icon, required this.child});
+/// small colored vertical marker under the title
+class _CategoryMarker extends StatelessWidget {
+  const _CategoryMarker({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 3,
+      height: 14,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(999),
+      ),
+    );
+  }
+}
+
+/// Generic row used for Date / Time / Location lines
+class _EditorRow extends StatelessWidget {
+  const _EditorRow({
+    required this.icon,
+    required this.label,
+    required this.labelColor,
+    this.trailing,
+    this.onTap,
+    this.expandMiddle = false,
+    this.middleChild,
+  });
+
   final IconData icon;
-  final Widget child;
+  final String label;
+  final Color labelColor;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool expandMiddle;
+  final Widget? middleChild;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF6F7FB),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: Colors.black38),
-          const SizedBox(width: 12),
-          Expanded(
-            child: DefaultTextStyle.merge(
-              style: const TextStyle(color: Colors.black),
-              child: child,
-            ),
+    final middle = middleChild ??
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: labelColor,
+            fontWeight: FontWeight.w500,
           ),
-        ],
+        );
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: labelColor),
+            const SizedBox(width: 12),
+            if (expandMiddle)
+              Expanded(child: middle)
+            else
+              middle,
+            if (trailing != null) ...[
+              const Spacer(),
+              trailing!,
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _OutlinedBtn extends StatelessWidget {
-  const _OutlinedBtn({required this.text, required this.onTap, this.icon});
-  final String text;
+
+/// chips: Home / Work / School / Personal
+class _CategoryPill extends StatelessWidget {
+  const _CategoryPill({
+    required this.label,
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final Color color;
+  final bool selected;
   final VoidCallback onTap;
-  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon ?? Icons.event_rounded, size: 18, color: Colors.black),
-      label: Text(text, style: const TextStyle(color: Colors.black)),
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(color: Colors.black.withOpacity(.12)),
-        foregroundColor: Colors.black,
-        backgroundColor: Colors.white,
+    final bg = selected ? color.withOpacity(0.12) : Colors.white;
+    final border = color.withOpacity(0.45);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: border, width: 1),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
       ),
     );
   }
 }
 
 
-/// ---------------------------------------------------------------------------
-/// “Red box” area – 3 event rows + todos
-/// ---------------------------------------------------------------------------
+/// "All day" pill to the right of the time row
+class _AllDayPill extends StatelessWidget {
+  const _AllDayPill({required this.value, required this.onChanged});
 
-
-
-/// TIMED – “Body check” + small strip + icons
-class _TimedEventTile extends StatelessWidget {
-  const _TimedEventTile();
+  final bool value;
+  final ValueChanged<bool> onChanged;
 
   @override
   Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: value ? const Color(0xFFEDF5FF) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: const Color(0xFFE1E3EC),
+          ),
+        ),
+        child: Text(
+          'All day',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: value ? const Color(0xFF4A87FF) : const Color(0xFFB8BBC5),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// pill-shaped todo container like the mock
+class _TodoBubble extends StatelessWidget {
+  const _TodoBubble({
+    required this.todos,
+    required this.newTodoController,
+    required this.onRemove,
+    required this.onSubmit,
+  });
+
+  final List<String> todos;
+  final TextEditingController newTodoController;
+  final void Function(int index) onRemove;
+  final ValueChanged<String> onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    const border = Color(0xFFE8E9EE);
+    const hint = Color(0xFFD2D4DC);
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F8),
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFF8F8FA),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: border),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              // time & place
-              SizedBox(
-                width: 70,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      '8:00 AM',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      '9:00 AM',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.black45,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 4),
-              // vertical bar
-              Container(
-                width: 3,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
-                  borderRadius: BorderRadius.circular(40),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // title + location
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Body check',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      '20, Farm Road',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.black45,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 4),
-              // notification + more icon & small red badge
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.notifications_none_rounded,
-                      size: 18, color: Colors.black38),
-                  Positioned(
-                    right: -1,
-                    top: -1,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF3B30),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        '2',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+          // existing todos
+          for (int i = 0; i < todos.length; i++) ...[
+            Row(
+              children: [
+                const Icon(Icons.radio_button_unchecked,
+                    size: 18, color: hint),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    todos[i].replaceFirst(RegExp(r'^\[( |x)\]\s?'), ''),
+                    style: const TextStyle(fontSize: 13),
                   ),
-                ],
+                ),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.close_rounded,
+                      size: 16, color: hint),
+                  onPressed: () => onRemove(i),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+          ],
+
+          // input line
+          TextField(
+            controller: newTodoController,
+            decoration: const InputDecoration(
+              isCollapsed: true,
+              hintText: 'New todo',
+              hintStyle: TextStyle(
+                color: hint,
+                fontSize: 13,
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.expand_more_rounded,
-                  size: 18, color: Colors.black26),
-            ],
+              border: InputBorder.none,
+            ),
+            style: const TextStyle(fontSize: 13),
+            onSubmitted: onSubmit,
           ),
         ],
       ),
@@ -1884,7 +2181,6 @@ class _TimedEventTile extends StatelessWidget {
   }
 }
 
-/// Radio-style todo list at the bottom
 class _TodoRadioList extends StatelessWidget {
   const _TodoRadioList();
 
@@ -1940,3 +2236,8 @@ class _TodoRadioList extends StatelessWidget {
     );
   }
 }
+
+
+//-------------------------
+
+
