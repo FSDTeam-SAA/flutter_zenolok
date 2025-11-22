@@ -13,8 +13,8 @@ class ScheduledSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: 30),
           child: Row(
             children: [
-              Image.asset(AppImages.appLogoLandscape),
-              SizedBox(width: 6),
+              Image.asset(AppImages.iconschedule, width: 17, height: 17),
+              SizedBox(width: 3),
               Text(
                 'Scheduled',
                 style: TextStyle(

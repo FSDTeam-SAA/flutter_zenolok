@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/common/constants/app_images.dart';
+
+
 class EventTodosHeader extends StatelessWidget {
   const EventTodosHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const [
-        Expanded(
+      children: [
+        const Expanded(
           child: Text(
             'Todos',
             style: TextStyle(
@@ -18,34 +21,35 @@ class EventTodosHeader extends StatelessWidget {
             ),
           ),
         ),
-        _CircleIconButton(icon: Icons.search),
-        SizedBox(width: 8),
-        _CircleIconButton(icon: Icons.notifications_none),
-        SizedBox(width: 8),
-        _CircleIconButton(icon: Icons.settings_outlined),
+
+        _HeaderIconButton(asset: AppImages.iconsearch),
+        const SizedBox(width: 10),
+
+        _HeaderIconButton(asset: AppImages.iconnotification),
+        const SizedBox(width: 8),
+
+        _HeaderIconButton(asset: AppImages.iconsetting),
       ],
     );
   }
 }
 
-class _CircleIconButton extends StatelessWidget {
-  final IconData icon;
+class _HeaderIconButton extends StatelessWidget {
+  final String asset;
 
-  const _CircleIconButton({required this.icon});
+  const _HeaderIconButton({required this.asset});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-      ),
-      child: Icon(
-        icon,
-        size: 18,
-        color: Colors.black87,
+    return IconButton(
+      onPressed: () {},
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+      icon: Image.asset(
+        asset,
+        width: 22,
+        height: 22,
+        fit: BoxFit.contain,
       ),
     );
   }

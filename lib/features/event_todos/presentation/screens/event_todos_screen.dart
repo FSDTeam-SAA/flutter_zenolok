@@ -20,7 +20,6 @@ class EventTodosScreen extends GetView<EventTodosController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               EventTodosHeader(),
               SizedBox(height: 24),
               ScheduledSection(),
