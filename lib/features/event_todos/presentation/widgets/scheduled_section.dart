@@ -56,14 +56,17 @@ class ScheduledSection extends StatelessWidget {
                 title: 'Pay rent',
               ),
               SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '+1',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
+              Padding(
+                padding: EdgeInsets.only(left: 80),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '+1',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),

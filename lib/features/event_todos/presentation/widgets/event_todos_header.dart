@@ -23,10 +23,10 @@ class EventTodosHeader extends StatelessWidget {
         ),
 
         _HeaderIconButton(asset: AppImages.iconsearch),
-        const SizedBox(width: 10),
+        const SizedBox(width: 2),
 
         _HeaderIconButton(asset: AppImages.iconnotification),
-        const SizedBox(width: 8),
+        const SizedBox(width: 2),
 
         _HeaderIconButton(asset: AppImages.iconsetting),
       ],
@@ -43,12 +43,12 @@ class _HeaderIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: () {},
-      padding: EdgeInsets.zero,
+      // padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
       icon: Image.asset(
         asset,
-        width: 22,
-        height: 22,
+        width: 28,
+        height: 28   ,
         fit: BoxFit.contain,
       ),
     );

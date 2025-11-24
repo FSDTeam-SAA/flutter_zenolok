@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_zenolok/features/appground_screen.dart';
 import 'package:flutter_zenolok/features/auth/presentation/screens/login_screen.dart';
+import 'package:flutter_zenolok/features/home/presentation/screens/home.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 import 'core/init/app_initializer.dart';
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Zenelok',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: LoginScreen(),
+      home: const AppGroundScreen(),
     );
   }
 }

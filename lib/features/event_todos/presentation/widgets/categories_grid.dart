@@ -71,7 +71,7 @@ class CategoriesGrid extends StatelessWidget {
             Expanded(
               child: _CategoryCard(
                 title: 'Bills',
-                titleColor: Colors.blue,
+                titleColor: Colors.lightBlue,
                 todos: [
                   'Pay rent',
                   'Water bill',
@@ -104,16 +104,13 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F8),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// Title outside the card (top)
+        Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(
             title,
             style: TextStyle(
               fontSize: 14,
@@ -121,54 +118,79 @@ class _CategoryCard extends StatelessWidget {
               color: titleColor,
             ),
           ),
-          const SizedBox(height: 6),
-          ...todos.map(
-                (t) => Padding(
-              padding: const EdgeInsets.only(bottom: 6.0),
-              child: Row(
-                children: [
-                  const _TodoCircle(),
-                  const SizedBox(width: 8),
-                  Expanded(
+        ),
+        const SizedBox(height: 6),
+
+        /// Actual card
+        Align(
+          alignment: Alignment.topCenter, // Align the content to top
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            height: 140, // Fixed height for all cards (adjust as needed)
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F7F8),
+              borderRadius: BorderRadius.circular(35),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ...todos.map(
+                      (t) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        const _TodoCircle(),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            t,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF4A4A4A),
+                              fontWeight: FontWeight.w400,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                if (showMoreCount != null) ...[
+                  const SizedBox(height: 2),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 30),
                     child: Text(
-                      t,
+                      showMoreCount!,
                       style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w500,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
-              ),
+
+                const SizedBox(height: 4),
+                const Text(
+                  'New todo',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFFD0D0D0),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           ),
-          if (showMoreCount != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              showMoreCount!,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-          const SizedBox(height: 4),
-          const Text(
-            'New todo',
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFFB9B9B9),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
+
+
 
 class _TodoCircle extends StatelessWidget {
   const _TodoCircle();
@@ -194,8 +216,26 @@ class _AddCategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        SizedBox(height: 20), // title nai, tai thora gap
+        SizedBox(
+          height: 118,
+          child: _DashedAddBox(),
+        ),
+      ],
+    );
+  }
+}
+
+/// Optional: just normal border; jodi dashed chai alada painter লাগবে
+class _DashedAddBox extends StatelessWidget {
+  const _DashedAddBox();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 118,
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(22),
@@ -207,7 +247,7 @@ class _AddCategoryCard extends StatelessWidget {
       child: const Center(
         child: Icon(
           Icons.add,
-          size: 30,
+          size: 28,
           color: Colors.grey,
         ),
       ),
