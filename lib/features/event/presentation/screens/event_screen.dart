@@ -138,6 +138,8 @@ class EventsScreen extends StatelessWidget {
 }
 
 
+
+
 class _AddCategoryButton extends StatelessWidget {
   const _AddCategoryButton();
 
