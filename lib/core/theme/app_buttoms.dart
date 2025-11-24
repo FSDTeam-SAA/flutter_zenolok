@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../features/appground_screen.dart';
 import 'app_colors.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -27,7 +29,9 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isLoading ? null : onPressed,
+      onTap: () {
+        Get.to(() => AppGroundScreen());
+      },
       child: AbsorbPointer(
         absorbing: isLoading,
         child: Opacity(
@@ -59,7 +63,7 @@ class PrimaryButton extends StatelessWidget {
                   ),
           ),
         ),
-      ),
+      )
     );
   }
 }
