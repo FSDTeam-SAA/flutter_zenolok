@@ -51,6 +51,7 @@ class EventsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   horizontal: _horizontalPadding,
                 ),
+                physics: const BouncingScrollPhysics(),
                 children: const [
                   _CategoryChip(
                     label: 'All',
@@ -89,12 +90,12 @@ class EventsScreen extends StatelessWidget {
                   SizedBox(width: 8),
                   _CategoryChip(
                     label: 'Sport',
-                    icon: Icons.sports_soccer_rounded, // or any sports icon you like
-                    color: Color(0xFFFF3366),          // pink/red like your screenshot
+                    icon: Icons.sports_soccer_rounded,
+                    color: Color(0xFFFF3366),
                     filled: true,
                   ),
                   SizedBox(width: 8),
-                  _AddCategoryButton(),                // circular "+" button
+                  _AddCategoryButton(),
                 ],
               ),
             ),
@@ -121,7 +122,7 @@ class EventsScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // TIMELINE + CARDS ----------------------------------------------
+            // RED PORTION (TIMELINE + CARDS) --------------------------------
             const Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -137,40 +138,12 @@ class EventsScreen extends StatelessWidget {
   }
 }
 
-
-
-
-class _AddCategoryButton extends StatelessWidget {
-  const _AddCategoryButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: const Color(0xFF9CA3AF),
-          width: 1.5,
-        ),
-      ),
-      child: const Icon(
-        Icons.add,
-        size: 18,
-        color: Color(0xFF9CA3AF),
-      ),
-    );
-  }
-}
-
-
 // ───────────────────────── helpers (top bar / chips / tabs) ─────────────────
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
   final double size;
-  const _CircleIcon({required this.icon, this.size = 36});
+  const _CircleIcon({required this.icon, this.size = 36, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +171,7 @@ class _CategoryChip extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.filled,
+    super.key,
   });
 
   @override
@@ -232,10 +206,34 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
+class _AddCategoryButton extends StatelessWidget {
+  const _AddCategoryButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFF9CA3AF),
+          width: 1.5,
+        ),
+      ),
+      child: const Icon(
+        Icons.add,
+        size: 18,
+        color: Color(0xFF9CA3AF),
+      ),
+    );
+  }
+}
+
 class _TabLabel extends StatelessWidget {
   final String text;
   final bool selected;
-  const _TabLabel({required this.text, this.selected = false});
+  const _TabLabel({required this.text, this.selected = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -276,6 +274,7 @@ class EventsListSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: const BouncingScrollPhysics(),
       children: const [
         _EventTimelineItem(
           timelineLabel: 'Now',
@@ -312,7 +311,6 @@ class EventsListSection extends StatelessWidget {
   }
 }
 
-/// Label column ("Now / 1 day / 4 days") + vertical line + card.
 class _EventTimelineItem extends StatelessWidget {
   final String timelineLabel;
   final Color color;
@@ -332,6 +330,7 @@ class _EventTimelineItem extends StatelessWidget {
     required this.location,
     required this.badgeCount,
     this.showParticipantsRow = false,
+    super.key,
   });
 
   @override
@@ -404,6 +403,7 @@ class _EventCard extends StatelessWidget {
     required this.location,
     required this.badgeCount,
     required this.showParticipantsRow,
+    super.key,
   });
 
   @override
@@ -488,7 +488,6 @@ class _EventCard extends StatelessWidget {
                         icon: Icons.access_time,
                         text: '',
                       ),
-                      // little hack: reuse style; we only want text next to icon
                       const SizedBox(width: 0),
                       Text(
                         time,
@@ -544,6 +543,7 @@ class _InfoRow extends StatelessWidget {
   const _InfoRow({
     required this.icon,
     required this.text,
+    super.key,
   });
 
   @override
@@ -568,10 +568,9 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-/// Red circular badge with number.
 class _Badge extends StatelessWidget {
   final int count;
-  const _Badge({required this.count});
+  const _Badge({required this.count, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -595,9 +594,8 @@ class _Badge extends StatelessWidget {
   }
 }
 
-/// Little grey participant circles (second card).
 class _ParticipantCircle extends StatelessWidget {
-  const _ParticipantCircle();
+  const _ParticipantCircle({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -615,6 +613,3 @@ class _ParticipantCircle extends StatelessWidget {
     );
   }
 }
-
-
-
