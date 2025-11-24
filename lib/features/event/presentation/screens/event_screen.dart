@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
 
+  static const _horizontalPadding = 24.0;
+
   @override
   Widget build(BuildContext context) {
-    const horizontalPadding = 24.0;
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TOP BAR
+            // TOP BAR --------------------------------------------------------
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  horizontalPadding, 16, horizontalPadding, 0),
+                  _horizontalPadding, 16, _horizontalPadding, 0),
               child: Row(
                 children: [
                   const Expanded(
@@ -27,10 +28,9 @@ class EventsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  for (final icon in [
+                  for (final icon in const [
                     Icons.search_rounded,
                     Icons.notifications_none_rounded,
-                    Icons.person_outline_rounded,
                     Icons.settings_outlined,
                   ])
                     Padding(
@@ -43,39 +43,68 @@ class EventsScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // CATEGORY PILLS
+            // CATEGORY PILLS -------------------------------------------------
             SizedBox(
-              height: 36,
+              height: 40,
               child: ListView(
-                padding:
-                const EdgeInsets.symmetric(horizontal: horizontalPadding),
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _horizontalPadding,
+                ),
                 children: const [
-                  _CategoryChip(label: 'All'),
-                  _CategoryChip(label: 'Home', color: Color(0xFF2563EB), selected: true),
-                  _CategoryChip(label: 'Work', color: Color(0xFFF59E0B)),
-                  _CategoryChip(label: 'School', color: Color(0xFF8B5CF6)),
-                  _CategoryChip(label: 'Personal', color: Color(0xFF10B981)),
+                  _CategoryChip(
+                    label: 'All',
+                    icon: Icons.tune_rounded,
+                    color: Color(0xFF9CA3AF),
+                    filled: false,
+                  ),
+                  SizedBox(width: 8),
+                  _CategoryChip(
+                    label: 'Home',
+                    icon: Icons.home_rounded,
+                    color: Color(0xFF1D9BF0),
+                    filled: true,
+                  ),
+                  SizedBox(width: 8),
+                  _CategoryChip(
+                    label: 'Work',
+                    icon: Icons.work_rounded,
+                    color: Color(0xFFF6B700),
+                    filled: true,
+                  ),
+                  SizedBox(width: 8),
+                  _CategoryChip(
+                    label: 'School',
+                    icon: Icons.school_rounded,
+                    color: Color(0xFFB277FF),
+                    filled: false,
+                  ),
+                  SizedBox(width: 8),
+                  _CategoryChip(
+                    label: 'Personal',
+                    icon: Icons.person_rounded,
+                    color: Color(0xFF22C55E),
+                    filled: true,
+                  ),
                 ],
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // TABS ROW
+            // TABS ROW -------------------------------------------------------
             Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: horizontalPadding),
+              padding: const EdgeInsets.symmetric(
+                horizontal: _horizontalPadding,
+              ),
               child: Row(
-                children: [
-                  const _TabLabel(text: 'Upcoming', selected: true),
-                  const SizedBox(width: 16),
-                  const _TabLabel(text: 'Past'),
-                  const SizedBox(width: 16),
-                  const _TabLabel(text: 'All'),
-                  const Spacer(),
-                  _CircleIcon(icon: Icons.tune_rounded, size: 32),
-                  const SizedBox(width: 8),
+                children: const [
+                  _TabLabel(text: 'Upcoming', selected: true),
+                  Spacer(),
+                  _TabLabel(text: 'Past'),
+                  Spacer(),
+                  _TabLabel(text: 'All'),
+                  Spacer(),
                   _CircleIcon(icon: Icons.sort_rounded, size: 32),
                 ],
               ),
@@ -83,70 +112,23 @@ class EventsScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // LIST
-            Expanded(
+            // TIMELINE + CARDS ----------------------------------------------
+            const Expanded(
               child: Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Timeline column
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        _TimelineLabel(text: 'Now'),
-                        SizedBox(height: 64),
-                        _TimelineLabel(text: '1 day'),
-                        SizedBox(height: 64),
-                        _TimelineLabel(text: '4 days'),
-                      ],
-                    ),
-                    const SizedBox(width: 12),
-                    // Cards
-                    Expanded(
-                      child: ListView(
-                        children: const [
-                          _EventCard(
-                            color: Color(0xFF10B981),
-                            title: 'Body check',
-                            date: '17 JUN 2026',
-                            time: '08 : 00 AM - 09 : 00 AM',
-                            location: '20, Farm Road',
-                          ),
-                          SizedBox(height: 12),
-                          _EventCard(
-                            color: Color(0xFFF59E0B),
-                            title: 'Exhibition week',
-                            date: '18 JUN 2026 - 21 JUN 2026',
-                            time: '08 : 00 AM      09 : 00 AM',
-                            location: 'Asia Expo',
-                          ),
-                          SizedBox(height: 12),
-                          _EventCard(
-                            color: Color(0xFF2563EB),
-                            title: 'Family dinner',
-                            date: '21 JUN 2026',
-                            time: 'All day',
-                            location: 'Home',
-                            allDay: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.symmetric(
+                  horizontal: _horizontalPadding,
                 ),
+                child: EventsListSection(),
               ),
             ),
           ],
         ),
       ),
-
-      // BOTTOM NAV
-      bottomNavigationBar: _BottomNav(),
     );
   }
 }
+
+// ───────────────────────── helpers (top bar / chips / tabs) ─────────────────
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
@@ -158,10 +140,11 @@ class _CircleIcon extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF9FAFB),
         shape: BoxShape.circle,
       ),
+      alignment: Alignment.center,
       child: Icon(icon, size: 18, color: Colors.black87),
     );
   }
@@ -169,44 +152,44 @@ class _CircleIcon extends StatelessWidget {
 
 class _CategoryChip extends StatelessWidget {
   final String label;
+  final IconData icon;
   final Color color;
-  final bool selected;
+  final bool filled;
+
   const _CategoryChip({
     required this.label,
-    this.color = const Color(0xFF9CA3AF),
-    this.selected = false,
+    required this.icon,
+    required this.color,
+    required this.filled,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? color.withOpacity(0.15) : const Color(0xFFF3F4F6);
-    final textColor = selected ? color : const Color(0xFF6B7280);
+    final bgColor = filled ? color : Colors.white;
+    final borderColor = filled ? color : color.withOpacity(0.35);
+    final contentColor = filled ? Colors.white : color;
 
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration:
-              BoxDecoration(color: color, shape: BoxShape.circle),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: contentColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: contentColor,
             ),
-            const SizedBox(width: 6),
-            Text(label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: textColor,
-                )),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -219,20 +202,24 @@ class _TabLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color =
+    selected ? const Color(0xFF444444) : const Color(0xFFC4C4C4);
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           text,
           style: TextStyle(
             fontSize: 14,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            color: selected ? Colors.black : const Color(0xFF9CA3AF),
+            color: color,
           ),
         ),
         const SizedBox(height: 4),
         if (selected)
           Container(
-            width: 18,
+            width: 22,
             height: 3,
             decoration: BoxDecoration(
               color: Colors.black,
@@ -244,21 +231,124 @@ class _TabLabel extends StatelessWidget {
   }
 }
 
-class _TimelineLabel extends StatelessWidget {
-  final String text;
-  const _TimelineLabel({required this.text});
+// ───────────────────────── EVENTS LIST / TIMELINE ───────────────────────────
+
+class EventsListSection extends StatelessWidget {
+  const EventsListSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 11,
-        color: Color(0xFF9CA3AF),
+    return ListView(
+      children: const [
+        _EventTimelineItem(
+          timelineLabel: 'Now',
+          color: Color(0xFF34C759),
+          title: 'Body check',
+          date: '17 JUN 2026',
+          time: '08 : 00 AM  -  09 : 00 AM',
+          location: '20, Farm Road',
+          badgeCount: 2,
+        ),
+        SizedBox(height: 12),
+        _EventTimelineItem(
+          timelineLabel: '1 day',
+          color: Color(0xFFFFCC00),
+          title: 'Exhibition week',
+          date: '18 JUN 2026  -  21 JUN 2026',
+          time: '08 : 00 AM          09 : 00 AM',
+          location: 'Asia Expo',
+          badgeCount: 2,
+          showParticipantsRow: true,
+        ),
+        SizedBox(height: 12),
+        _EventTimelineItem(
+          timelineLabel: '4 days',
+          color: Color(0xFF32ADE6),
+          title: 'Family dinner',
+          date: '21 JUN 2026',
+          time: 'All day',
+          location: 'Home',
+          badgeCount: 2,
+        ),
+      ],
+    );
+  }
+}
+
+/// Label column ("Now / 1 day / 4 days") + vertical line + card.
+class _EventTimelineItem extends StatelessWidget {
+  final String timelineLabel;
+  final Color color;
+  final String title;
+  final String date;
+  final String time;
+  final String location;
+  final int badgeCount;
+  final bool showParticipantsRow;
+
+  const _EventTimelineItem({
+    required this.timelineLabel,
+    required this.color,
+    required this.title,
+    required this.date,
+    required this.time,
+    required this.location,
+    required this.badgeCount,
+    this.showParticipantsRow = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Stack(
+        children: [
+          // vertical line behind cards
+          Positioned(
+            left: 44,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 1,
+              color: const Color(0xFFE5E5E5),
+            ),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 44,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    timelineLabel,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFFBDBDBD),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _EventCard(
+                  color: color,
+                  title: title,
+                  date: date,
+                  time: time,
+                  location: location,
+                  badgeCount: badgeCount,
+                  showParticipantsRow: showParticipantsRow,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
+
+// ───────────────────────── EVENT CARD ───────────────────────────────────────
 
 class _EventCard extends StatelessWidget {
   final Color color;
@@ -266,7 +356,8 @@ class _EventCard extends StatelessWidget {
   final String date;
   final String time;
   final String location;
-  final bool allDay;
+  final int badgeCount;
+  final bool showParticipantsRow;
 
   const _EventCard({
     required this.color,
@@ -274,25 +365,32 @@ class _EventCard extends StatelessWidget {
     required this.date,
     required this.time,
     required this.location,
-    this.allDay = false,
+    required this.badgeCount,
+    required this.showParticipantsRow,
   });
 
   @override
   Widget build(BuildContext context) {
+    const cardBg = Color(0xFFF7F7F7);
+    const textMain = Color(0xFF666666);
+    const textSub = Color(0xFFB0B0B0);
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(16),
+        color: cardBg,
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // colored strip
           Container(
-            width: 4,
-            height: 96,
+            width: 5,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(16),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
               ),
             ),
           ),
@@ -303,57 +401,95 @@ class _EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title + location
+                  // title + location + badge
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
                         child: Text(
                           title,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
+                            color: textMain,
                           ),
                         ),
                       ),
-                      const Icon(Icons.location_on_outlined, size: 16),
                       const SizedBox(width: 4),
-                      Text(
-                        location,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
+                      Icon(Icons.location_on_outlined,
+                          size: 14, color: textSub),
+                      const SizedBox(width: 3),
+                      Flexible(
+                        child: Text(
+                          location,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: textSub,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 6),
+                      _Badge(count: badgeCount),
                     ],
                   ),
+
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today_outlined, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        date,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
+
+                  // date row
+                  _InfoRow(
+                    icon: Icons.calendar_today_outlined,
+                    text: date,
                   ),
+
                   const SizedBox(height: 4),
+
+                  // time row + trailing icons
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 14),
-                      const SizedBox(width: 4),
+                      const _InfoRow(
+                        icon: Icons.access_time,
+                        text: '',
+                      ),
+                      // little hack: reuse style; we only want text next to icon
+                      const SizedBox(width: 0),
                       Text(
                         time,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF6B7280),
+                          color: textSub,
                         ),
                       ),
+                      const Spacer(),
+                      Icon(Icons.autorenew, size: 16, color: textSub),
+                      const SizedBox(width: 8),
+                      Icon(Icons.notifications_none_rounded,
+                          size: 16, color: textSub),
+                      const SizedBox(width: 8),
+                      Icon(Icons.more_horiz, size: 16, color: textSub),
                     ],
                   ),
+
+                  if (showParticipantsRow) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: const [
+                        _ParticipantCircle(),
+                        SizedBox(width: 4),
+                        _ParticipantCircle(),
+                        SizedBox(width: 4),
+                        _ParticipantCircle(),
+                        SizedBox(width: 4),
+                        _ParticipantCircle(),
+                        Spacer(),
+                        Icon(
+                          Icons.notifications_none_rounded,
+                          size: 16,
+                          color: textSub,
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -364,70 +500,82 @@ class _EventCard extends StatelessWidget {
   }
 }
 
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFE5E7EB)),
-        ),
-      ),
-      padding: const EdgeInsets.only(top: 6, bottom: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Active indicator bar
-          Container(
-            width: 64,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              _NavItem(icon: Icons.calendar_today_outlined, label: 'Home'),
-              _NavItem(
-                icon: Icons.grid_view_rounded,
-                label: 'Events',
-                active: true,
-              ),
-              _NavItem(icon: Icons.list_alt_outlined, label: 'Todos'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
+class _InfoRow extends StatelessWidget {
   final IconData icon;
-  final String label;
-  final bool active;
-  const _NavItem({required this.icon, required this.label, this.active = false});
+  final String text;
+
+  const _InfoRow({
+    required this.icon,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? Colors.black : const Color(0xFF9CA3AF);
-    return Column(
+    const textSub = Color(0xFFB0B0B0);
+
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: color, size: 22),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: color,
+        Icon(icon, size: 14, color: textSub),
+        const SizedBox(width: 6),
+        if (text.isNotEmpty)
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              color: textSub,
+            ),
           ),
-        ),
       ],
     );
   }
 }
+
+/// Red circular badge with number.
+class _Badge extends StatelessWidget {
+  final int count;
+  const _Badge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 18,
+      height: 18,
+      decoration: const BoxDecoration(
+        color: Color(0xFFFF3B30),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        '$count',
+        style: const TextStyle(
+          fontSize: 10,
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// Little grey participant circles (second card).
+class _ParticipantCircle extends StatelessWidget {
+  const _ParticipantCircle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 18,
+      height: 18,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFFE5E5E5),
+          width: 1,
+        ),
+      ),
+    );
+  }
+}
+
