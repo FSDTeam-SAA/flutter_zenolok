@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'event/presentation/screens/event_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
 
 class AppGroundScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
   // your 3 tabs
   final _pages = const <Widget>[
     CalendarHomePage(),      // Home tab
-    _EventsPlaceholder(),    // Events tab (replace later)
+    EventsScreen(),    // Events tab (replace later)
     _TodosPlaceholder(),     // Todos tab (replace later)
   ];
 
@@ -111,15 +112,7 @@ class _BottomItem extends StatelessWidget {
   }
 }
 
-// simple placeholders for second / third tab
-class _EventsPlaceholder extends StatelessWidget {
-  const _EventsPlaceholder();
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Events'));
-  }
-}
 
 class _TodosPlaceholder extends StatelessWidget {
   const _TodosPlaceholder();
