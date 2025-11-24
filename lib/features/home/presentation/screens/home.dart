@@ -636,9 +636,9 @@ class _DayCell extends StatelessWidget {
 
     final numberColor = isSunday ? const Color(0xFFFF5757) : Colors.black;
 
-    const double cardInsetV = 2.0;
-    const double cardInsetH = 2.0;
-    const double streakHeight = 15.0;
+    const double cardInsetV = 1.0;
+    const double cardInsetH = 1.0;
+    const double streakHeight = 16.0;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -805,11 +805,11 @@ class _EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fs = min(13.0, max(9.0, height * 0.9));
+    final fs = min(12.0, max(9.0, height * 0.9));
     final barHeight = fs ; // slightly taller than the text
 
     return SizedBox(
-      height: height,
+      // height: height,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

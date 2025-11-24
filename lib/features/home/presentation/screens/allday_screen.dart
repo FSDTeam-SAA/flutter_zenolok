@@ -610,12 +610,12 @@ class _AllDayScreenState extends State<AllDayScreen> {
 /* -------------------- TODO INPUT CARD -------------------- */
 
 class TodoInputCard extends StatefulWidget {
-  final String initialTitle;
+  final String initialTitle;   // used as hint
   final String initialNotes;
 
   const TodoInputCard({
     Key? key,
-    this.initialTitle = '',
+    this.initialTitle = 'New todo',
     this.initialNotes = '',
   }) : super(key: key);
 
@@ -632,7 +632,8 @@ class _TodoInputCardState extends State<TodoInputCard> {
   @override
   void initState() {
     super.initState();
-    _titleCtrl = TextEditingController(text: widget.initialTitle);
+    // ❌ do NOT set the text to "New todo" / "New shared todo"
+    _titleCtrl = TextEditingController(text: '');
     _notesCtrl = TextEditingController(text: widget.initialNotes);
   }
 
@@ -674,14 +675,15 @@ class _TodoInputCardState extends State<TodoInputCard> {
                 fontWeight: FontWeight.w500,
                 color: Colors.black,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
-                hintText: 'New todo',
-                hintStyle: TextStyle(
+                // ✅ use initialTitle as hint text
+                hintText: widget.initialTitle,
+                hintStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: kDisabledText, // same grey as "New notes"
                 ),
               ),
               onSubmitted: (_) => _notesFocus.requestFocus(),
@@ -710,6 +712,7 @@ class _TodoInputCardState extends State<TodoInputCard> {
     );
   }
 }
+
 
 /* -------------------- CHAT MODELS / ROW -------------------- */
 
