@@ -86,6 +86,15 @@ class EventsScreen extends StatelessWidget {
                     color: Color(0xFF22C55E),
                     filled: true,
                   ),
+                  SizedBox(width: 8),
+                  _CategoryChip(
+                    label: 'Sport',
+                    icon: Icons.sports_soccer_rounded, // or any sports icon you like
+                    color: Color(0xFFFF3366),          // pink/red like your screenshot
+                    filled: true,
+                  ),
+                  SizedBox(width: 8),
+                  _AddCategoryButton(),                // circular "+" button
                 ],
               ),
             ),
@@ -127,6 +136,32 @@ class EventsScreen extends StatelessWidget {
     );
   }
 }
+
+
+class _AddCategoryButton extends StatelessWidget {
+  const _AddCategoryButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFF9CA3AF),
+          width: 1.5,
+        ),
+      ),
+      child: const Icon(
+        Icons.add,
+        size: 18,
+        color: Color(0xFF9CA3AF),
+      ),
+    );
+  }
+}
+
 
 // ───────────────────────── helpers (top bar / chips / tabs) ─────────────────
 
