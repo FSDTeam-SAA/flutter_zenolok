@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'event/presentation/screens/event_screen.dart';
+import 'event_todos/presentation/screens/event_todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
 
 class AppGroundScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
   final _pages = const <Widget>[
     CalendarHomePage(),      // Home tab
     EventsScreen(),    // Events tab (replace later)
-    _TodosPlaceholder(),     // Todos tab (replace later)
+    EventTodosScreen(),     // Todos tab (replace later)
   ];
 
 

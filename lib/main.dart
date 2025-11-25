@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Zenelok',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: const AppGroundScreen(),
+      home: const LoginScreen(),
     );
   }
 }

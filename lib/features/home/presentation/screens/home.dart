@@ -153,14 +153,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
       }
     }
 
-    // optional: if you want *time* ordering for non-all-day events
-    // rather than pure insertion, you can sort here:
-    // merged.sort((a, b) => a.start.compareTo(b.start));
-
     if (_filters.length == EventCategory.values.length) return merged;
     return merged.where((e) => _filters.contains(e.category)).toList();
   }
-
 
   bool _isStreakDay(DateTime day) =>
       _allEvents().any((e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!));
@@ -184,9 +179,10 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
     final dateAreaHeight = rowHeight * 0.25;
     final streakInset = rowHeight * 0.34;
+    final cellGapV = max(8.0, rowHeight * 0.3);
+
     final dateDia = rowHeight * 0.58;
 
-    final cellGapV = max(8.0, rowHeight * 0.3);
     final cellGapH = 2.0;
     final calHeight = dowHeight + rowHeight * 6 + 8;
 
@@ -425,6 +421,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
                 child: Row(
                   children: [
+                    const Spacer(),
                     _GhostPill(
                       label: 'TODAY',
                       icon: Icons.refresh_rounded,
@@ -433,7 +430,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         _selected = _dOnly(DateTime.now());
                       }),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 10),
                     _WhiteRoundPlus(
                       initialDate: _selected ?? DateTime.now(),
                       onAdd: (e) => _addEvent(e),
@@ -479,7 +476,6 @@ class _FilterBar extends StatelessWidget {
       required bool selected,
       required VoidCallback onTap,
       Color? bg,
-      Color? fg,
     }) {
       return InkWell(
         onTap: onTap,
@@ -508,7 +504,25 @@ class _FilterBar extends StatelessWidget {
       child: Row(
         children: [
           chip(
-            child: const Text('All'),
+            child: Row(
+              children: [
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE5E7EF),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Icon(
+                    Icons.mail_outline_rounded,
+                    size: 12,
+                    color: Color(0xFF7F8392),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Text('All'),
+              ],
+            ),
             selected: allOn,
             onTap: () => onChange({...EventCategory.values}),
           ),
@@ -516,7 +530,15 @@ class _FilterBar extends StatelessWidget {
           for (final c in EventCategory.values) ...[
             chip(
               child: Row(children: [
-                Icon(c.icon, size: 14, color: c.color),
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Icon(c.icon, size: 14, color: c.color),
+                ),
                 const SizedBox(width: 6),
                 Text(c.label),
               ]),
@@ -532,7 +554,6 @@ class _FilterBar extends StatelessWidget {
                 onChange(next);
               },
               bg: c.pastel,
-              fg: Colors.black,
             ),
             const SizedBox(width: 8),
           ],
@@ -695,7 +716,6 @@ class _DayCell extends StatelessWidget {
                 ),
               ),
 
-
               // STREAK ROW
               if (streak != null)
                 SizedBox(
@@ -806,16 +826,15 @@ class _EventRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fs = min(12.0, max(9.0, height * 0.9));
-    final barHeight = fs ; // slightly taller than the text
+    final barHeight = fs;
 
     return SizedBox(
-      // height: height,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 2,
-            height: barHeight, // ← use barHeight instead of height
+            height: barHeight,
             decoration: BoxDecoration(
               color: indicatorColor ?? e.category.color,
               borderRadius: BorderRadius.circular(3),
@@ -841,7 +860,6 @@ class _EventRow extends StatelessWidget {
     );
   }
 }
-
 
 /// ---------------------------------------------------------------------------
 /// EVENT LIST PANE
@@ -933,10 +951,10 @@ class _StreakTile extends StatelessWidget {
       marginTop: 10,
       child: Row(
         children: [
-          _LabelWithBar(
-            barColor: const Color(0xFFFFC542),
+          const _LabelWithBar(
+            barColor: Color(0xFFFFC542),
             text: 'Streak',
-            textColor: const Color(0xFFDA9A00),
+            textColor: Color(0xFFDA9A00),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -973,13 +991,13 @@ class _StreakTile extends StatelessWidget {
             },
             child: Stack(
               clipBehavior: Clip.none,
-              children: [
-                const Icon(
+              children: const [
+                Icon(
                   Icons.chat_bubble_outline_rounded,
                   size: 18,
                   color: Colors.black45,
                 ),
-                const Positioned(
+                Positioned(
                   right: -6,
                   top: -6,
                   child: _Badge(number: 2),
@@ -1002,10 +1020,10 @@ class _AllDayTile extends StatelessWidget {
     return _BaseEventCard(
       child: Row(
         children: [
-          _LabelWithBar(
-            barColor: const Color(0xFF3AA1FF),
+          const _LabelWithBar(
+            barColor: Color(0xFF3AA1FF),
             text: 'All day',
-            textColor: const Color(0xFF3AA1FF),
+            textColor: Color(0xFF3AA1FF),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1137,25 +1155,24 @@ class _TimedTile extends StatelessWidget {
                       );
                     },
                     child: Row(
-                      children: [
+                      children: const [
                         Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.notifications_none_rounded,
                               size: 18,
                               color: Colors.black45,
                             ),
-                            if (event.checklist.isNotEmpty)
-                              const Positioned(
-                                right: -6,
-                                top: -6,
-                                child: _Badge(number: 2),
-                              ),
+                            Positioned(
+                              right: -6,
+                              top: -6,
+                              child: _Badge(number: 2),
+                            ),
                           ],
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(
+                        SizedBox(width: 8),
+                        Icon(
                           Icons.keyboard_arrow_up_rounded,
                           size: 18,
                           color: Colors.black45,
@@ -1440,7 +1457,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     );
 
     if (result != null) {
-      // You can also inspect result.days (all selected days) here.
       setState(() {
         _startDate = _dOnly(result.start);
         _endDate = _dOnly(result.end);
@@ -1576,7 +1592,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
             ),
             const SizedBox(height: 4),
 
-            // labels row
+            // labels row (sample tags under title)
             Row(
               children: const [
                 _CategoryMarker(color: Color(0xFF3AA1FF)),
@@ -1909,9 +1925,10 @@ class _TodoBubble extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           TextField(
-            decoration: InputDecoration(
+            controller: newTodoController,
+            decoration: const InputDecoration(
               isCollapsed: true,
               hintText: 'New todo',
               border: InputBorder.none,
@@ -1920,14 +1937,15 @@ class _TodoBubble extends StatelessWidget {
                 color: hint,
               ),
             ),
-            style: TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 12),
             maxLines: 2,
             minLines: 1,
+            onSubmitted: onSubmit,
           ),
-          SizedBox(height: 8),
-          Divider(height: 1, color: Color(0xFFE5E5E5)),
-          SizedBox(height: 8),
-          TextField(
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: Color(0xFFE5E5E5)),
+          const SizedBox(height: 8),
+          const TextField(
             decoration: InputDecoration(
               isCollapsed: true,
               hintText: 'New notes',
@@ -1962,8 +1980,7 @@ class _DateRangeResult {
   final List<DateTime> days;
 
   _DateRangeResult({required List<DateTime> days})
-      : days = days.map(_dOnly).toList()
-    ..sort((a, b) => a.compareTo(b));
+      : days = days.map(_dOnly).toList()..sort((a, b) => a.compareTo(b));
 
   /// Convenience for existing code – first & last selected day.
   DateTime get start => days.first;
@@ -1999,7 +2016,6 @@ class _TimeRangeBottomSheetState extends State<_TimeRangeBottomSheet> {
   @override
   void initState() {
     super.initState();
-    // Start with empty digits so keypad always works immediately
     _startDigits = '';
     _endDigits = '';
     _startIsPm = widget.initialStart.period == DayPeriod.pm;
@@ -2011,7 +2027,6 @@ class _TimeRangeBottomSheetState extends State<_TimeRangeBottomSheet> {
       bool isPm,
       TimeOfDay fallback,
       ) {
-    // If user didn’t type anything, keep the original time
     if (digits.isEmpty) return fallback;
 
     if (digits.length < 4) digits = digits.padRight(4, '0');
@@ -2530,7 +2545,6 @@ class _DateRangeBottomSheetState extends State<_DateRangeBottomSheet> {
 
     _selectedDays = <DateTime>{};
 
-    // Initialize from the given start/end as a simple contiguous range.
     final start = _dOnly(widget.initialStart);
     final end = widget.initialEnd != null ? _dOnly(widget.initialEnd!) : start;
 
@@ -2934,7 +2948,6 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                   ),
                 );
               },
-              // hide outside days completely
               outsideBuilder: (context, day, focusedDay) {
                 return const SizedBox.shrink();
               },
