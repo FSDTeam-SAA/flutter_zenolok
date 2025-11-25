@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'event/presentation/screens/event_screen.dart';
 import 'event_todos/presentation/screens/event_todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
+import 'package:flutter/cupertino.dart';
 
 class AppGroundScreen extends StatefulWidget {
   const AppGroundScreen({super.key});
@@ -55,13 +56,13 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
               onTap: () => setState(() => _currentIndex = 0),
             ),
             _BottomItem(
-              icon: Icons.event_note_sharp,
+              icon: CupertinoIcons.square_grid_2x2,
               label: 'Events',
               isActive: _currentIndex == 1,
               onTap: () => setState(() => _currentIndex = 1),
             ),
             _BottomItem(
-              icon: Icons.checklist_rounded,
+              icon: CupertinoIcons.list_bullet,
               label: 'Todos',
               isActive: _currentIndex == 2,
               onTap: () => setState(() => _currentIndex = 2),
