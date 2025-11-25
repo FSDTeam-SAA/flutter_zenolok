@@ -4,6 +4,7 @@ import 'package:flutter_zenolok/features/home/presentation/screens/searchScreen.
 import 'package:flutter_zenolok/features/home/presentation/screens/setting_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'allday_screen.dart';
 import 'chat_screen.dart';
@@ -244,7 +245,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         );
                       },
                       icon: const Icon(
-                        Icons.search_rounded,
+                        CupertinoIcons.search,
                         color: Colors.black,
                       ),
                     ),
@@ -280,7 +281,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             );
                           },
                           icon: const Icon(
-                            Icons.notifications_rounded,
+                            CupertinoIcons.bell,
                             color: Colors.black,
                           ),
                         ),
@@ -328,7 +329,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         );
                       },
                       icon: const Icon(
-                        Icons.settings_rounded,
+                        Icons.settings_outlined,
                         color: Colors.black,
                       ),
                     ),
