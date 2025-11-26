@@ -28,13 +28,8 @@ class CategoryEditorScreen extends StatelessWidget {
   }
 }
 
-
 class CategoryEditorWidget extends StatefulWidget {
-  const CategoryEditorWidget({
-    super.key,
-    this.initial,
-    this.onChanged,
-  });
+  const CategoryEditorWidget({super.key, this.initial, this.onChanged});
 
   /// pass null or color=null to start in the grey state
   final CategoryDesign? initial;
@@ -136,10 +131,12 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
   @override
   Widget build(BuildContext context) {
     final pillColor = _hasColor ? _selectedColor! : const Color(0xFFF1F1F1);
-    final enabledBackColor =
-    _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
-    final addTextColor =
-    _hasColor ? const Color(0xFF444444) : const Color(0xFFE0E0E0);
+    final enabledBackColor = _hasColor
+        ? const Color(0xFF444444)
+        : const Color(0xFFDDDDDD);
+    final addTextColor = _hasColor
+        ? const Color(0xFF444444)
+        : const Color(0xFFE0E0E0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,10 +144,17 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
         // TOP BAR (back + Add + Collaboration) -------------------------------
         Row(
           children: [
-            Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 18,
-              color: enabledBackColor,
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                color: enabledBackColor, // <- uses _hasColor
+              ),
+              onPressed: _hasColor
+                  ? () => Navigator.of(context).pop()
+                  : null, // disabled when no color selected
             ),
             const Spacer(),
             Row(
@@ -161,7 +165,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: addTextColor,
+                    color: addTextColor, // you already compute this
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -170,6 +174,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
             ),
           ],
         ),
+
         const SizedBox(height: 4),
         Align(
           alignment: Alignment.centerRight,
@@ -183,7 +188,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
               ),
             ),
             icon: const Icon(
-              Icons.group_outlined,
+              Icons.share_outlined,
               size: 14,
               color: Color(0xFFBDBDBD),
             ),
@@ -256,8 +261,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
         // CONTENT (COLOR + ICON) --------------------------------------------
         _RoundedPanel(
           child: Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: _ColorGrid(
               colors: _colors,
               selected: _selectedColor,
@@ -271,8 +275,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
         const SizedBox(height: 20),
         _RoundedPanel(
           child: Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: AbsorbPointer(
               absorbing: !_hasColor,
               child: _IconGrid(
@@ -291,7 +294,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
     );
   }
 }
-
 
 class _CategoryHeaderPill extends StatelessWidget {
   final Color color;
@@ -338,6 +340,7 @@ class _CategoryHeaderPill extends StatelessWidget {
 
 class _RoundedPanel extends StatelessWidget {
   final Widget child;
+
   const _RoundedPanel({required this.child});
 
   @override
@@ -379,15 +382,11 @@ class _ColorGrid extends StatelessWidget {
             decoration: BoxDecoration(
               color: c,
               shape: BoxShape.circle,
-              border:
-              isSelected ? Border.all(color: Colors.white, width: 3) : null,
+              border: isSelected
+                  ? Border.all(color: Colors.white, width: 3)
+                  : null,
               boxShadow: isSelected
-                  ? [
-                BoxShadow(
-                  color: c.withOpacity(0.4),
-                  blurRadius: 6,
-                )
-              ]
+                  ? [BoxShadow(color: c.withOpacity(0.4), blurRadius: 6)]
                   : null,
             ),
           ),
@@ -429,16 +428,13 @@ class _IconGrid extends StatelessWidget {
 
         final color = !enabled
             ? disabledColor
-            : (isSelected
-            ? const Color(0xFF444444)
-            : const Color(0xFFB0B0B0));
+            : (isSelected ? const Color(0xFF444444) : const Color(0xFFB0B0B0));
 
         return GestureDetector(
           onTap: enabled ? () => onSelected(icon) : null,
           child: Container(
             decoration: BoxDecoration(
-              color:
-              isSelected && enabled ? Colors.white : Colors.transparent,
+              color: isSelected && enabled ? Colors.white : Colors.transparent,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 20, color: color),
@@ -449,17 +445,12 @@ class _IconGrid extends StatelessWidget {
   }
 }
 
-
 class CategoryDesign {
-  final Color? color;        // null = grey / disabled
+  final Color? color; // null = grey / disabled
   final IconData icon;
   final String name;
 
-  const CategoryDesign({
-    this.color,
-    required this.icon,
-    required this.name,
-  });
+  const CategoryDesign({this.color, required this.icon, required this.name});
 
   bool get isComplete => color != null;
 }

@@ -1640,12 +1640,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.grid_view_rounded,
-                  size: 18,
-                  color: Color(0xFFD0D3DB),
-                ),
-                const SizedBox(width: 8),
+
                 Expanded(
                   child: Wrap(
                     spacing: 6,
