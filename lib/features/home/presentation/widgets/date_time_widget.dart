@@ -103,7 +103,8 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
     setState(() {
       if (_editingStart) {
         if (_startDigits.isNotEmpty) {
-          _startDigits = _startDigits.substring(0, _startDigits.length - 1);
+          _startDigits =
+              _startDigits.substring(0, _startDigits.length - 1);
         }
       } else {
         if (_endDigits.isNotEmpty) {
@@ -207,8 +208,8 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                                 children: [
                                   Expanded(
                                     child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _editingStart = true),
+                                      onTap: () => setState(
+                                              () => _editingStart = true),
                                       child: _TimeDigitDisplay(
                                         digits: _startDigits,
                                         isActive: _editingStart,
@@ -228,8 +229,8 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _editingStart = false),
+                                      onTap: () => setState(
+                                              () => _editingStart = false),
                                       child: _TimeDigitDisplay(
                                         digits: _endDigits,
                                         isActive: !_editingStart,
@@ -296,8 +297,8 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                               );
                             },
                             style: TextButton.styleFrom(
-                              padding:
-                              const EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10),
                             ),
                             child: const Text(
                               'Apply time',
@@ -347,8 +348,9 @@ class _TimeDigitDisplay extends StatelessWidget {
       height: 26,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color:
-        highlight ? accent.withOpacity(0.18) : const Color(0xFFE5E5E5),
+        color: highlight
+            ? accent.withOpacity(0.18)
+            : const Color(0xFFE5E5E5),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -390,8 +392,9 @@ class _TimeDigitDisplay extends StatelessWidget {
 
     return FittedBox(
       fit: BoxFit.scaleDown,
-      alignment:
-      alignRight ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: alignRight
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: innerRow,
     );
   }
@@ -419,10 +422,12 @@ class _AmPmRow extends StatelessWidget {
       return GestureDetector(
         onTap: () => onChanged(pm),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding:
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color:
-            selected ? accent.withOpacity(0.18) : Colors.transparent,
+            color: selected
+                ? accent.withOpacity(0.18)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
@@ -544,7 +549,10 @@ class _NumberPad extends StatelessWidget {
           children: [
             _numButton(label: 'C', onTap: onClear),
             _numButton(digit: 0, onTap: () => onDigit(0)),
-            _numButton(icon: Icons.backspace_rounded, onTap: onBackspace),
+            _numButton(
+              icon: Icons.backspace_rounded,
+              onTap: onBackspace,
+            ),
           ],
         ),
       ],
@@ -574,6 +582,7 @@ class DateRangeBottomSheet extends StatefulWidget {
 
 class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
   static const _accent = Color(0xFFFF6B6B);
+  // static const _accent = Color(0xFFF6F6F6); // light gray
 
   late DateTime _displayMonth;
   late int _baseYear;
@@ -590,7 +599,8 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
     _selectedDays = <DateTime>{};
 
     final start = _dOnly(widget.initialStart);
-    final end = widget.initialEnd != null ? _dOnly(widget.initialEnd!) : start;
+    final end =
+    widget.initialEnd != null ? _dOnly(widget.initialEnd!) : start;
 
     DateTime d = start;
     while (!d.isAfter(end)) {
@@ -643,7 +653,7 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                         Row(
                           children: const [
                             Icon(
-                              Icons.calendar_today_outlined,
+                              Icons.calendar_month_rounded,
                               size: 18,
                               color: Colors.black54,
                             ),
@@ -668,12 +678,15 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                             vertical: 16,
                           ),
                           child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 220),
+                            duration:
+                            const Duration(milliseconds: 220),
                             transitionBuilder: (child, anim) =>
-                                FadeTransition(opacity: anim, child: child),
+                                FadeTransition(
+                                    opacity: anim, child: child),
                             child: _mode == _DatePickerMode.yearMonth
                                 ? _YearMonthView(
-                              key: const ValueKey('yearMonth'),
+                              key:
+                              const ValueKey('yearMonth'),
                               baseYear: _baseYear,
                               selectedDays: _selectedDays,
                               accent: _accent,
@@ -690,36 +703,6 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                                   _displayMonth = m;
                                 });
                               },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () {
-                              if (_selectedDays.isEmpty) {
-                                Navigator.pop(context);
-                                return;
-                              }
-                              final days = _selectedDays.toList()
-                                ..sort((a, b) => a.compareTo(b));
-                              Navigator.pop(
-                                context,
-                                DateRangeResult(days: days),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding:
-                              const EdgeInsets.symmetric(vertical: 10),
-                            ),
-                            child: const Text(
-                              'Apply date',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: _accent,
-                              ),
                             ),
                           ),
                         ),
@@ -753,7 +736,8 @@ class _YearMonthView extends StatelessWidget {
   final void Function(int year, int month) onMonthTap;
 
   bool _hasSelectionForMonth(int year, int month) {
-    return selectedDays.any((d) => d.year == year && d.month == month);
+    return selectedDays.any(
+            (d) => d.year == year && d.month == month);
   }
 
   @override
@@ -778,7 +762,8 @@ class _YearMonthView extends StatelessWidget {
               for (int month = 1; month <= 12; month++)
                 _DateBubble(
                   label: '$month',
-                  selectedStart: _hasSelectionForMonth(year, month),
+                  selectedStart:
+                  _hasSelectionForMonth(year, month),
                   selectedEnd: false,
                   inRange: false,
                   accent: accent,
@@ -832,7 +817,8 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
     _focusedDay = widget.displayMonth;
   }
 
-  bool _isSelected(DateTime day) => widget.selectedDays.contains(_dOnly(day));
+  bool _isSelected(DateTime day) =>
+      widget.selectedDays.contains(_dOnly(day));
 
   @override
   Widget build(BuildContext context) {
@@ -852,8 +838,11 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
               ),
               onPressed: () {
                 setState(() {
-                  _focusedDay =
-                      DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
+                  _focusedDay = DateTime(
+                    _focusedDay.year,
+                    _focusedDay.month - 1,
+                    1,
+                  );
                 });
                 widget.onMonthChanged(_focusedDay);
               },
@@ -871,7 +860,18 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                if (widget.selectedDays.isEmpty) {
+                  Navigator.pop(context);
+                  return;
+                }
+                final days = widget.selectedDays.toList()
+                  ..sort((a, b) => a.compareTo(b));
+                Navigator.pop(
+                  context,
+                  DateRangeResult(days: days),
+                );
+              },
               style: TextButton.styleFrom(
                 minimumSize: const Size(0, 0),
                 padding: EdgeInsets.zero,
@@ -886,7 +886,6 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                 ),
               ),
             ),
-            const SizedBox(width: 4),
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -897,8 +896,11 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
               ),
               onPressed: () {
                 setState(() {
-                  _focusedDay =
-                      DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
+                  _focusedDay = DateTime(
+                    _focusedDay.year,
+                    _focusedDay.month + 1,
+                    1,
+                  );
                 });
                 widget.onMonthChanged(_focusedDay);
               },
@@ -958,7 +960,8 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
             onDaySelected: (day, _) => widget.onDayTap(day),
             calendarBuilders: CalendarBuilders(
               defaultBuilder: (context, day, focusedDay) {
-                final bool isSunday = day.weekday == DateTime.sunday;
+                final bool isSunday =
+                    day.weekday == DateTime.sunday;
                 final bool isSelected = _isSelected(day);
 
                 Color bg;
@@ -969,7 +972,9 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                   textColor = Colors.white;
                 } else {
                   bg = const Color(0xFFD5D5D5);
-                  textColor = isSunday ? accent : const Color(0xFF707070);
+                  textColor = isSunday
+                      ? accent
+                      : const Color(0xFF707070);
                 }
 
                 return Center(
@@ -1017,7 +1022,7 @@ class _DateBubble extends StatelessWidget {
   final bool selectedStart;
   final bool selectedEnd;
   final bool inRange;
-  final Color accent;
+  final Color accent; // still passed in, but we don't use it for color now
   final VoidCallback onTap;
 
   @override
@@ -1027,15 +1032,15 @@ class _DateBubble extends StatelessWidget {
     Color bg;
     Color textColor;
 
+    // Style like the screenshot:
+    //  - normal months: medium gray circle, white text
+    //  - selected month: lighter gray circle, white text
     if (selected) {
-      bg = accent;
-      textColor = Colors.white;
-    } else if (inRange) {
-      bg = accent.withOpacity(0.15);
-      textColor = const Color(0xFF555555);
+      bg = const Color(0xFFF6F6F6); // light gray (selected)
+      textColor = Colors.grey;
     } else {
-      bg = const Color(0xFFD5D5D5);
-      textColor = const Color(0xFF555555);
+      bg = const Color(0xFFBDBDBD); // normal month gray
+      textColor = Colors.white;
     }
 
     return GestureDetector(
@@ -1043,7 +1048,19 @@ class _DateBubble extends StatelessWidget {
       child: Container(
         width: 40,
         height: 40,
-        decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          color: bg,
+          shape: BoxShape.circle,
+          boxShadow: selected
+              ? [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ]
+              : null,
+        ),
         alignment: Alignment.center,
         child: Text(
           label,
@@ -1057,3 +1074,4 @@ class _DateBubble extends StatelessWidget {
     );
   }
 }
+
