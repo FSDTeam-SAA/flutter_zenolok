@@ -193,7 +193,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
     final cellGapV = max(8.0, rowHeight * 0.3);
     final cellGapH = 2.0;
-    final calHeight = dowHeight + rowHeight * 6 + 8;
+    final calHeight = dowHeight + rowHeight * 5;
 
     return Scaffold(
       body: SafeArea(
@@ -337,7 +337,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
 
-              // Filter chips row
               // Filter chips row
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
@@ -492,7 +491,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
 
-              const Divider(height: 1, color: Color(0xFFEAECEE)),
+              // const Divider(height: 1, color: Color(0xFFEAECEE)),
 
               // day’s events list
               _EventPane(
@@ -512,14 +511,11 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 }
 
 /// ---------------------------------------------------------------------------
-/// FILTER BAR
-/// ---------------------------------------------------------------------------
-
-/// ---------------------------------------------------------------------------
 /// FILTER BAR  (pixel-ish perfect to Figma Sorting_bar)
 /// ---------------------------------------------------------------------------
 class _FilterBar extends StatelessWidget {
   const _FilterBar({required this.active, required this.onChange});
+
   final Set<EventCategory> active;
   final ValueChanged<Set<EventCategory>> onChange;
 
@@ -543,7 +539,9 @@ class _FilterBar extends StatelessWidget {
           height: barHeight,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: selected ? (bg ?? const Color(0xFFEFF3F9)) : const Color(0xFFF6F7FB),
+            color: selected
+                ? (bg ?? const Color(0xFFEFF3F9))
+                : const Color(0xFFF6F7FB),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(color: Colors.black.withOpacity(.06)),
           ),
@@ -615,11 +613,7 @@ class _FilterBar extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: Icon(
-                        c.icon,
-                        size: 14,
-                        color: c.color,
-                      ),
+                      child: Icon(c.icon, size: 14, color: c.color),
                     ),
                     const SizedBox(width: 6),
                     Text(c.label),
@@ -634,7 +628,6 @@ class _FilterBar extends StatelessWidget {
     );
   }
 }
-
 
 /// ---------------------------------------------------------------------------
 /// DAY CELL
@@ -998,20 +991,28 @@ class _EventPane extends StatelessWidget {
 }
 
 class _BaseEventCard extends StatelessWidget {
-  const _BaseEventCard({required this.child, this.marginTop = 8});
+  const _BaseEventCard({
+    required this.child,
+    this.marginTop = 8,
+    this.height, // ⬅ add this
+    this.verticalPadding = 10,
+  });
 
   final Widget child;
   final double marginTop;
+  final double? height; // ⬅ store it
+  final double verticalPadding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
+      // ⬅ use it here
       margin: EdgeInsets.fromLTRB(12, marginTop, 12, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: verticalPadding),
       decoration: BoxDecoration(
-        color: const Color(0xFFFDFDFD),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEDEFF2)),
+        color: const Color(0xFFF6F6F6),
+        borderRadius: BorderRadius.circular(9),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(.02),
@@ -1033,15 +1034,20 @@ class _StreakTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _BaseEventCard(
-      marginTop: 10,
       child: Row(
         children: [
-          _LabelWithBar(
-            barColor: const Color(0xFFFFC542),
+          const _LabelWithBar(
+            barColor: Color(0xFFFFC542),
             text: 'Streak',
-            textColor: const Color(0xFFDA9A00),
+            textColor: Color(0xFFDA9A00),
           ),
+
           const SizedBox(width: 10),
+
+          Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
+
+          const SizedBox(width: 10),
+
           Expanded(
             child: Text(
               event.title,
@@ -1050,6 +1056,7 @@ class _StreakTile extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
             ),
           ),
+
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () {
@@ -1076,13 +1083,13 @@ class _StreakTile extends StatelessWidget {
             },
             child: Stack(
               clipBehavior: Clip.none,
-              children: [
-                const Icon(
+              children: const [
+                Icon(
                   Icons.chat_bubble_outline_rounded,
                   size: 18,
                   color: Colors.black45,
                 ),
-                const Positioned(right: -6, top: -6, child: _Badge(number: 2)),
+                Positioned(right: -6, top: -6, child: _Badge(number: 2)),
               ],
             ),
           ),
@@ -1100,6 +1107,8 @@ class _AllDayTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _BaseEventCard(
+      height: 38, // ⬅ fixed height
+      verticalPadding: 8,
       child: Row(
         children: [
           _LabelWithBar(
@@ -1107,6 +1116,9 @@ class _AllDayTile extends StatelessWidget {
             text: 'All day',
             textColor: const Color(0xFF3AA1FF),
           ),
+          const SizedBox(width: 10),
+
+          Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1118,6 +1130,8 @@ class _AllDayTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             icon: const Icon(
               Icons.refresh_rounded,
               size: 18,
@@ -1145,18 +1159,34 @@ class _TimedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasChecklist = event.checklist.isNotEmpty;
+
     return _BaseEventCard(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // main row
+          // HEADER ROW --------------------------------------------------------
           Row(
+            // ⬅️ top-align everything with the first time line
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // green category bar
+              Container(
+                width: 4,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 6),
+
               // time column
               SizedBox(
                 width: 70,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -1164,6 +1194,7 @@ class _TimedTile extends StatelessWidget {
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
+                        height: 1.0,
                       ),
                     ),
                     if (event.end != null)
@@ -1172,27 +1203,30 @@ class _TimedTile extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.black.withOpacity(.45),
                           fontSize: 11,
+                          height: 1.0,
                         ),
                       ),
                   ],
                 ),
               ),
-              // bar + title
+
+              // bar + divider + title
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // thin grey divider (Figma style)
                     Container(
-                      width: 4,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4CAF50),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                      width: 1,
+                      height: 18,
+                      color: const Color(0xFFE0E0E0),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
+
+                    // title + location
                     Expanded(
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -1220,51 +1254,49 @@ class _TimedTile extends StatelessWidget {
                   ],
                 ),
               ),
+
               const SizedBox(width: 8),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ChatScreen(event: event),
-                        ),
-                      );
-                    },
-                    child: Row(
+
+              // notification + chevron
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => ChatScreen(event: event)),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            const Icon(
-                              Icons.notifications_none_rounded,
-                              size: 18,
-                              color: Colors.black45,
-                            ),
-                            if (event.checklist.isNotEmpty)
-                              const Positioned(
-                                right: -6,
-                                top: -6,
-                                child: _Badge(number: 2),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
                         const Icon(
-                          Icons.keyboard_arrow_up_rounded,
+                          Icons.notifications_none_rounded,
                           size: 18,
                           color: Colors.black45,
                         ),
+                        if (hasChecklist)
+                          const Positioned(
+                            right: -6,
+                            top: -6,
+                            child: _Badge(number: 2),
+                          ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                      size: 18,
+                      color: Colors.black45,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
 
-          if (event.checklist.isNotEmpty) const SizedBox(height: 10),
-          if (event.checklist.isNotEmpty)
+          // CHECKLIST ---------------------------------------------------------
+          if (hasChecklist) ...[
+            const SizedBox(height: 10),
             Column(
               children: [
                 for (final raw in event.checklist) ...[
@@ -1284,6 +1316,7 @@ class _TimedTile extends StatelessWidget {
                 ),
               ],
             ),
+          ],
         ],
       ),
     );
@@ -1786,12 +1819,26 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               expandMiddle: true,
               middleChild: TextField(
                 controller: _location,
-                decoration: const InputDecoration(
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
                   isCollapsed: true,
+                  // keep row compact
+                  contentPadding: EdgeInsets.zero,
+                  // no extra vertical padding
                   hintText: 'Location',
+                  hintStyle: TextStyle(
+                    // match other editor labels
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: labelColor,
+                  ),
                   border: InputBorder.none,
                 ),
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
               ),
             ),
 
