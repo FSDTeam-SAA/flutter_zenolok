@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../../../event/presentation/screens/event_screen.dart';
+import '../screens/home.dart';           // for EventCategory + extension
 
-import '../screens/home.dart'; // only if you need it elsewhere
-
-/// Re-usable filter bar for Home / Work / School / Personal + "All"
 typedef CategoryFilterChanged = void Function(Set<EventCategory>);
 
 class CategoryFilterBar extends StatelessWidget {
@@ -22,8 +20,7 @@ class CategoryFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final allOn = active.length == EventCategory.values.length;
-
-    const double barHeight = 30;
+    const double barHeight = 21;
 
     Widget chip({
       required Widget child,
@@ -51,6 +48,52 @@ class CategoryFilterBar extends StatelessWidget {
               color: Colors.black,
             ),
             child: child,
+          ),
+        ),
+      );
+    }
+
+    Widget plusCircle() {
+      return GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+              const CategoryEditorScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0); // from right to left
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+
+                final tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            ),
+          );
+        },
+        child: Container(
+          width: barHeight,
+          height: barHeight,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(
+              color: const Color(0xFFBFC1C8),
+              width: 1.4,
+            ),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.add,
+              size: 18,
+              color: Color(0xFFBFC1C8),
+            ),
           ),
         ),
       );
@@ -88,7 +131,7 @@ class CategoryFilterBar extends StatelessWidget {
             ),
             const SizedBox(width: 8),
 
-            // Each category chip
+            // Category chips
             for (final c in EventCategory.values) ...[
               chip(
                 bg: c.pastel,
@@ -97,7 +140,7 @@ class CategoryFilterBar extends StatelessWidget {
                   final next = {...active};
                   if (next.contains(c)) {
                     next.remove(c);
-                    if (next.isEmpty) next.add(c); // keep at least one on
+                    if (next.isEmpty) next.add(c); // keep at least one
                   } else {
                     next.add(c);
                   }
@@ -121,6 +164,9 @@ class CategoryFilterBar extends StatelessWidget {
               ),
               const SizedBox(width: 8),
             ],
+
+            // grey circular "+" button
+            plusCircle(),
           ],
         ),
       ),

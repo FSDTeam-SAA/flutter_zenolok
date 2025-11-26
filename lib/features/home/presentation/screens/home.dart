@@ -25,7 +25,7 @@ const _indicatorColors = <Color>[
 /// DOMAIN
 /// ---------------------------------------------------------------------------
 
-enum EventCategory { home, work, school, personal }
+enum EventCategory { home, work, school, personal, sport }
 
 extension EventCategoryX on EventCategory {
   String get label => switch (this) {
@@ -33,6 +33,7 @@ extension EventCategoryX on EventCategory {
     EventCategory.work => 'Work',
     EventCategory.school => 'School',
     EventCategory.personal => 'Personal',
+    EventCategory.sport => 'Sport',
   };
 
   IconData get icon => switch (this) {
@@ -40,6 +41,7 @@ extension EventCategoryX on EventCategory {
     EventCategory.work => Icons.work_rounded,
     EventCategory.school => Icons.school_rounded,
     EventCategory.personal => Icons.person_rounded,
+    EventCategory.sport => Icons.sports_soccer_rounded,
   };
 
   Color get color => switch (this) {
@@ -47,6 +49,7 @@ extension EventCategoryX on EventCategory {
     EventCategory.work => const Color(0xFFFFC542),
     EventCategory.school => const Color(0xFFB47AEA),
     EventCategory.personal => const Color(0xFF4CAF50),
+    EventCategory.sport => const Color(0xFFFF3366), // pink/red
   };
 
   Color get pastel => switch (this) {
@@ -54,8 +57,10 @@ extension EventCategoryX on EventCategory {
     EventCategory.work => const Color(0xFFFFF5D6),
     EventCategory.school => const Color(0xFFF3E9FF),
     EventCategory.personal => const Color(0xFFE9F7EF),
+    EventCategory.sport => const Color(0xFFFFE0EB), // light pink
   };
 }
+
 
 class CalendarEvent {
   final String id;
@@ -481,7 +486,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
               _EventPane(
                 day: selected,
                 events: _eventsFor(selected),
-                onToggle: (id, original, checked) {},
+                onToggle: (id, original, checked) {
+
+                },
               ),
             ],
           ),
@@ -933,7 +940,7 @@ class _StreakTile extends StatelessWidget {
               clipBehavior: Clip.none,
               children: const [
                 Icon(
-                  Icons.comment,
+                  Icons.chat_bubble_outline,
                   size: 18,
                   color: Colors.black45,
                 ),
