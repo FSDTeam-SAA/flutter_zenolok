@@ -671,9 +671,9 @@ class _StreakBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF5D6),
-        borderRadius: borderRadius,
+        // borderRadius: borderRadius,
       ),
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.topLeft,
       child: showLabel
           ? Text(
               event.title,
