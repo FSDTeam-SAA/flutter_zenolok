@@ -162,6 +162,8 @@ class _AllDayScreenState extends State<AllDayScreen> {
       body: SafeArea(
         child: Column(
           children: [
+
+
             // TOP BAR (delete + check)
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
@@ -172,6 +174,7 @@ class _AllDayScreenState extends State<AllDayScreen> {
                     icon: const Icon(
                       Icons.arrow_back_ios_new_rounded,
                       size: 20,
+                      color: Colors.black,
                     ),
                     visualDensity: VisualDensity.compact,
                   ),

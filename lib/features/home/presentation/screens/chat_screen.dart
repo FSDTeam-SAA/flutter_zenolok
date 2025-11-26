@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// Adjust this if your path is different
+// Adjust if your path is different
 import 'package:flutter_zenolok/features/home/presentation/screens/home.dart';
 
-/// Detail screen styled like your "Exhibition week" mock.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.event});
 
@@ -21,9 +20,13 @@ class _ChatScreenState extends State<ChatScreen> {
   static const _todoBubbleBg = Color(0xFFF5F5F7);
   static const _todoHintGrey = Color(0xFFD2D4DC);
 
+  // NEW: controllers for editable fields
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _locationCtrl;
+  final TextEditingController _newTodoCtrl = TextEditingController();
+  final TextEditingController _notesCtrl = TextEditingController();
+
   late List<_TodoItem> _todos;
-  final _newTodoCtrl = TextEditingController();
-  final _notesCtrl = TextEditingController();
 
   CalendarEvent get event => widget.event;
 
@@ -31,7 +34,9 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
 
-    // Build todo list from event.checklist or fallback demo data
+    _titleCtrl = TextEditingController(text: event.title);
+    _locationCtrl = TextEditingController(text: event.location ?? '');
+
     final rawList = event.checklist.isNotEmpty
         ? event.checklist
         : <String>[
@@ -45,6 +50,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _titleCtrl.dispose();
+    _locationCtrl.dispose();
     _newTodoCtrl.dispose();
     _notesCtrl.dispose();
     super.dispose();
@@ -55,6 +62,30 @@ class _ChatScreenState extends State<ChatScreen> {
   String _fmtDay(DateTime d) => DateFormat('EEEE').format(d);
   String _fmtTime(DateTime d) => DateFormat('hh : mm').format(d);
   String _fmtAmPm(DateTime d) => DateFormat('a').format(d);
+
+  // NEW: build updated event and pop it
+  void _onSave() {
+    final updated = CalendarEvent(
+      id: event.id,
+      category: event.category,
+      title: _titleCtrl.text.trim().isEmpty
+          ? event.title
+          : _titleCtrl.text.trim(),
+      start: event.start,
+      end: event.end,
+      allDay: event.allDay,
+      location: _locationCtrl.text.trim().isEmpty
+          ? null
+          : _locationCtrl.text.trim(),
+      checklist: _todos
+          .map(
+            (t) => '${t.checked ? "[x]" : "[ ]"} ${t.label}',
+      )
+          .toList(),
+    );
+
+    Navigator.pop(context, updated);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,26 +112,35 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         titleSpacing: 0,
         title: const SizedBox.shrink(),
-        actions: const [
-          SizedBox(width: 8),
-          Icon(
-            Icons.delete_outline_rounded,
-            size: 22,
-            color: Color(0xFFFF4B5C),
+        // NEW: actions are NOT const and call _onSave
+        actions: [
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              size: 22,
+              color: Color(0xFFFF4B5C),
+            ),
+            onPressed: () {
+              // if you want delete behaviour later, handle here
+              Navigator.pop(context);
+            },
           ),
-          SizedBox(width: 16),
-          Icon(
-            Icons.check_rounded,
-            size: 22,
-            color: Color(0xFF3AC3FF),
+          IconButton(
+            icon: const Icon(
+              Icons.check_rounded,
+              size: 22,
+              color: Color(0xFF3AC3FF),
+            ),
+            onPressed: _onSave,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
         children: [
-          // ───────── Title + share icon ─────────
+          // ───────── Title + share icon (EDITABLE) ─────────
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -114,10 +154,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  event.title.isEmpty ? 'Exhibition week' : event.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: TextField(
+                  controller: _titleCtrl,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                  ),
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
@@ -136,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 10),
 
-          // ───────── Category pill (“Work”, etc.) ─────────
+          // Category pill
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
@@ -169,7 +211,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 26),
 
-          // ───────── Date row: icon + two date blocks + bell/repeat ─────────
+          // Date row
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -204,9 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(width: 16),
-
                     // right date
                     Expanded(
                       child: Column(
@@ -251,20 +291,17 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
 
-          // ⛔ no divider here (this is the red line from your 3rd screenshot)
           const SizedBox(height: 14),
 
-          // ───────── Time row ─────────
+          // Time row
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Icon(Icons.access_time_rounded, size: 20, color: _labelGrey),
               const SizedBox(width: 12),
-
               Expanded(
                 child: Row(
                   children: [
-                    // start time
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,10 +327,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(width: 16),
-
-                    // end time
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -322,10 +356,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(width: 10),
-
-              // All day pill – disabled style (like mock)
               Container(
                 padding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -350,7 +381,7 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(height: 8),
           const Divider(height: 1, color: _dividerGrey),
 
-          // ───────── Location row ─────────
+          // Location row (EDITABLE)
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -358,10 +389,13 @@ class _ChatScreenState extends State<ChatScreen> {
               const Icon(Icons.place_outlined, size: 20, color: _labelGrey),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  event.location ?? 'Asia Expo',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: TextField(
+                  controller: _locationCtrl,
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    hintText: 'Location',
+                  ),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -374,12 +408,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 26),
 
-          // ───────── Todo bubble (functional) ─────────
+          // Todo bubble
           _buildTodoBubble(),
 
           const SizedBox(height: 26),
 
-          // ───────── Let's JAM row ─────────
+          // Let's JAM
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -404,10 +438,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  /// Todo bubble with:
-  /// - Radio-style selection (only one selected)
-  /// - "New todo" input that adds a row on submit
-  /// - "New notes" input (free text)
+  // todo bubble
   Widget _buildTodoBubble() {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 14, 22, 14),
@@ -425,7 +456,7 @@ class _ChatScreenState extends State<ChatScreen> {
               highlightColor: event.category.color,
               onTap: () {
                 setState(() {
-                  // behave like radio buttons: only one selected
+                  // single selected at a time (like your mock)
                   for (int j = 0; j < _todos.length; j++) {
                     _todos[j] =
                         _todos[j].copyWith(checked: j == i ? true : false);
@@ -435,10 +466,9 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             if (i != _todos.length - 1) const SizedBox(height: 8),
           ],
-
           const SizedBox(height: 12),
 
-          // New todo input
+          // New todo
           TextField(
             controller: _newTodoCtrl,
             style: const TextStyle(
@@ -472,7 +502,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(height: 6),
 
-          // New notes input
+          // New notes
           TextField(
             controller: _notesCtrl,
             style: const TextStyle(
@@ -497,7 +527,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-/// Single todo line with circular radio (yellow when selected).
+/// Radio-like todo row
 class _TodoRadioRow extends StatelessWidget {
   const _TodoRadioRow({
     required this.label,
@@ -560,7 +590,6 @@ class _TodoRadioRow extends StatelessWidget {
   }
 }
 
-/// Internal model for todos (parsed from "[ ] label" / "[x] label").
 class _TodoItem {
   final String label;
   final bool checked;

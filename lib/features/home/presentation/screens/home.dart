@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../widgets/category_filter_bar.dart';
+import '../widgets/date_time_widget.dart';
 import 'allday_screen.dart';
 import 'chat_screen.dart';
 import 'notification_screen.dart';
@@ -143,7 +145,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
     // all-day streaks that cover this day, in insertion order
     final spanning = _allEvents().where(
-      (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
+          (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
     );
 
     // merge while preserving order of insertion
@@ -160,7 +162,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   }
 
   bool _isStreakDay(DateTime day) => _allEvents().any(
-    (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
+        (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
   );
 
   void _addEvent(CalendarEvent e) {
@@ -221,26 +223,21 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           PageRouteBuilder(
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
-                                    const MinimalSearchScreen(),
+                            const MinimalSearchScreen(),
                             transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.easeInOut;
-                                  final tween = Tween(
-                                    begin: begin,
-                                    end: end,
-                                  ).chain(CurveTween(curve: curve));
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
+                                (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(1.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.easeInOut;
+                              final tween = Tween(
+                                begin: begin,
+                                end: end,
+                              ).chain(CurveTween(curve: curve));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
@@ -257,26 +254,21 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                               PageRouteBuilder(
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
-                                        const NotificationScreen(),
-                                transitionsBuilder:
-                                    (
-                                      context,
-                                      animation,
-                                      secondaryAnimation,
-                                      child,
-                                    ) {
-                                      const begin = Offset(1.0, 0.0);
-                                      const end = Offset.zero;
-                                      const curve = Curves.easeInOut;
-                                      final tween = Tween(
-                                        begin: begin,
-                                        end: end,
-                                      ).chain(CurveTween(curve: curve));
-                                      return SlideTransition(
-                                        position: animation.drive(tween),
-                                        child: child,
-                                      );
-                                    },
+                                const NotificationScreen(),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.easeInOut;
+                                  final tween = Tween(
+                                    begin: begin,
+                                    end: end,
+                                  ).chain(CurveTween(curve: curve));
+                                  return SlideTransition(
+                                    position: animation.drive(tween),
+                                    child: child,
+                                  );
+                                },
                               ),
                             );
                           },
@@ -305,26 +297,21 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           PageRouteBuilder(
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
-                                    const SettingsScreen(),
-                            transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.easeInOut;
-                                  final tween = Tween(
-                                    begin: begin,
-                                    end: end,
-                                  ).chain(CurveTween(curve: curve));
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
+                            const SettingsScreen(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              const begin = Offset(1.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.easeInOut;
+                              final tween = Tween(
+                                begin: begin,
+                                end: end,
+                              ).chain(CurveTween(curve: curve));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
@@ -340,22 +327,22 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
               // Filter chips row
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
-                child: _FilterBar(
+                child: CategoryFilterBar(
                   active: _filters,
-                  onChange: (newSet) => setState(
-                    () => _filters
+                  onChange: (newSet) => setState(() {
+                    _filters
                       ..clear()
-                      ..addAll(newSet),
-                  ),
+                      ..addAll(newSet);
+                  }),
                 ),
               ),
+
 
               // Calendar
               GestureDetector(
                 onScaleStart: (d) => _baseScale = _scale,
-                onScaleUpdate: (d) => setState(
-                  () => _scale = (_baseScale * d.scale).clamp(.9, 1.4),
-                ),
+                onScaleUpdate: (d) =>
+                    setState(() => _scale = (_baseScale * d.scale).clamp(.9, 1.4)),
                 child: SizedBox(
                   height: calHeight,
                   child: TableCalendar<CalendarEvent>(
@@ -367,7 +354,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     calendarFormat: _format,
                     startingDayOfWeek: StartingDayOfWeek.monday,
                     selectedDayPredicate: (d) =>
-                        _selected != null && _dOnly(d) == _selected,
+                    _selected != null && _dOnly(d) == _selected,
                     onDaySelected: (sel, foc) => setState(() {
                       _selected = _dOnly(sel);
                       _focused.value = foc;
@@ -413,9 +400,8 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     ),
                     calendarBuilders: CalendarBuilders(
                       dowBuilder: (context, day) {
-                        final text = DateFormat(
-                          'E',
-                        ).format(day).substring(0, 1).toUpperCase();
+                        final text =
+                        DateFormat('E').format(day).substring(0, 1).toUpperCase();
                         final isSunday = day.weekday == DateTime.sunday;
                         return Center(
                           child: Text(
@@ -430,12 +416,12 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         );
                       },
                       markerBuilder: (context, day, events) =>
-                          const SizedBox.shrink(),
+                      const SizedBox.shrink(),
                       defaultBuilder: (context, day, _) => _DayCell(
                         day: day,
                         isToday: _dOnly(day) == _dOnly(DateTime.now()),
                         isSelected:
-                            _selected != null && _dOnly(day) == _selected,
+                        _selected != null && _dOnly(day) == _selected,
                         inStreak: _isStreakDay(day),
                         events: _eventsFor(day),
                         dateAreaHeight: dateAreaHeight,
@@ -456,7 +442,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         day: day,
                         isToday: true,
                         isSelected:
-                            _selected != null && _dOnly(day) == _selected,
+                        _selected != null && _dOnly(day) == _selected,
                         inStreak: _isStreakDay(day),
                         events: _eventsFor(day),
                         dateAreaHeight: dateAreaHeight,
@@ -491,8 +477,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
 
-              // const Divider(height: 1, color: Color(0xFFEAECEE)),
-
               // day’s events list
               _EventPane(
                 day: selected,
@@ -510,124 +494,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
       DateFormat('E').format(dt).substring(0, 1).toUpperCase();
 }
 
-/// ---------------------------------------------------------------------------
-/// FILTER BAR  (pixel-ish perfect to Figma Sorting_bar)
-/// ---------------------------------------------------------------------------
-class _FilterBar extends StatelessWidget {
-  const _FilterBar({required this.active, required this.onChange});
 
-  final Set<EventCategory> active;
-  final ValueChanged<Set<EventCategory>> onChange;
-
-  @override
-  Widget build(BuildContext context) {
-    final allOn = active.length == EventCategory.values.length;
-
-    // Figma: height ≈ 30 px
-    const double barHeight = 30;
-
-    Widget chip({
-      required Widget child,
-      required bool selected,
-      required VoidCallback onTap,
-      Color? bg,
-    }) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          height: barHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: selected
-                ? (bg ?? const Color(0xFFEFF3F9))
-                : const Color(0xFFF6F7FB),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: Colors.black.withOpacity(.06)),
-          ),
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-            ),
-            child: child,
-          ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: barHeight,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            // --- "All" chip (icon in grey circle) ---
-            chip(
-              selected: allOn,
-              onTap: () => onChange({...EventCategory.values}),
-              child: Row(
-                children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EF),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: const Icon(
-                      Icons.mail_outline_rounded,
-                      size: 12,
-                      color: Color(0xFF7F8392),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text('All'),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-
-            // --- Category chips: Home / Work / School / Personal ---
-            for (final c in EventCategory.values) ...[
-              chip(
-                bg: c.pastel,
-                selected: active.contains(c),
-                onTap: () {
-                  final next = {...active};
-                  if (next.contains(c)) {
-                    next.remove(c);
-                    if (next.isEmpty) next.add(c); // keep at least one
-                  } else {
-                    next.add(c);
-                  }
-                  onChange(next);
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Icon(c.icon, size: 14, color: c.color),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(c.label),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// ---------------------------------------------------------------------------
 /// DAY CELL
@@ -662,22 +529,21 @@ class _StreakBar extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF5D6),
-        // borderRadius: borderRadius,
+      decoration: const BoxDecoration(
+        color: Color(0xFFFFF5D6),
       ),
       alignment: Alignment.topLeft,
       child: showLabel
           ? Text(
-              event.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: event.category.color,
-              ),
-            )
+        event.title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: event.category.color,
+        ),
+      )
           : const SizedBox.shrink(),
     );
   }
@@ -712,9 +578,8 @@ class _DayCell extends StatelessWidget {
     final streaks = events.where((e) => e.allDay && e.end != null).toList();
     final CalendarEvent? streak = streaks.isNotEmpty ? streaks.first : null;
 
-    final dayEvents = events
-        .where((e) => !(e.allDay && e.end != null))
-        .toList();
+    final dayEvents =
+    events.where((e) => !(e.allDay && e.end != null)).toList();
 
     final bool isStreakStart =
         streak != null && _dOnly(day).isAtSameMomentAs(_dOnly(streak.start));
@@ -735,9 +600,9 @@ class _DayCell extends StatelessWidget {
           ),
           decoration: hasGreyCard
               ? BoxDecoration(
-                  color: const Color(0xFFE0E1E3),
-                  borderRadius: BorderRadius.circular(16),
-                )
+            color: const Color(0xFFE0E1E3),
+            borderRadius: BorderRadius.circular(16),
+          )
               : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -752,14 +617,12 @@ class _DayCell extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: () {
                       if (isSelected) {
-                        // filled circle for selected day
                         return const BoxDecoration(
                           shape: BoxShape.circle,
                           color: Color(0xFFE6EAF0),
                         );
                       }
                       if (isToday) {
-                        // ring for "today"
                         return BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -768,7 +631,7 @@ class _DayCell extends StatelessWidget {
                           ),
                         );
                       }
-                      return null; // normal day, no background
+                      return null;
                     }(),
                     child: Text(
                       '${day.day}',
@@ -781,105 +644,98 @@ class _DayCell extends StatelessWidget {
                 ),
               ),
 
-              // STREAK ROW
               if (streak != null)
                 SizedBox(
                   height: streakHeight,
                   child: _StreakBar(event: streak, day: day),
                 ),
 
-              // EVENTS + "3+"
+              // EVENTS
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
                   child: dayEvents.isEmpty
                       ? const SizedBox.shrink()
                       : LayoutBuilder(
-                          builder: (context, evConstraints) {
-                            final available = max(0.0, evConstraints.maxHeight);
+                    builder: (context, evConstraints) {
+                      final available = max(0.0, evConstraints.maxHeight);
 
-                            const rowGap = 2.0;
-                            const maxVisibleRows = 3;
-                            const maxVisibleEventsWhenOverflow = 2;
+                      const rowGap = 2.0;
+                      const maxVisibleRows = 3;
+                      const maxVisibleEventsWhenOverflow = 2;
 
-                            final totalEvents = dayEvents.length;
-                            final hasOverflow = totalEvents > maxVisibleRows;
+                      final totalEvents = dayEvents.length;
+                      final hasOverflow = totalEvents > maxVisibleRows;
 
-                            final eventsToShow = hasOverflow
-                                ? maxVisibleEventsWhenOverflow
-                                : min(maxVisibleRows, totalEvents);
+                      final eventsToShow = hasOverflow
+                          ? maxVisibleEventsWhenOverflow
+                          : min(maxVisibleRows, totalEvents);
 
-                            final rows = hasOverflow
-                                ? maxVisibleRows
-                                : eventsToShow;
+                      final rows =
+                      hasOverflow ? maxVisibleRows : eventsToShow;
 
-                            if (rows == 0) {
-                              return const SizedBox.shrink();
-                            }
+                      if (rows == 0) {
+                        return const SizedBox.shrink();
+                      }
 
-                            final rowH =
-                                max(
-                                  0.0,
-                                  (available - rowGap * max(0, rows - 1)) /
-                                      rows,
-                                ) *
-                                0.98;
+                      final rowH = max(
+                        0.0,
+                        (available - rowGap * max(0, rows - 1)) / rows,
+                      ) *
+                          0.98;
 
-                            final children = <Widget>[];
+                      final children = <Widget>[];
 
-                            if (!hasOverflow) {
-                              for (int i = 0; i < eventsToShow; i++) {
-                                children.add(
-                                  _EventRow(
-                                    e: dayEvents[i],
-                                    height: rowH,
-                                    indicatorColor:
-                                        _indicatorColors[i %
-                                            _indicatorColors.length],
-                                  ),
-                                );
-                                if (i != eventsToShow - 1) {
-                                  children.add(const SizedBox(height: rowGap));
-                                }
-                              }
-                            } else {
-                              for (int i = 0; i < eventsToShow; i++) {
-                                children.add(
-                                  _EventRow(
-                                    e: dayEvents[i],
-                                    height: rowH,
-                                    indicatorColor:
-                                        _indicatorColors[i %
-                                            _indicatorColors.length],
-                                  ),
-                                );
-                                children.add(const SizedBox(height: rowGap));
-                              }
-
-                              children.add(
-                                SizedBox(
-                                  height: rowH,
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      '3+',
-                                      style: TextStyle(
-                                        fontSize: min(12.0, rowH * 0.9),
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
+                      if (!hasOverflow) {
+                        for (int i = 0; i < eventsToShow; i++) {
+                          children.add(
+                            _EventRow(
+                              e: dayEvents[i],
+                              height: rowH,
+                              indicatorColor:
+                              _indicatorColors[i % _indicatorColors.length],
+                            ),
+                          );
+                          if (i != eventsToShow - 1) {
+                            children.add(const SizedBox(height: rowGap));
+                          }
+                        }
+                      } else {
+                        for (int i = 0; i < eventsToShow; i++) {
+                          children.add(
+                            _EventRow(
+                              e: dayEvents[i],
+                              height: rowH,
+                              indicatorColor:
+                              _indicatorColors[i % _indicatorColors.length],
+                            ),
+                          );
+                          children.add(const SizedBox(height: rowGap));
+                        }
+                        children.add(
+                          SizedBox(
+                            height: rowH,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '3+',
+                                style: TextStyle(
+                                  fontSize: min(12.0, rowH * 0.9),
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.black87,
                                 ),
-                              );
-                            }
+                              ),
+                            ),
+                          ),
+                        );
+                      }
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: children,
-                            );
-                          },
-                        ),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: children,
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -900,16 +756,15 @@ class _EventRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fs = min(12.0, max(9.0, height * 0.9));
-    final barHeight = fs; // slightly taller than the text
+    final barHeight = fs;
 
     return SizedBox(
-      // height: height,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 2,
-            height: barHeight, // ← use barHeight instead of height
+            height: barHeight,
             decoration: BoxDecoration(
               color: indicatorColor ?? e.category.color,
               borderRadius: BorderRadius.circular(3),
@@ -954,9 +809,8 @@ class _EventPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final streaks = events.where((e) => e.allDay && e.end != null).toList();
-    final allDaySingles = events
-        .where((e) => e.allDay && e.end == null)
-        .toList();
+    final allDaySingles =
+    events.where((e) => e.allDay && e.end == null).toList();
     final timed = events.where((e) => !e.allDay).toList()
       ..sort((a, b) => a.start.compareTo(b.start));
 
@@ -994,20 +848,19 @@ class _BaseEventCard extends StatelessWidget {
   const _BaseEventCard({
     required this.child,
     this.marginTop = 8,
-    this.height, // ⬅ add this
+    this.height,
     this.verticalPadding = 10,
   });
 
   final Widget child;
   final double marginTop;
-  final double? height; // ⬅ store it
+  final double? height;
   final double verticalPadding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      // ⬅ use it here
       margin: EdgeInsets.fromLTRB(12, marginTop, 12, 0),
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: verticalPadding),
       decoration: BoxDecoration(
@@ -1041,13 +894,9 @@ class _StreakTile extends StatelessWidget {
             text: 'Streak',
             textColor: Color(0xFFDA9A00),
           ),
-
           const SizedBox(width: 10),
-
           Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
-
           const SizedBox(width: 10),
-
           Expanded(
             child: Text(
               event.title,
@@ -1056,7 +905,6 @@ class _StreakTile extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
             ),
           ),
-
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () {
@@ -1066,18 +914,18 @@ class _StreakTile extends StatelessWidget {
                       ChatScreen(event: event),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        final tween = Tween(
-                          begin: begin,
-                          end: end,
-                        ).chain(CurveTween(curve: curve));
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+                    final tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
                 ),
               );
             },
@@ -1085,7 +933,7 @@ class _StreakTile extends StatelessWidget {
               clipBehavior: Clip.none,
               children: const [
                 Icon(
-                  Icons.chat_bubble_outline_rounded,
+                  Icons.comment,
                   size: 18,
                   color: Colors.black45,
                 ),
@@ -1107,7 +955,7 @@ class _AllDayTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _BaseEventCard(
-      height: 38, // ⬅ fixed height
+      height: 38,
       verticalPadding: 8,
       child: Row(
         children: [
@@ -1117,7 +965,6 @@ class _AllDayTile extends StatelessWidget {
             textColor: const Color(0xFF3AA1FF),
           ),
           const SizedBox(width: 10),
-
           Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
           const SizedBox(width: 10),
           Expanded(
@@ -1133,14 +980,13 @@ class _AllDayTile extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             icon: const Icon(
-              Icons.refresh_rounded,
+              Icons.autorenew_rounded,
               size: 18,
               color: Colors.black26,
             ),
             onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const AllDayScreen()));
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const AllDayScreen()));
             },
           ),
         ],
@@ -1166,12 +1012,9 @@ class _TimedTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HEADER ROW --------------------------------------------------------
           Row(
-            // ⬅️ top-align everything with the first time line
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // green category bar
               Container(
                 width: 4,
                 height: 22,
@@ -1181,8 +1024,6 @@ class _TimedTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-
-              // time column
               SizedBox(
                 width: 70,
                 child: Column(
@@ -1209,21 +1050,16 @@ class _TimedTile extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // bar + divider + title
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // thin grey divider (Figma style)
                     Container(
                       width: 1,
                       height: 18,
                       color: const Color(0xFFE0E0E0),
                     ),
                     const SizedBox(width: 6),
-
-                    // title + location
                     Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -1254,16 +1090,30 @@ class _TimedTile extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(width: 8),
-
-              // notification + chevron
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => ChatScreen(event: event)),
+                    PageRouteBuilder(
+                      pageBuilder: (_, animation, secondaryAnimation) =>
+                          ChatScreen(event: event),
+                      transitionsBuilder: (_, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0); // start off-screen right
+                        const end = Offset.zero;        // end at normal position
+                        const curve = Curves.easeInOut;
+
+                        final tween =
+                        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                    ),
                   );
                 },
+
                 child: Row(
                   children: [
                     Stack(
@@ -1282,7 +1132,45 @@ class _TimedTile extends StatelessWidget {
                           ),
                       ],
                     ),
+
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.list_bullet,
+                          size: 18,
+                          color: Colors.black45,
+                        ),
+                        Positioned(
+                          // adjust these to match your design
+                          right: -6,
+                          top: -12,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: const Text(
+                              '2',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+
                     const SizedBox(width: 8),
+
                     const Icon(
                       Icons.keyboard_arrow_up_rounded,
                       size: 18,
@@ -1293,8 +1181,6 @@ class _TimedTile extends StatelessWidget {
               ),
             ],
           ),
-
-          // CHECKLIST ---------------------------------------------------------
           if (hasChecklist) ...[
             const SizedBox(height: 10),
             Column(
@@ -1351,15 +1237,15 @@ class _ChecklistRow extends StatelessWidget {
             ),
             child: checked
                 ? Center(
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF18A957),
-                      ),
-                    ),
-                  )
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF18A957),
+                ),
+              ),
+            )
                 : null,
           ),
           const SizedBox(width: 10),
@@ -1484,13 +1370,29 @@ class _WhiteRoundPlus extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         final created = await Navigator.of(context).push<CalendarEvent>(
-          MaterialPageRoute(
-            builder: (_) => EventEditorScreen(initialDate: initialDate),
-            fullscreenDialog: true,
+          PageRouteBuilder<CalendarEvent>(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                EventEditorScreen(initialDate: initialDate),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0); // from right
+              const end = Offset.zero;
+              const curve = Curves.easeInOut;
+
+              final tween = Tween(begin: begin, end: end)
+                  .chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
           ),
         );
+
         if (created != null) onAdd(created);
       },
+
       child: Container(
         width: 44,
         height: 44,
@@ -1561,18 +1463,17 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   }
 
   Future<void> _openDateRangePicker() async {
-    final result = await showModalBottomSheet<_DateRangeResult>(
+    final result = await showModalBottomSheet<DateRangeResult>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => _DateRangeBottomSheet(
+      builder: (_) => DateRangeBottomSheet(
         initialStart: _startDate,
         initialEnd: _multiDay ? _endDate : null,
       ),
     );
 
     if (result != null) {
-      // You can also inspect result.days (all selected days) here.
       setState(() {
         _startDate = _dOnly(result.start);
         _endDate = _dOnly(result.end);
@@ -1582,12 +1483,14 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   }
 
   Future<void> _openTimeRangePicker() async {
-    final result = await showModalBottomSheet<_TimeRangeResult>(
+    final result = await showModalBottomSheet<TimeRangeResult>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) =>
-          _TimeRangeBottomSheet(initialStart: _startTime, initialEnd: _endTime),
+      builder: (_) => TimeRangeBottomSheet(
+        initialStart: _startTime,
+        initialEnd: _endTime,
+      ),
     );
 
     if (result != null) {
@@ -1602,9 +1505,8 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     if (!_form.currentState!.validate()) return;
 
     final start = _allDay ? _startDate : _combine(_startDate, _startTime);
-    final DateTime? end = _allDay
-        ? (_multiDay ? _endDate : null)
-        : _combine(_startDate, _endTime);
+    final DateTime? end =
+    _allDay ? (_multiDay ? _endDate : null) : _combine(_startDate, _endTime);
 
     Navigator.pop(
       context,
@@ -1614,7 +1516,8 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
         start: start,
         end: end,
         allDay: _allDay,
-        location: _location.text.trim().isEmpty ? null : _location.text.trim(),
+        location:
+        _location.text.trim().isEmpty ? null : _location.text.trim(),
         category: _category,
         checklist: _todos,
       ),
@@ -1663,7 +1566,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
           children: [
-            // title
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -1685,9 +1587,8 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Enter a title'
-                        : null,
+                    validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -1704,8 +1605,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               ],
             ),
             const SizedBox(height: 4),
-
-            // labels row
             Row(
               children: const [
                 _CategoryMarker(color: Color(0xFF3AA1FF)),
@@ -1731,8 +1630,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // category chips
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1759,33 +1656,27 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
-
-            // date row
             _EditorRow(
               icon: Icons.event_outlined,
               label: DateFormat('EEE, MMM d, yyyy').format(_startDate),
               labelColor: Colors.black,
               trailing: _multiDay
                   ? Text(
-                      '—  ${DateFormat('EEE, MMM d, yyyy').format(_endDate)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
+                '—  ${DateFormat('EEE, MMM d, yyyy').format(_endDate)}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
                   : null,
               onTap: _openDateRangePicker,
             ),
             const Divider(color: dividerColor, height: 16),
-
-            // time row
             _EditorRow(
               icon: Icons.access_time_rounded,
-              label: DateFormat(
-                'hh : mm a',
-              ).format(_combine(_startDate, _startTime)),
+              label: DateFormat('hh : mm a')
+                  .format(_combine(_startDate, _startTime)),
               labelColor: Colors.black,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1810,8 +1701,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               onTap: !_allDay ? _openTimeRangePicker : null,
             ),
             const Divider(color: dividerColor, height: 16),
-
-            // location
             _EditorRow(
               icon: Icons.place_outlined,
               label: 'Location',
@@ -1822,12 +1711,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   isCollapsed: true,
-                  // keep row compact
                   contentPadding: EdgeInsets.zero,
-                  // no extra vertical padding
                   hintText: 'Location',
-                  hintStyle: TextStyle(
-                    // match other editor labels
+                  hintStyle: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: labelColor,
@@ -1841,9 +1727,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
-
             _TodoBubble(
               todos: _todos,
               newTodoController: _newTodo,
@@ -1857,14 +1741,13 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 });
               },
             ),
-
             const SizedBox(height: 16),
-
             Center(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(Icons.lock_outline_rounded, size: 16, color: labelColor),
+                  Icon(Icons.lock_outline_rounded,
+                      size: 16, color: labelColor),
                   SizedBox(width: 4),
                   Text(
                     "Let's JAM",
@@ -1929,8 +1812,7 @@ class _EditorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final middle =
-        middleChild ??
+    final middle = middleChild ??
         Text(
           label,
           style: TextStyle(
@@ -2016,6 +1898,7 @@ class _AllDayPill extends StatelessWidget {
         ),
         child: Text(
           'All day',
+
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -2042,7 +1925,7 @@ class _TodoBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const hint = Color(0xFFDBDBDB);
+    const hintColor = Color(0xFFDBDBDB);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
@@ -2053,1102 +1936,72 @@ class _TodoBubble extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
+          if (todos.isNotEmpty) ...[
+            for (int i = 0; i < todos.length; i++) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      todos[i].replaceFirst(RegExp(r'^\[( |x)\]\s?'), ''),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => onRemove(i),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.black26,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+            ],
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: Color(0xFFE5E5E5)),
+            const SizedBox(height: 8),
+          ],
           TextField(
-            decoration: InputDecoration(
+            controller: newTodoController,
+            textInputAction: TextInputAction.done,
+            onSubmitted: onSubmit,
+            maxLines: 2,
+            minLines: 1,
+            decoration: const InputDecoration(
               isCollapsed: true,
               hintText: 'New todo',
               border: InputBorder.none,
-              hintStyle: TextStyle(fontSize: 12, color: hint),
+              hintStyle: TextStyle(
+                fontSize: 12,
+                color: hintColor,
+              ),
             ),
-            style: TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: Color(0xFFE5E5E5)),
+          const SizedBox(height: 8),
+          const TextField(
             maxLines: 2,
             minLines: 1,
-          ),
-          SizedBox(height: 8),
-          Divider(height: 1, color: Color(0xFFE5E5E5)),
-          SizedBox(height: 8),
-          TextField(
             decoration: InputDecoration(
               isCollapsed: true,
               hintText: 'New notes',
               border: InputBorder.none,
-              hintStyle: TextStyle(fontSize: 12, color: hint),
+              hintStyle: TextStyle(
+                fontSize: 12,
+                color: hintColor,
+              ),
             ),
             style: TextStyle(fontSize: 12),
-            maxLines: 2,
-            minLines: 1,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// ---------------------------------------------------------------------------
-/// HELPER RESULTS
-/// ---------------------------------------------------------------------------
-
-class _TimeRangeResult {
-  final TimeOfDay start;
-  final TimeOfDay end;
-
-  _TimeRangeResult({required this.start, required this.end});
-}
-
-class _DateRangeResult {
-  /// All selected days (normalized to yyyy-mm-dd and sorted).
-  final List<DateTime> days;
-
-  _DateRangeResult({required List<DateTime> days})
-    : days = days.map(_dOnly).toList()..sort((a, b) => a.compareTo(b));
-
-  /// Convenience for existing code – first & last selected day.
-  DateTime get start => days.first;
-
-  DateTime get end => days.last;
-}
-
-/// ---------------------------------------------------------------------------
-/// TIME RANGE BOTTOM SHEET  (custom keypad, centered, no overflow)
-/// ---------------------------------------------------------------------------
-
-class _TimeRangeBottomSheet extends StatefulWidget {
-  const _TimeRangeBottomSheet({
-    required this.initialStart,
-    required this.initialEnd,
-  });
-
-  final TimeOfDay initialStart;
-  final TimeOfDay initialEnd;
-
-  @override
-  State<_TimeRangeBottomSheet> createState() => _TimeRangeBottomSheetState();
-}
-
-class _TimeRangeBottomSheetState extends State<_TimeRangeBottomSheet> {
-  static const _accent = Color(0xFFFF6B6B);
-
-  bool _editingStart = true;
-  late String _startDigits;
-  late String _endDigits;
-  late bool _startIsPm;
-  late bool _endIsPm;
-
-  @override
-  void initState() {
-    super.initState();
-    // Start with empty digits so keypad always works immediately
-    _startDigits = '';
-    _endDigits = '';
-    _startIsPm = widget.initialStart.period == DayPeriod.pm;
-    _endIsPm = widget.initialEnd.period == DayPeriod.pm;
-  }
-
-  TimeOfDay _digitsToTime(String digits, bool isPm, TimeOfDay fallback) {
-    // If user didn’t type anything, keep the original time
-    if (digits.isEmpty) return fallback;
-
-    if (digits.length < 4) digits = digits.padRight(4, '0');
-    int h = int.tryParse(digits.substring(0, 2)) ?? 0;
-    int m = int.tryParse(digits.substring(2, 4)) ?? 0;
-
-    h = h.clamp(1, 12);
-    m = m.clamp(0, 59);
-
-    int hour24;
-    if (isPm) {
-      hour24 = (h % 12) + 12;
-    } else {
-      hour24 = h % 12;
-    }
-
-    return TimeOfDay(hour: hour24, minute: m);
-  }
-
-  void _onDigitTap(int digit) {
-    setState(() {
-      if (_editingStart) {
-        if (_startDigits.length < 4) {
-          _startDigits += digit.toString();
-        }
-      } else {
-        if (_endDigits.length < 4) {
-          _endDigits += digit.toString();
-        }
-      }
-    });
-  }
-
-  void _onBackspace() {
-    setState(() {
-      if (_editingStart) {
-        if (_startDigits.isNotEmpty) {
-          _startDigits = _startDigits.substring(0, _startDigits.length - 1);
-        }
-      } else {
-        if (_endDigits.isNotEmpty) {
-          _endDigits = _endDigits.substring(0, _endDigits.length - 1);
-        }
-      }
-    });
-  }
-
-  void _onClear() {
-    setState(() {
-      if (_editingStart) {
-        _startDigits = '';
-      } else {
-        _endDigits = '';
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final cardWidth = min(constraints.maxWidth - 32, 360.0);
-
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: cardWidth),
-                child: Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.access_time_rounded,
-                              size: 18,
-                              color: Colors.black54,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Set time',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF6F6F6),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 16,
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Start Time',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: _editingStart
-                                            ? _accent
-                                            : const Color(0xFFB8BBC5),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'End Time',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: !_editingStart
-                                            ? _accent
-                                            : const Color(0xFFB8BBC5),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _editingStart = true),
-                                      child: _TimeDigitDisplay(
-                                        digits: _startDigits,
-                                        isActive: _editingStart,
-                                        accent: _accent,
-                                        alignRight: false,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    '—',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFFB8BBC5),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _editingStart = false),
-                                      child: _TimeDigitDisplay(
-                                        digits: _endDigits,
-                                        isActive: !_editingStart,
-                                        accent: _accent,
-                                        alignRight: true,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _AmPmRow(
-                                      isPm: _startIsPm,
-                                      accent: _accent,
-                                      onChanged: (isPm) => setState(() {
-                                        _startIsPm = isPm;
-                                      }),
-                                      alignRight: false,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: _AmPmRow(
-                                      isPm: _endIsPm,
-                                      accent: _accent,
-                                      onChanged: (isPm) => setState(() {
-                                        _endIsPm = isPm;
-                                      }),
-                                      alignRight: true,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              _NumberPad(
-                                onDigit: _onDigitTap,
-                                onBackspace: _onBackspace,
-                                onClear: _onClear,
-                                accent: _accent,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () {
-                              final start = _digitsToTime(
-                                _startDigits,
-                                _startIsPm,
-                                widget.initialStart,
-                              );
-                              final end = _digitsToTime(
-                                _endDigits,
-                                _endIsPm,
-                                widget.initialEnd,
-                              );
-                              Navigator.pop(
-                                context,
-                                _TimeRangeResult(start: start, end: end),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                            ),
-                            child: const Text(
-                              'Apply time',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: _accent,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _TimeDigitDisplay extends StatelessWidget {
-  const _TimeDigitDisplay({
-    required this.digits,
-    required this.isActive,
-    required this.accent,
-    this.alignRight = false,
-  });
-
-  final String digits;
-  final bool isActive;
-  final Color accent;
-  final bool alignRight;
-
-  String _digitOrZero(int index) {
-    if (index < 0 || index >= digits.length) return '0';
-    return digits[index];
-  }
-
-  Widget _bubble(String text, bool filled) {
-    final bool highlight = isActive && filled;
-    return Container(
-      width: 26,
-      height: 26,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: highlight ? accent.withOpacity(0.18) : const Color(0xFFE5E5E5),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: highlight ? accent : const Color(0xFFB8BBC5),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final d1 = _digitOrZero(0);
-    final d2 = _digitOrZero(1);
-    final d3 = _digitOrZero(2);
-    final d4 = _digitOrZero(3);
-
-    final innerRow = Row(
-      mainAxisAlignment: alignRight
-          ? MainAxisAlignment.end
-          : MainAxisAlignment.start,
-      children: [
-        _bubble(d1, digits.length >= 1),
-        const SizedBox(width: 4),
-        _bubble(d2, digits.length >= 2),
-        const SizedBox(width: 4),
-        const Text(
-          ':',
-          style: TextStyle(fontSize: 16, color: Color(0xFFB8BBC5)),
-        ),
-        const SizedBox(width: 4),
-        _bubble(d3, digits.length >= 3),
-        const SizedBox(width: 4),
-        _bubble(d4, digits.length >= 4),
-      ],
-    );
-
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
-      child: innerRow,
-    );
-  }
-}
-
-class _AmPmRow extends StatelessWidget {
-  const _AmPmRow({
-    required this.isPm,
-    required this.accent,
-    required this.onChanged,
-    this.alignRight = false,
-  });
-
-  final bool isPm;
-  final Color accent;
-  final ValueChanged<bool> onChanged;
-  final bool alignRight;
-
-  @override
-  Widget build(BuildContext context) {
-    final amSelected = !isPm;
-    final pmSelected = isPm;
-
-    Widget chip(String label, bool selected, bool pm) {
-      return GestureDetector(
-        onTap: () => onChanged(pm),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: selected ? accent.withOpacity(0.18) : Colors.transparent,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: selected ? accent : const Color(0xFFB8BBC5),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisAlignment: alignRight
-          ? MainAxisAlignment.end
-          : MainAxisAlignment.start,
-      children: [
-        chip('AM', amSelected, false),
-        const SizedBox(width: 8),
-        chip('PM', pmSelected, true),
-      ],
-    );
-  }
-}
-
-class _NumberPad extends StatelessWidget {
-  const _NumberPad({
-    required this.onDigit,
-    required this.onBackspace,
-    required this.onClear,
-    required this.accent,
-  });
-
-  final void Function(int digit) onDigit;
-  final VoidCallback onBackspace;
-  final VoidCallback onClear;
-  final Color accent;
-
-  Widget _numButton({
-    int? digit,
-    IconData? icon,
-    String? label,
-    VoidCallback? onTap,
-  }) {
-    Widget child;
-    if (digit != null) {
-      child = Text(
-        '$digit',
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF8E8E93),
-        ),
-      );
-    } else if (label != null) {
-      child = Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF8E8E93),
-        ),
-      );
-    } else {
-      child = Icon(icon, size: 18, color: const Color(0xFF8E8E93));
-    }
-
-    return Expanded(
-      child: AspectRatio(
-        aspectRatio: 1.4,
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(999),
-            onTap: onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: digit == 0
-                    ? accent.withOpacity(0.15)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: child,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            _numButton(digit: 7, onTap: () => onDigit(7)),
-            _numButton(digit: 8, onTap: () => onDigit(8)),
-            _numButton(digit: 9, onTap: () => onDigit(9)),
-          ],
-        ),
-        Row(
-          children: [
-            _numButton(digit: 4, onTap: () => onDigit(4)),
-            _numButton(digit: 5, onTap: () => onDigit(5)),
-            _numButton(digit: 6, onTap: () => onDigit(6)),
-          ],
-        ),
-        Row(
-          children: [
-            _numButton(digit: 1, onTap: () => onDigit(1)),
-            _numButton(digit: 2, onTap: () => onDigit(2)),
-            _numButton(digit: 3, onTap: () => onDigit(3)),
-          ],
-        ),
-        Row(
-          children: [
-            _numButton(label: 'C', onTap: onClear),
-            _numButton(digit: 0, onTap: () => onDigit(0)),
-            _numButton(icon: Icons.backspace_rounded, onTap: onBackspace),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// ---------------------------------------------------------------------------
-/// DATE RANGE BOTTOM SHEET  (multi-select: year/month → days)
-/// ---------------------------------------------------------------------------
-
-enum _DatePickerMode { yearMonth, monthDays }
-
-class _DateRangeBottomSheet extends StatefulWidget {
-  const _DateRangeBottomSheet({required this.initialStart, this.initialEnd});
-
-  final DateTime initialStart;
-  final DateTime? initialEnd;
-
-  @override
-  State<_DateRangeBottomSheet> createState() => _DateRangeBottomSheetState();
-}
-
-class _DateRangeBottomSheetState extends State<_DateRangeBottomSheet> {
-  static const _accent = Color(0xFFFF6B6B);
-
-  late DateTime _displayMonth;
-  late int _baseYear;
-
-  /// All selected days (normalized to Y/M/D).
-  late Set<DateTime> _selectedDays;
-
-  _DatePickerMode _mode = _DatePickerMode.yearMonth;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _selectedDays = <DateTime>{};
-
-    // Initialize from the given start/end as a simple contiguous range.
-    final start = _dOnly(widget.initialStart);
-    final end = widget.initialEnd != null ? _dOnly(widget.initialEnd!) : start;
-
-    DateTime d = start;
-    while (!d.isAfter(end)) {
-      _selectedDays.add(d);
-      d = d.add(const Duration(days: 1));
-    }
-
-    _displayMonth = DateTime(start.year, start.month, 1);
-    _baseYear = start.year;
-  }
-
-  void _onMonthTap(int year, int month) {
-    setState(() {
-      _mode = _DatePickerMode.monthDays;
-      _displayMonth = DateTime(year, month, 1);
-    });
-  }
-
-  void _onDayTap(DateTime day) {
-    final d = _dOnly(day);
-    setState(() {
-      if (_selectedDays.contains(d)) {
-        _selectedDays.remove(d);
-      } else {
-        _selectedDays.add(d);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final cardWidth = min(constraints.maxWidth - 32, 360.0);
-
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: cardWidth),
-                child: Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.calendar_today_outlined,
-                              size: 18,
-                              color: Colors.black54,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Choose a date',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF6F6F6),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 16,
-                          ),
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 220),
-                            transitionBuilder: (child, anim) =>
-                                FadeTransition(opacity: anim, child: child),
-                            child: _mode == _DatePickerMode.yearMonth
-                                ? _YearMonthView(
-                                    key: const ValueKey('yearMonth'),
-                                    baseYear: _baseYear,
-                                    selectedDays: _selectedDays,
-                                    accent: _accent,
-                                    onMonthTap: _onMonthTap,
-                                  )
-                                : _MonthDaysView(
-                                    key: const ValueKey('monthDays'),
-                                    displayMonth: _displayMonth,
-                                    selectedDays: _selectedDays,
-                                    accent: _accent,
-                                    onDayTap: _onDayTap,
-                                    onMonthChanged: (m) {
-                                      setState(() {
-                                        _displayMonth = m;
-                                      });
-                                    },
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () {
-                              if (_selectedDays.isEmpty) {
-                                Navigator.pop(context);
-                                return;
-                              }
-                              final days = _selectedDays.toList()
-                                ..sort((a, b) => a.compareTo(b));
-                              Navigator.pop(
-                                context,
-                                _DateRangeResult(days: days),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                            ),
-                            child: const Text(
-                              'Apply date',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: _accent,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// STEP 1: YEAR + MONTH CIRCLES
-
-class _YearMonthView extends StatelessWidget {
-  const _YearMonthView({
-    super.key,
-    required this.baseYear,
-    required this.selectedDays,
-    required this.accent,
-    required this.onMonthTap,
-  });
-
-  final int baseYear;
-  final Set<DateTime> selectedDays;
-  final Color accent;
-  final void Function(int year, int month) onMonthTap;
-
-  bool _hasSelectionForMonth(int year, int month) {
-    return selectedDays.any((d) => d.year == year && d.month == month);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget buildYear(int year) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$year',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF737373),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              for (int month = 1; month <= 12; month++)
-                _DateBubble(
-                  label: '$month',
-                  selectedStart: _hasSelectionForMonth(year, month),
-                  selectedEnd: false,
-                  inRange: false,
-                  accent: accent,
-                  onTap: () => onMonthTap(year, month),
-                ),
-            ],
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildYear(baseYear),
-        const SizedBox(height: 16),
-        buildYear(baseYear + 1),
-      ],
-    );
-  }
-}
-
-/// STEP 2: MONTH CALENDAR WITH DAYS (multi-select)
-
-class _MonthDaysView extends StatefulWidget {
-  const _MonthDaysView({
-    super.key,
-    required this.displayMonth,
-    required this.selectedDays,
-    required this.accent,
-    required this.onDayTap,
-    required this.onMonthChanged,
-  });
-
-  final DateTime displayMonth;
-  final Set<DateTime> selectedDays;
-  final Color accent;
-  final void Function(DateTime day) onDayTap;
-  final void Function(DateTime newMonth) onMonthChanged;
-
-  @override
-  State<_MonthDaysView> createState() => _MonthDaysViewState();
-}
-
-class _MonthDaysViewState extends State<_MonthDaysView> {
-  late DateTime _focusedDay;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusedDay = widget.displayMonth;
-  }
-
-  bool _isSelected(DateTime day) => widget.selectedDays.contains(_dOnly(day));
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = widget.accent;
-
-    return Column(
-      children: [
-        // Top row: "< October    Done >"
-        Row(
-          children: [
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(
-                Icons.chevron_left_rounded,
-                size: 22,
-                color: Color(0xFFB8BBC5),
-              ),
-              onPressed: () {
-                setState(() {
-                  _focusedDay = DateTime(
-                    _focusedDay.year,
-                    _focusedDay.month - 1,
-                    1,
-                  );
-                });
-                widget.onMonthChanged(_focusedDay);
-              },
-            ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                DateFormat('MMMM').format(_focusedDay),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF3A3A3A),
-                ),
-                textAlign: TextAlign.left,
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                minimumSize: const Size(0, 0),
-                padding: EdgeInsets.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'Done',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFB8BBC5),
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(
-                Icons.chevron_right_rounded,
-                size: 22,
-                color: Color(0xFFB8BBC5),
-              ),
-              onPressed: () {
-                setState(() {
-                  _focusedDay = DateTime(
-                    _focusedDay.year,
-                    _focusedDay.month + 1,
-                    1,
-                  );
-                });
-                widget.onMonthChanged(_focusedDay);
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        // Calendar grid
-        SizedBox(
-          height: 260,
-          child: TableCalendar(
-            firstDay: DateTime(_focusedDay.year - 1, 1, 1),
-            lastDay: DateTime(_focusedDay.year + 1, 12, 31),
-            focusedDay: _focusedDay,
-            headerVisible: false,
-            startingDayOfWeek: StartingDayOfWeek.sunday,
-            calendarFormat: CalendarFormat.month,
-            rowHeight: 34,
-            daysOfWeekHeight: 18,
-            availableGestures: AvailableGestures.none,
-            selectedDayPredicate: (day) => _isSelected(day),
-            onPageChanged: (day) {
-              setState(() {
-                _focusedDay = DateTime(day.year, day.month, 1);
-              });
-              widget.onMonthChanged(_focusedDay);
-            },
-            calendarStyle: CalendarStyle(
-              outsideDaysVisible: false,
-              isTodayHighlighted: false,
-              defaultTextStyle: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w100,
-                color: Color(0xFF808080),
-              ),
-              weekendTextStyle: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w100,
-                color: Color(0xFF808080),
-              ),
-              selectedDecoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: accent,
-              ),
-              selectedTextStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w100,
-              ),
-              cellMargin: const EdgeInsets.symmetric(
-                horizontal: 2,
-                vertical: 4,
-              ),
-            ),
-            daysOfWeekStyle: const DaysOfWeekStyle(
-              weekendStyle: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w100,
-                color: Color(0xFFFF6B6B), // S red
-              ),
-              weekdayStyle: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w100,
-                color: Color(0xFFB8BBC5),
-              ),
-            ),
-            onDaySelected: (day, _) => widget.onDayTap(day),
-            calendarBuilders: CalendarBuilders(
-              defaultBuilder: (context, day, focusedDay) {
-                final bool isSunday = day.weekday == DateTime.sunday;
-                final bool isSelected = _isSelected(day);
-
-                Color bg;
-                Color textColor;
-
-                if (isSelected) {
-                  bg = accent;
-                  textColor = Colors.white;
-                } else {
-                  bg = const Color(0xFFD5D5D5);
-                  textColor = isSunday ? accent : const Color(0xFF707070);
-                }
-
-                return Center(
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: bg,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
-                );
-              },
-              // hide outside days completely
-              outsideBuilder: (context, day, focusedDay) {
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Reusable round bubble (month grid)
-
-class _DateBubble extends StatelessWidget {
-  const _DateBubble({
-    required this.label,
-    required this.selectedStart,
-    required this.selectedEnd,
-    required this.inRange,
-    required this.accent,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selectedStart;
-  final bool selectedEnd;
-  final bool inRange;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool selected = selectedStart || selectedEnd;
-
-    Color bg;
-    Color textColor;
-
-    if (selected) {
-      bg = accent;
-      textColor = Colors.white;
-    } else if (inRange) {
-      bg = accent.withOpacity(0.15);
-      textColor = const Color(0xFF555555);
-    } else {
-      bg = const Color(0xFFD5D5D5);
-      textColor = const Color(0xFF555555);
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: textColor,
-          ),
-        ),
       ),
     );
   }
