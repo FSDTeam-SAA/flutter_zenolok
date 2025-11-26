@@ -794,14 +794,14 @@ class _MonthDaysView extends StatefulWidget {
     required this.displayMonth,
     required this.selectedDays,
     required this.accent,
-    required this.onDayTap,
+    required this.onDayTap,       // kept for API compatibility, but unused
     required this.onMonthChanged,
   });
 
   final DateTime displayMonth;
-  final Set<DateTime> selectedDays;
+  final Set<DateTime> selectedDays;              // shared set from parent
   final Color accent;
-  final void Function(DateTime day) onDayTap;
+  final void Function(DateTime day) onDayTap;    // not used internally now
   final void Function(DateTime newMonth) onMonthChanged;
 
   @override
@@ -819,6 +819,41 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
 
   bool _isSelected(DateTime day) =>
       widget.selectedDays.contains(_dOnly(day));
+
+  /// Handles range logic:
+  /// - 0 selected  -> add this day
+  /// - 1 selected  -> select full range between existing day and this day
+  /// - >1 selected -> reset to single day (this day)
+  void _handleDayTap(DateTime day) {
+    final d = _dOnly(day);
+
+    setState(() {
+      final set = widget.selectedDays;
+
+      if (set.isEmpty) {
+        // First tap: single day
+        set.add(d);
+      } else if (set.length == 1) {
+        // Second tap: make a continuous range
+        final first = set.first;
+        set.clear();
+
+        final start = first.isBefore(d) ? first : d;
+        final end = first.isBefore(d) ? d : first;
+
+        DateTime cursor = start;
+        while (!cursor.isAfter(end)) {
+          set.add(cursor);
+          cursor = cursor.add(const Duration(days: 1));
+        }
+      } else {
+        // Already have a range: start over from this day
+        set
+          ..clear()
+          ..add(d);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -957,7 +992,7 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                 color: Color(0xFFB8BBC5),
               ),
             ),
-            onDaySelected: (day, _) => widget.onDayTap(day),
+            onDaySelected: (day, _) => _handleDayTap(day),
             calendarBuilders: CalendarBuilders(
               defaultBuilder: (context, day, focusedDay) {
                 final bool isSunday =
@@ -1007,6 +1042,7 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
     );
   }
 }
+
 
 class _DateBubble extends StatelessWidget {
   const _DateBubble({
