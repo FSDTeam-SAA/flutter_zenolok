@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#2E2E2E"
+    android:padding="16dp">
+
+    <!-- Day of Week - WILL BE DYNAMIC -->
+    <TextView
+        android:id="@+id/tv_day_of_week"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Friday"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:fontFamily="sans-serif-light"
+        android:contentDescription="Day of the week" />
+
+    <!-- Big Day Number - WILL BE DYNAMIC -->
+    <TextView
+        android:id="@+id/tv_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="28"
+        android:textColor="#FFFFFF"
+        android:textSize="92sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:layout_marginTop="-12dp"
+        android:contentDescription="Day of the month" />
+
+    <!-- Month + Year - WILL BE DYNAMIC -->
+    <TextView
+        android:id="@+id/tv_month_year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="November 2024"
+        android:textColor="#CCFFFFFF"
+        android:textSize="24sp"
+        android:fontFamily="sans-serif-medium"
+        android:contentDescription="Month and year" />
+
+</LinearLayout>
