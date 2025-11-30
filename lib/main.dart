@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_zenolok/features/appground_screen.dart';
 import 'package:flutter_zenolok/features/auth/presentation/screens/login_screen.dart';
-import 'package:flutter_zenolok/features/home/presentation/screens/home.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:home_widget/home_widget.dart';
 
@@ -11,7 +9,7 @@ import 'core/theme/app_theme.dart';
 void main() async {
   await AppInitializer.initializeApp();
 
-  HomeWidget.updateWidget(name: 'CalendarWidget');
+  HomeWidget.updateWidget(name: 'CalendarWidget', iOSName: 'CalendarWidget');
   runApp(const MyApp());
 }
 
