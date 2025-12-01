@@ -25,6 +25,7 @@ class DateRangeResult {
 
   /// Convenience for existing code – first & last selected day.
   DateTime get start => days.first;
+
   DateTime get end => days.last;
 }
 
@@ -66,7 +67,6 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
     _endIsPm = widget.initialEnd.period == DayPeriod.pm;
   }
 
-  /// Convert 4 digits (hhmm in 12h format) to TimeOfDay
   TimeOfDay _digitsToTime(String digits, bool isPm, TimeOfDay fallback) {
     if (digits.isEmpty) return fallback;
 
@@ -74,7 +74,6 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
     int h = int.tryParse(digits.substring(0, 2)) ?? 0;
     int m = int.tryParse(digits.substring(2, 4)) ?? 0;
 
-    // Extra safety – normally validation prevents bad values
     h = h.clamp(1, 12);
     m = m.clamp(0, 59);
 
@@ -89,34 +88,6 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
     return '$h$m';
   }
 
-  /// Validate incremental input for hhmm (12h):
-  ///  - H1: 0–1
-  ///  - H2: if H1=0 → 1–9; if H1=1 → 0–2
-  ///  - M1: 0–5
-  ///  - M2: 0–9
-  bool _canAppendDigit(String current, int digit) {
-    final d = digit;
-    switch (current.length) {
-      case 0: // first hour digit
-        return d == 0 || d == 1;
-      case 1: // second hour digit
-        final h1 = int.parse(current[0]);
-        if (h1 == 0) {
-          // 01–09
-          return d >= 1 && d <= 9;
-        } else {
-          // h1 == 1 → 10–12
-          return d >= 0 && d <= 2;
-        }
-      case 2: // first minute digit
-        return d >= 0 && d <= 5;
-      case 3: // second minute digit
-        return d >= 0 && d <= 9;
-      default:
-        return false;
-    }
-  }
-
   void _clearEndSelection() {
     _selectedDurationMinutes = null;
     _endDigits = '';
@@ -125,15 +96,13 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
   void _onDigitTap(int digit) {
     setState(() {
       if (_editingStart) {
-        if (_startDigits.length < 4 &&
-            _canAppendDigit(_startDigits, digit)) {
+        if (_startDigits.length < 4) {
           _startDigits += digit.toString();
         }
         // typing in start cancels any preset duration
         _clearEndSelection();
       } else {
-        if (_endDigits.length < 4 &&
-            _canAppendDigit(_endDigits, digit)) {
+        if (_endDigits.length < 4) {
           _endDigits += digit.toString();
         }
         _selectedDurationMinutes = null;
@@ -368,8 +337,7 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                                             minutes: 60,
                                             accent: _accent,
                                             selected:
-                                            _selectedDurationMinutes ==
-                                                60,
+                                            _selectedDurationMinutes == 60,
                                             enabled: hasFullStart,
                                             onTap: () => _applyDuration(60),
                                           ),
@@ -379,8 +347,7 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                                             minutes: 90,
                                             accent: _accent,
                                             selected:
-                                            _selectedDurationMinutes ==
-                                                90,
+                                            _selectedDurationMinutes == 90,
                                             enabled: hasFullStart,
                                             onTap: () => _applyDuration(90),
                                           ),
@@ -404,7 +371,7 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        // "Done" in bottom-right
+                        // "Done" in bottom-right, like design
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -473,7 +440,9 @@ class _DurationChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? accent : const Color(0xFFD8D8D8);
+    final bg = selected
+        ? accent
+        : const Color(0xFFD8D8D8);
     final textColor = selected ? Colors.white : const Color(0xFF8E8E93);
 
     return GestureDetector(
@@ -737,6 +706,7 @@ class _NumberPad extends StatelessWidget {
   }
 }
 
+
 /// ---------------------------------------------------------------------------
 /// DATE RANGE BOTTOM SHEET  (multi-select: year/month → days)
 /// ---------------------------------------------------------------------------
@@ -767,7 +737,7 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
   /// All selected days (normalized to Y/M/D).
   late Set<DateTime> _selectedDays;
 
-  _DatePickerMode _mode = _DatePickerMode.monthDays;
+  _DatePickerMode _mode = _DatePickerMode.yearMonth;
 
   @override
   void initState() {
@@ -855,12 +825,15 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                             vertical: 16,
                           ),
                           child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 220),
+                            duration:
+                            const Duration(milliseconds: 220),
                             transitionBuilder: (child, anim) =>
-                                FadeTransition(opacity: anim, child: child),
+                                FadeTransition(
+                                    opacity: anim, child: child),
                             child: _mode == _DatePickerMode.yearMonth
                                 ? _YearMonthView(
-                              key: const ValueKey('yearMonth'),
+                              key:
+                              const ValueKey('yearMonth'),
                               baseYear: _baseYear,
                               selectedDays: _selectedDays,
                               accent: _accent,
@@ -910,7 +883,8 @@ class _YearMonthView extends StatelessWidget {
   final void Function(int year, int month) onMonthTap;
 
   bool _hasSelectionForMonth(int year, int month) {
-    return selectedDays.any((d) => d.year == year && d.month == month);
+    return selectedDays.any(
+            (d) => d.year == year && d.month == month);
   }
 
   @override
@@ -935,7 +909,8 @@ class _YearMonthView extends StatelessWidget {
               for (int month = 1; month <= 12; month++)
                 _DateBubble(
                   label: '$month',
-                  selectedStart: _hasSelectionForMonth(year, month),
+                  selectedStart:
+                  _hasSelectionForMonth(year, month),
                   selectedEnd: false,
                   inRange: false,
                   accent: accent,
@@ -966,14 +941,14 @@ class _MonthDaysView extends StatefulWidget {
     required this.displayMonth,
     required this.selectedDays,
     required this.accent,
-    required this.onDayTap, // kept for API compatibility, but unused
+    required this.onDayTap,       // kept for API compatibility, but unused
     required this.onMonthChanged,
   });
 
   final DateTime displayMonth;
-  final Set<DateTime> selectedDays; // shared set from parent
+  final Set<DateTime> selectedDays;              // shared set from parent
   final Color accent;
-  final void Function(DateTime day) onDayTap; // not used internally now
+  final void Function(DateTime day) onDayTap;    // not used internally now
   final void Function(DateTime newMonth) onMonthChanged;
 
   @override
@@ -989,7 +964,8 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
     _focusedDay = widget.displayMonth;
   }
 
-  bool _isSelected(DateTime day) => widget.selectedDays.contains(_dOnly(day));
+  bool _isSelected(DateTime day) =>
+      widget.selectedDays.contains(_dOnly(day));
 
   /// Handles range logic:
   /// - 0 selected  -> add this day
@@ -1156,6 +1132,7 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                 fontSize: 11,
                 fontWeight: FontWeight.w100,
                 color: Color(0xFFFF6B6B),
+                // color: Colors.black45,
               ),
               weekdayStyle: TextStyle(
                 fontSize: 11,
@@ -1166,7 +1143,8 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
             onDaySelected: (day, _) => _handleDayTap(day),
             calendarBuilders: CalendarBuilders(
               defaultBuilder: (context, day, focusedDay) {
-                final bool isSunday = day.weekday == DateTime.sunday;
+                final bool isSunday =
+                    day.weekday == DateTime.sunday;
                 final bool isSelected = _isSelected(day);
 
                 Color bg;
@@ -1177,8 +1155,9 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                   textColor = Colors.white;
                 } else {
                   bg = const Color(0xFFD5D5D5);
-                  textColor =
-                  isSunday ? accent : const Color(0xFF707070);
+                  textColor = isSunday
+                      ? accent
+                      : const Color(0xFF707070);
                 }
 
                 return Center(
@@ -1212,6 +1191,7 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
   }
 }
 
+
 class _DateBubble extends StatelessWidget {
   const _DateBubble({
     required this.label,
@@ -1236,6 +1216,9 @@ class _DateBubble extends StatelessWidget {
     Color bg;
     Color textColor;
 
+    // Style like the screenshot:
+    //  - normal months: medium gray circle, white text
+    //  - selected month: lighter gray circle, white text
     if (selected) {
       bg = const Color(0xFFF6F6F6); // light gray (selected)
       textColor = Colors.grey;
@@ -1275,3 +1258,4 @@ class _DateBubble extends StatelessWidget {
     );
   }
 }
+

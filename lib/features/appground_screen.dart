@@ -31,10 +31,11 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
 
       // main content: switch between tabs
       body: SafeArea(
-        child: IndexedStack(
-          index: _currentIndex,
-          children: _pages,
-        ),
+        // child: IndexedStack(
+        //   index: _currentIndex,
+        //   children: _pages,
+        // ),
+        child: _pages[_currentIndex],
       ),
 
       // bottom bar like design

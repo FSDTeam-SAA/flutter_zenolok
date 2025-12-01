@@ -1,5 +1,26 @@
 import 'package:flutter/material.dart';
 
+// ───────────────────────── MODEL ─────────────────────────────────────────────
+
+class CategoryDesign {
+  /// Background color of the chip. Nullable so the editor can start "empty".
+  final Color? color;
+  final IconData icon;
+  final String name;
+
+  /// true = filled chip, false = outlined chip
+  final bool filled;
+
+  const CategoryDesign({
+    this.color,
+    required this.icon,
+    required this.name,
+    this.filled = true,
+  });
+
+  bool get isComplete => color != null;
+}
+
 // ───────────────────────── EVENTS SCREEN ─────────────────────────────────────
 
 enum EventsTab { upcoming, past, all }
@@ -15,6 +36,40 @@ class EventsScreen extends StatefulWidget {
 
 class _EventsScreenState extends State<EventsScreen> {
   EventsTab _selectedTab = EventsTab.upcoming;
+
+  // initial categories shown in the chips row
+  final List<CategoryDesign> _categories = [
+    const CategoryDesign(
+      color: Color(0xFF1D9BF0),
+      icon: Icons.home_rounded,
+      name: 'Home',
+      filled: true,
+    ),
+    const CategoryDesign(
+      color: Color(0xFFF6B700),
+      icon: Icons.work_rounded,
+      name: 'Work',
+      filled: true,
+    ),
+    const CategoryDesign(
+      color: Color(0xFFB277FF),
+      icon: Icons.school_rounded,
+      name: 'School',
+      filled: false, // outlined purple
+    ),
+    const CategoryDesign(
+      color: Color(0xFF22C55E),
+      icon: Icons.person_rounded,
+      name: 'Personal',
+      filled: true,
+    ),
+    const CategoryDesign(
+      color: Color(0xFFFF3366),
+      icon: Icons.sports_soccer_rounded,
+      name: 'Sport',
+      filled: true,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -67,50 +122,41 @@ class _EventsScreenState extends State<EventsScreen> {
                   horizontal: EventsScreen._horizontalPadding,
                 ),
                 physics: const BouncingScrollPhysics(),
-                children: const [
-                  _CategoryChip(
+                children: [
+                  const _CategoryChip(
                     label: 'All',
                     icon: Icons.tune_rounded,
                     color: Color(0xFF9CA3AF),
                     filled: false,
                   ),
-                  SizedBox(width: 8),
-                  _CategoryChip(
-                    label: 'Home',
-                    icon: Icons.home_rounded,
-                    color: Color(0xFF1D9BF0),
-                    filled: true,
+                  const SizedBox(width: 8),
+                  ..._categories.map(
+                        (c) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _CategoryChip(
+                        label: c.name,
+                        icon: c.icon,
+                        color: c.color ?? Colors.grey,
+                        filled: c.filled,
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 8),
-                  _CategoryChip(
-                    label: 'Work',
-                    icon: Icons.work_rounded,
-                    color: Color(0xFFF6B700),
-                    filled: true,
+                  _AddCategoryButton(
+                    onTap: () async {
+                      final result =
+                      await Navigator.of(context).push<CategoryDesign>(
+                        MaterialPageRoute(
+                          builder: (_) => const CategoryEditorScreen(),
+                        ),
+                      );
+
+                      if (result != null && result.isComplete) {
+                        setState(() {
+                          _categories.add(result);
+                        });
+                      }
+                    },
                   ),
-                  SizedBox(width: 8),
-                  _CategoryChip(
-                    label: 'School',
-                    icon: Icons.school_rounded,
-                    color: Color(0xFFB277FF),
-                    filled: false,
-                  ),
-                  SizedBox(width: 8),
-                  _CategoryChip(
-                    label: 'Personal',
-                    icon: Icons.person_rounded,
-                    color: Color(0xFF22C55E),
-                    filled: true,
-                  ),
-                  SizedBox(width: 8),
-                  _CategoryChip(
-                    label: 'Sport',
-                    icon: Icons.sports_soccer_rounded,
-                    color: Color(0xFFFF3366),
-                    filled: true,
-                  ),
-                  SizedBox(width: 8),
-                  _AddCategoryButton(),
                 ],
               ),
             ),
@@ -155,7 +201,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
             const SizedBox(height: 16),
 
-            // EVENTS LIST (RED AREA) ----------------------------------------
+            // EVENTS LIST (main area) ----------------------------------------
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -170,21 +216,13 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  /// This decides what appears in the red area for each tab.
   Widget _buildTabBody() {
-    switch (_selectedTab) {
-      case EventsTab.upcoming:
-      // Only Upcoming shows the timeline list
-        return const EventsListSection();
-      case EventsTab.past:
-      case EventsTab.all:
-      // Past & All: nothing in the red area
-        return const SizedBox.shrink(); // or Container()
-    }
+    return const EventsListSection();
   }
+
 }
 
-// ───────────────────────── helpers (top bar / chips / tabs) ─────────────────
+// ───────────────────────── helpers (icons / chips / tabs) ───────────────────
 
 class _CircleIcon extends StatelessWidget {
   final IconData icon;
@@ -252,21 +290,15 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-// CLICKABLE + BUTTON  ---------------------------------------------------------
 class _AddCategoryButton extends StatelessWidget {
-  const _AddCategoryButton({super.key});
+  final VoidCallback onTap;
+  const _AddCategoryButton({required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(999),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const CategoryEditorScreen(),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Container(
         width: 32,
         height: 32,
@@ -343,8 +375,57 @@ class CategoryEditorScreen extends StatefulWidget {
 }
 
 class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
-  // sample data
-  final List<Color> _colors = const [
+  CategoryDesign _current = const CategoryDesign(
+    color: null,
+    icon: Icons.work_outline,
+    name: 'Bricks',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+          child: CategoryEditorWidget(
+            initial: _current,
+            onChanged: (design) {
+              _current = design;
+            },
+            onSubmit: () {
+              if (_current.isComplete) {
+                Navigator.of(context).pop<CategoryDesign>(_current);
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ───────────────────────── CATEGORY EDITOR WIDGET ────────────────────────────
+
+class CategoryEditorWidget extends StatefulWidget {
+  const CategoryEditorWidget({
+    super.key,
+    this.initial,
+    this.onChanged,
+    this.onSubmit,
+  });
+
+  final CategoryDesign? initial;
+  final ValueChanged<CategoryDesign>? onChanged;
+  final VoidCallback? onSubmit;
+
+  @override
+  State<CategoryEditorWidget> createState() => _CategoryEditorWidgetState();
+}
+
+class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
+  // COLOR + ICON ARRAYS -------------------------------------------------------
+  static const List<Color> _colors = [
     Color(0xFFFF4B4B),
     Color(0xFFFF9F0A),
     Color(0xFFFFD60A),
@@ -365,7 +446,7 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
     Color(0xFF607D8B),
   ];
 
-  final List<IconData> _icons = const [
+  static const List<IconData> _icons = [
     Icons.work_outline,
     Icons.home_outlined,
     Icons.school_outlined,
@@ -399,16 +480,20 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
     Icons.emoji_food_beverage_outlined,
   ];
 
-  Color? _selectedColor; // null => first (grey) state
+  Color? _selectedColor;
   IconData _selectedIcon = Icons.work_outline;
   String _name = 'Bricks';
   late final TextEditingController _nameController;
 
-  bool get _hasSelectedColor => _selectedColor != null;
+  bool get _hasColor => _selectedColor != null;
 
   @override
   void initState() {
     super.initState();
+    final init = widget.initial;
+    _selectedColor = init?.color;
+    _selectedIcon = init?.icon ?? Icons.work_outline;
+    _name = init?.name ?? 'Bricks';
     _nameController = TextEditingController(text: _name);
   }
 
@@ -418,231 +503,197 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
     super.dispose();
   }
 
+  void _notify() {
+    widget.onChanged?.call(
+      CategoryDesign(
+        color: _selectedColor,
+        icon: _selectedIcon,
+        name: _name,
+        filled: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final enabledBackColor =
-    _hasSelectedColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
-
+    _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
     final addTextColor =
-    _hasSelectedColor ? const Color(0xFF444444) : const Color(0xFFE0E0E0);
+    _hasColor ? const Color(0xFF444444) : const Color(0xFFE0E0E0);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // TOP BAR ------------------------------------------------------------
+        Row(
           children: [
-            // TOP BAR --------------------------------------------------------
-            Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                color: enabledBackColor,
+              ),
+              onPressed:
+              _hasColor ? () => Navigator.of(context).pop() : null,
+            ),
+            const Spacer(),
+            InkWell(
+              onTap: _hasColor ? widget.onSubmit : null,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 18,
-                      color: enabledBackColor,
-                    ),
-                    onPressed:
-                    _hasSelectedColor ? () => Navigator.of(context).pop() : null,
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: _hasSelectedColor
-                        ? () {
-                      // TODO: handle "Add" action
-                      Navigator.pop(context);
-                    }
-                        : null,
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(0, 0),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Add',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: addTextColor,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.chevron_right,
-                          size: 18,
-                          color: addTextColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // COLLABORATION PILL UNDER ADD ----------------------------------
-            Padding(
-              padding: const EdgeInsets.only(right: 24.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: collaboration action
-                  },
-                  style: OutlinedButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    side: const BorderSide(
-                      color: Color(0xFFE2E2E2),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                  icon: const Icon(
-                    Icons.group_outlined,
-                    size: 14,
-                    color: Color(0xFFBDBDBD),
-                  ),
-                  label: const Text(
-                    'Collaboration',
+                  Text(
+                    'Add',
                     style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFFBDBDBD),
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: addTextColor,
                     ),
                   ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // SELECTED CATEGORY PILL -----------------------------------------
-            Center(
-              child: _CategoryHeaderPill(
-                color: _hasSelectedColor
-                    ? _selectedColor!
-                    : const Color(0xFFF1F1F1),
-                icon: _selectedIcon,
-                text: _hasSelectedColor ? _name : 'Bricks',
-                enabled: _hasSelectedColor,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // EDITABLE NAME ("Work"/"Bricks") --------------------------------
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 80),
-              child: TextField(
-                controller: _nameController,
-                textAlign: TextAlign.center,
-                readOnly: !_hasSelectedColor, // locked in first state
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: _hasSelectedColor
-                          ? const Color(0xFFE5E5E5)
-                          : const Color(0xFFF0F0F0),
-                    ),
-                  ),
-                  focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF444444)),
-                  ),
-                ),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: _hasSelectedColor
-                      ? const Color(0xFF444444)
-                      : const Color(0xFFBDBDBD),
-                ),
-                onChanged: (value) {
-                  if (!_hasSelectedColor) return;
-                  setState(() {
-                    _name = value.isEmpty ? ' ' : value;
-                  });
-                },
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // CONTENT (scrollable) -------------------------------------------
-            Expanded(
-              child: SingleChildScrollView(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Column(
-                  children: [
-                    // COLOR PANEL
-                    _RoundedPanel(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        child: _ColorGrid(
-                          colors: _colors,
-                          selected: _selectedColor,
-                          onSelected: (c) {
-                            setState(() {
-                              _selectedColor = c;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    // ICON PANEL
-                    _RoundedPanel(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        child: AbsorbPointer(
-                          absorbing: !_hasSelectedColor,
-                          child: _IconGrid(
-                            icons: _icons,
-                            selected: _selectedIcon,
-                            enabled: _hasSelectedColor,
-                            onSelected: (icon) {
-                              setState(() => _selectedIcon = icon);
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 18, color: addTextColor),
+                ],
               ),
             ),
           ],
         ),
-      ),
+
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerRight,
+          child: OutlinedButton.icon(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              side: const BorderSide(color: Color(0xFFE2E2E2)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            icon: const Icon(
+              Icons.group_outlined,
+              size: 14,
+              color: Color(0xFFBDBDBD),
+            ),
+            label: const Text(
+              'Collaboration',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFFBDBDBD),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // SELECTED CATEGORY PILL ---------------------------------------------
+        Center(
+          child: _CategoryPreviewPill(
+            color: _hasColor
+                ? _selectedColor!
+                : const Color(0xFFF1F1F1),
+            icon: _selectedIcon,
+            text: _hasColor ? _name : 'Bricks',
+            enabled: _hasColor,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        // EDITABLE NAME ------------------------------------------------------
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 80),
+          child: TextField(
+            controller: _nameController,
+            textAlign: TextAlign.center,
+            readOnly: !_hasColor,
+            decoration: InputDecoration(
+              isDense: true,
+              border: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFFE5E5E5)),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: _hasColor
+                      ? const Color(0xFFE5E5E5)
+                      : const Color(0xFFF0F0F0),
+                ),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF444444)),
+              ),
+            ),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: _hasColor
+                  ? const Color(0xFF444444)
+                  : const Color(0xFFBDBDBD),
+            ),
+            onChanged: (value) {
+              if (!_hasColor) return;
+              setState(() {
+                _name = value.isEmpty ? ' ' : value;
+              });
+              _notify();
+            },
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // COLOR PANEL --------------------------------------------------------
+        _RoundedPanel(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: _ColorGrid(
+              colors: _colors,
+              selected: _selectedColor,
+              onSelected: (c) {
+                setState(() => _selectedColor = c);
+                _notify();
+              },
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // ICON PANEL ---------------------------------------------------------
+        _RoundedPanel(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: AbsorbPointer(
+              absorbing: !_hasColor,
+              child: _IconGrid(
+                icons: _icons,
+                selected: _selectedIcon,
+                enabled: _hasColor,
+                onSelected: (icon) {
+                  setState(() => _selectedIcon = icon);
+                  _notify();
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-// pill at the top ("Work" / "Bricks")
-class _CategoryHeaderPill extends StatelessWidget {
+// pill used only inside editor
+class _CategoryPreviewPill extends StatelessWidget {
   final Color color;
   final IconData icon;
   final String text;
   final bool enabled;
 
-  const _CategoryHeaderPill({
+  const _CategoryPreviewPill({
     required this.color,
     required this.icon,
     required this.text,
@@ -651,10 +702,8 @@ class _CategoryHeaderPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor =
-    enabled ? Colors.white : const Color(0xFFBDBDBD);
-    final iconColor =
-    enabled ? Colors.white : const Color(0xFFBDBDBD);
+    final textColor = enabled ? Colors.white : const Color(0xFFBDBDBD);
+    final iconColor = enabled ? Colors.white : const Color(0xFFBDBDBD);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
@@ -681,9 +730,9 @@ class _CategoryHeaderPill extends StatelessWidget {
   }
 }
 
-// rounded white/grey card
 class _RoundedPanel extends StatelessWidget {
   final Widget child;
+
   const _RoundedPanel({required this.child});
 
   @override
@@ -699,7 +748,6 @@ class _RoundedPanel extends StatelessWidget {
   }
 }
 
-// color grid
 class _ColorGrid extends StatelessWidget {
   final List<Color> colors;
   final Color? selected;
@@ -726,15 +774,11 @@ class _ColorGrid extends StatelessWidget {
             decoration: BoxDecoration(
               color: c,
               shape: BoxShape.circle,
-              border:
-              isSelected ? Border.all(color: Colors.white, width: 3) : null,
+              border: isSelected
+                  ? Border.all(color: Colors.white, width: 3)
+                  : null,
               boxShadow: isSelected
-                  ? [
-                BoxShadow(
-                  color: c.withOpacity(0.4),
-                  blurRadius: 6,
-                )
-              ]
+                  ? [BoxShadow(color: c.withOpacity(0.4), blurRadius: 6)]
                   : null,
             ),
           ),
@@ -744,7 +788,6 @@ class _ColorGrid extends StatelessWidget {
   }
 }
 
-// icon grid
 class _IconGrid extends StatelessWidget {
   final List<IconData> icons;
   final IconData selected;
@@ -760,12 +803,12 @@ class _IconGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final disabledColor = const Color(0xFFD0D0D0);
+    const disabledColor = Color(0xFFD0D0D0);
 
     return GridView.builder(
-      itemCount: icons.length,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      itemCount: icons.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 6,
         mainAxisSpacing: 12,
@@ -777,23 +820,16 @@ class _IconGrid extends StatelessWidget {
 
         final color = !enabled
             ? disabledColor
-            : (isSelected
-            ? const Color(0xFF444444)
-            : const Color(0xFFB0B0B0));
+            : (isSelected ? const Color(0xFF444444) : const Color(0xFFB0B0B0));
 
         return GestureDetector(
           onTap: enabled ? () => onSelected(icon) : null,
           child: Container(
             decoration: BoxDecoration(
-              color:
-              isSelected && enabled ? Colors.white : Colors.transparent,
+              color: isSelected && enabled ? Colors.white : Colors.transparent,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: 20,
-              color: color,
-            ),
+            child: Icon(icon, size: 20, color: color),
           ),
         );
       },
@@ -808,54 +844,65 @@ class EventsListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Stack gives us ONE continuous vertical line behind all items.
-    return Stack(
-      children: [
-        Positioned(
-          left: 44,
-          top: 0,
-          bottom: 0,
-          child: Container(
-            width: 1,
-            color: const Color(0xFFE5E5E5),
+    // Make the Stack fill the entire available height so the line
+    // continues even below the last card.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          height: constraints.maxHeight,
+          child: Stack(
+            children: [
+              // vertical line across the whole red area
+              Positioned(
+                left: 44,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 1,
+                  color: const Color(0xFFE5E5E5),
+                ),
+              ),
+              // scrollable cards
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: const [
+                  _EventTimelineItem(
+                    timelineLabel: 'Now',
+                    color: Color(0xFF34C759),
+                    title: 'Body check',
+                    date: '17 JUN 2026',
+                    time: '08 : 00 AM  -  09 : 00 AM',
+                    location: '20, Farm Road',
+                    badgeCount: 2,
+                  ),
+                  SizedBox(height: 12),
+                  _EventTimelineItem(
+                    timelineLabel: '1 day',
+                    color: Color(0xFFFFCC00),
+                    title: 'Exhibition week',
+                    date: '18 JUN 2026  -  21 JUN 2026',
+                    time: '08 : 00 AM          09 : 00 AM',
+                    location: 'Asia Expo',
+                    badgeCount: 2,
+                    showParticipantsRow: true,
+                  ),
+                  SizedBox(height: 12),
+                  _EventTimelineItem(
+                    timelineLabel: '4 days',
+                    color: Color(0xFF32ADE6),
+                    title: 'Family dinner',
+                    date: '21 JUN 2026',
+                    time: 'All day',
+                    location: 'Home',
+                    badgeCount: 2,
+                  ),
+                  SizedBox(height: 16),
+                ],
+              ),
+            ],
           ),
-        ),
-        ListView(
-          physics: const BouncingScrollPhysics(),
-          children: const [
-            _EventTimelineItem(
-              timelineLabel: 'Now',
-              color: Color(0xFF34C759),
-              title: 'Body check',
-              date: '17 JUN 2026',
-              time: '08 : 00 AM  -  09 : 00 AM',
-              location: '20, Farm Road',
-              badgeCount: 2,
-            ),
-            SizedBox(height: 12),
-            _EventTimelineItem(
-              timelineLabel: '1 day',
-              color: Color(0xFFFFCC00),
-              title: 'Exhibition week',
-              date: '18 JUN 2026  -  21 JUN 2026',
-              time: '08 : 00 AM          09 : 00 AM',
-              location: 'Asia Expo',
-              badgeCount: 2,
-              showParticipantsRow: true,
-            ),
-            SizedBox(height: 12),
-            _EventTimelineItem(
-              timelineLabel: '4 days',
-              color: Color(0xFF32ADE6),
-              title: 'Family dinner',
-              date: '21 JUN 2026',
-              time: 'All day',
-              location: 'Home',
-              badgeCount: 2,
-            ),
-          ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -887,10 +934,11 @@ class _EventTimelineItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // only label; the global line comes from the Stack
         SizedBox(
           width: 44,
           child: Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.topLeft,
             child: Text(
               timelineLabel,
               style: const TextStyle(
@@ -916,8 +964,6 @@ class _EventTimelineItem extends StatelessWidget {
     );
   }
 }
-
-// ───────────────────────── EVENT CARD ───────────────────────────────────────
 
 class _EventCard extends StatelessWidget {
   final Color color;
@@ -953,7 +999,6 @@ class _EventCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // colored strip
           Container(
             width: 5,
             decoration: BoxDecoration(
@@ -971,7 +1016,6 @@ class _EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // title + location + badge
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -1003,10 +1047,7 @@ class _EventCard extends StatelessWidget {
                       _Badge(count: badgeCount),
                     ],
                   ),
-
                   const SizedBox(height: 8),
-
-                  // date row
                   const _InfoRow(
                     icon: Icons.calendar_today_outlined,
                     text: '',
@@ -1018,17 +1059,13 @@ class _EventCard extends StatelessWidget {
                       color: textSub,
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
-                  // time row + trailing icons
                   Row(
                     children: [
                       const _InfoRow(
                         icon: Icons.access_time,
                         text: '',
                       ),
-                      const SizedBox(width: 0),
                       Text(
                         time,
                         style: const TextStyle(
@@ -1047,7 +1084,6 @@ class _EventCard extends StatelessWidget {
                           size: 16, color: textSub),
                     ],
                   ),
-
                   if (showParticipantsRow) ...[
                     const SizedBox(height: 8),
                     Row(
