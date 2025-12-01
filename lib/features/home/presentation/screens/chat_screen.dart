@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// Adjust if your path is different
+// CalendarEvent
 import 'package:flutter_zenolok/features/home/presentation/screens/home.dart';
+
+// date + time widgets
+import '../widgets/date_time_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.event});
@@ -20,13 +23,20 @@ class _ChatScreenState extends State<ChatScreen> {
   static const _todoBubbleBg = Color(0xFFF5F5F7);
   static const _todoHintGrey = Color(0xFFD2D4DC);
 
-  // NEW: controllers for editable fields
+  // editable text
   late final TextEditingController _titleCtrl;
   late final TextEditingController _locationCtrl;
   final TextEditingController _newTodoCtrl = TextEditingController();
   final TextEditingController _notesCtrl = TextEditingController();
 
   late List<_TodoItem> _todos;
+
+  // editable date / time / allDay
+  late DateTime _startDate;
+  late DateTime _endDate;
+  late TimeOfDay _startTime;
+  late TimeOfDay _endTime;
+  late bool _allDay;
 
   CalendarEvent get event => widget.event;
 
@@ -37,6 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _titleCtrl = TextEditingController(text: event.title);
     _locationCtrl = TextEditingController(text: event.location ?? '');
 
+    // init checklist
     final rawList = event.checklist.isNotEmpty
         ? event.checklist
         : <String>[
@@ -44,8 +55,17 @@ class _ChatScreenState extends State<ChatScreen> {
       '[ ] Leaflet giving',
       '[x] Bring staff pass',
     ];
-
     _todos = rawList.map(_TodoItem.fromRaw).toList();
+
+    // init date / time
+    final start = event.start;
+    final end = event.end ?? event.start;
+
+    _startDate = DateTime(start.year, start.month, start.day);
+    _endDate = DateTime(end.year, end.month, end.day);
+    _startTime = TimeOfDay(hour: start.hour, minute: start.minute);
+    _endTime = TimeOfDay(hour: end.hour, minute: end.minute);
+    _allDay = event.allDay;
   }
 
   @override
@@ -63,17 +83,74 @@ class _ChatScreenState extends State<ChatScreen> {
   String _fmtTime(DateTime d) => DateFormat('hh : mm').format(d);
   String _fmtAmPm(DateTime d) => DateFormat('a').format(d);
 
-  // NEW: build updated event and pop it
+  // combine date + time
+  DateTime _combine(DateTime d, TimeOfDay t) =>
+      DateTime(d.year, d.month, d.day, t.hour, t.minute);
+
+  Future<void> _pickDateRange() async {
+    final result = await showModalBottomSheet<DateRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => DateRangeBottomSheet(
+        initialStart: _startDate,
+        initialEnd: _endDate,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _startDate = result.start;
+        _endDate = result.end;
+      });
+    }
+  }
+
+  Future<void> _pickTimeRange() async {
+    final result = await showModalBottomSheet<TimeRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => TimeRangeBottomSheet(
+        initialStart: _startTime,
+        initialEnd: _endTime,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _startTime = result.start;
+        _endTime = result.end;
+      });
+    }
+  }
+
   void _onSave() {
+    // build new start / end based on allDay + selections
+    late DateTime start;
+    DateTime? end;
+
+    if (_allDay) {
+      start = DateTime(_startDate.year, _startDate.month, _startDate.day);
+      if (_startDate.isAtSameMomentAs(_endDate)) {
+        end = null; // single all-day
+      } else {
+        end = DateTime(_endDate.year, _endDate.month, _endDate.day);
+      }
+    } else {
+      start = _combine(_startDate, _startTime);
+      end = _combine(_endDate, _endTime);
+    }
+
     final updated = CalendarEvent(
       id: event.id,
       category: event.category,
       title: _titleCtrl.text.trim().isEmpty
           ? event.title
           : _titleCtrl.text.trim(),
-      start: event.start,
-      end: event.end,
-      allDay: event.allDay,
+      start: start,
+      end: end,
+      allDay: _allDay,
       location: _locationCtrl.text.trim().isEmpty
           ? null
           : _locationCtrl.text.trim(),
@@ -91,9 +168,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     const bg = Colors.white;
 
-    final start = event.start;
-    final end = event.end ?? event.start;
-    final isAllDay = event.allDay;
+    final startDate = _startDate;
+    final endDate = _endDate;
+
+    final startDT = _combine(startDate, _startTime);
+    final endDT = _combine(endDate, _endTime);
 
     return Scaffold(
       backgroundColor: bg,
@@ -112,7 +191,6 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         titleSpacing: 0,
         title: const SizedBox.shrink(),
-        // NEW: actions are NOT const and call _onSave
         actions: [
           const SizedBox(width: 8),
           IconButton(
@@ -122,7 +200,6 @@ class _ChatScreenState extends State<ChatScreen> {
               color: Color(0xFFFF4B5C),
             ),
             onPressed: () {
-              // if you want delete behaviour later, handle here
               Navigator.pop(context);
             },
           ),
@@ -140,7 +217,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
         children: [
-          // ───────── Title + share icon (EDITABLE) ─────────
+          // title
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -178,7 +255,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 10),
 
-          // Category pill
+          // category pill
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
@@ -211,177 +288,196 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 26),
 
-          // Date row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.event_outlined, size: 20, color: _labelGrey),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Row(
-                  children: [
-                    // left date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _fmtDay(start),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: _labelGrey,
+          // DATE ROW  (opens DateRangeBottomSheet)
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _pickDateRange,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.event_outlined, size: 20, color: _labelGrey),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      // left date
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _fmtDay(startDate),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: _labelGrey,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _fmtDate(start),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: Colors.black,
+                            const SizedBox(height: 2),
+                            Text(
+                              _fmtDate(startDate),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    // right date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            _fmtDay(end),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: _labelGrey,
+                      const SizedBox(width: 16),
+                      // right date
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              _fmtDay(endDate),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: _labelGrey,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _fmtDate(end),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: Colors.black,
+                            const SizedBox(height: 2),
+                            Text(
+                              _fmtDate(endDate),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              const Icon(
-                Icons.notifications_none_rounded,
-                size: 18,
-                color: _lightIconGrey,
-              ),
-              const SizedBox(width: 12),
-              const Icon(
-                Icons.autorenew_rounded,
-                size: 18,
-                color: _lightIconGrey,
-              ),
-            ],
+                const SizedBox(width: 10),
+                const Icon(
+                  Icons.notifications_none_rounded,
+                  size: 18,
+                  color: _lightIconGrey,
+                ),
+                const SizedBox(width: 12),
+                const Icon(
+                  Icons.autorenew_rounded,
+                  size: 18,
+                  color: _lightIconGrey,
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 14),
 
-          // Time row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.access_time_rounded, size: 20, color: _labelGrey),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _fmtTime(start),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.2,
-                              color: Colors.black,
+          // TIME ROW  (opens TimeRangeBottomSheet when not all-day)
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _allDay ? null : _pickTimeRange,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.access_time_rounded,
+                    size: 20, color: _labelGrey),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _fmtTime(startDT),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _fmtAmPm(start),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: _labelGrey,
+                            const SizedBox(height: 2),
+                            Text(
+                              _fmtAmPm(startDT),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: _labelGrey,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            _fmtTime(end),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.2,
-                              color: Colors.black,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              _fmtTime(endDT),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _fmtAmPm(end),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: _labelGrey,
+                            const SizedBox(height: 2),
+                            Text(
+                              _fmtAmPm(endDT),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: _labelGrey,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F7FA),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFE7E8EE)),
-                ),
-                child: Text(
-                  'All day',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: isAllDay
-                        ? const Color(0xFFD0D3DD)
-                        : const Color(0xFFD0D3DD),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _allDay = !_allDay;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _allDay
+                          ? const Color(0xFFF6F7FA)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE7E8EE)),
+                    ),
+                    child: Text(
+                      'All day',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _allDay
+                            ? const Color(0xFFD0D3DD)
+                            : const Color(0xFFD0D3DD),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+
           const SizedBox(height: 8),
           const Divider(height: 1, color: _dividerGrey),
 
-          // Location row (EDITABLE)
+          // LOCATION
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -408,12 +504,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 26),
 
-          // Todo bubble
           _buildTodoBubble(),
 
           const SizedBox(height: 26),
 
-          // Let's JAM
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -438,7 +532,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // todo bubble
+  // todo bubble --------------------------------------------------------------
+
   Widget _buildTodoBubble() {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 14, 22, 14),
@@ -456,7 +551,6 @@ class _ChatScreenState extends State<ChatScreen> {
               highlightColor: event.category.color,
               onTap: () {
                 setState(() {
-                  // single selected at a time (like your mock)
                   for (int j = 0; j < _todos.length; j++) {
                     _todos[j] =
                         _todos[j].copyWith(checked: j == i ? true : false);
@@ -467,8 +561,6 @@ class _ChatScreenState extends State<ChatScreen> {
             if (i != _todos.length - 1) const SizedBox(height: 8),
           ],
           const SizedBox(height: 12),
-
-          // New todo
           TextField(
             controller: _newTodoCtrl,
             style: const TextStyle(
@@ -501,8 +593,6 @@ class _ChatScreenState extends State<ChatScreen> {
             color: const Color(0xFFE1E2E8),
           ),
           const SizedBox(height: 6),
-
-          // New notes
           TextField(
             controller: _notesCtrl,
             style: const TextStyle(
@@ -527,7 +617,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-/// Radio-like todo row
 class _TodoRadioRow extends StatelessWidget {
   const _TodoRadioRow({
     required this.label,

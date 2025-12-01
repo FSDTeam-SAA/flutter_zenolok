@@ -149,7 +149,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
     // all-day streaks that cover this day, in insertion order
     final spanning = _allEvents().where(
-          (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
+      (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
     );
 
     // merge while preserving order of insertion
@@ -166,7 +166,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   }
 
   bool _isStreakDay(DateTime day) => _allEvents().any(
-        (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
+    (e) => e.allDay && e.end != null && _betweenIncl(day, e.start, e.end!),
   );
 
   void _addEvent(CalendarEvent e) {
@@ -238,9 +238,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            DateFormat('MMM')
-                                .format(_focused.value)
-                                .toUpperCase(),
+                            DateFormat(
+                              'MMM',
+                            ).format(_focused.value).toUpperCase(),
                             style: _monthBig,
                           ),
                           const SizedBox(width: 8),
@@ -258,21 +258,26 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           PageRouteBuilder(
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
-                            const MinimalSearchScreen(),
-                            transitionsBuilder: (context, animation,
-                                secondaryAnimation, child) {
-                              const begin = Offset(1.0, 0.0);
-                              const end = Offset.zero;
-                              const curve = Curves.easeInOut;
-                              final tween = Tween(
-                                begin: begin,
-                                end: end,
-                              ).chain(CurveTween(curve: curve));
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
+                                    const MinimalSearchScreen(),
+                            transitionsBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.easeInOut;
+                                  final tween = Tween(
+                                    begin: begin,
+                                    end: end,
+                                  ).chain(CurveTween(curve: curve));
+                                  return SlideTransition(
+                                    position: animation.drive(tween),
+                                    child: child,
+                                  );
+                                },
                           ),
                         );
                       },
@@ -289,21 +294,26 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                               PageRouteBuilder(
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
-                                const NotificationScreen(),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.easeInOut;
-                                  final tween = Tween(
-                                    begin: begin,
-                                    end: end,
-                                  ).chain(CurveTween(curve: curve));
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
+                                        const NotificationScreen(),
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      const begin = Offset(1.0, 0.0);
+                                      const end = Offset.zero;
+                                      const curve = Curves.easeInOut;
+                                      final tween = Tween(
+                                        begin: begin,
+                                        end: end,
+                                      ).chain(CurveTween(curve: curve));
+                                      return SlideTransition(
+                                        position: animation.drive(tween),
+                                        child: child,
+                                      );
+                                    },
                               ),
                             );
                           },
@@ -332,21 +342,26 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           PageRouteBuilder(
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
-                            const SettingsScreen(),
-                            transitionsBuilder: (context, animation,
-                                secondaryAnimation, child) {
-                              const begin = Offset(1.0, 0.0);
-                              const end = Offset.zero;
-                              const curve = Curves.easeInOut;
-                              final tween = Tween(
-                                begin: begin,
-                                end: end,
-                              ).chain(CurveTween(curve: curve));
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
+                                    const SettingsScreen(),
+                            transitionsBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) {
+                                  const begin = Offset(1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.easeInOut;
+                                  final tween = Tween(
+                                    begin: begin,
+                                    end: end,
+                                  ).chain(CurveTween(curve: curve));
+                                  return SlideTransition(
+                                    position: animation.drive(tween),
+                                    child: child,
+                                  );
+                                },
                           ),
                         );
                       },
@@ -375,8 +390,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
               // Calendar
               GestureDetector(
                 onScaleStart: (d) => _baseScale = _scale,
-                onScaleUpdate: (d) =>
-                    setState(() => _scale = (_baseScale * d.scale).clamp(.9, 1.4)),
+                onScaleUpdate: (d) => setState(
+                  () => _scale = (_baseScale * d.scale).clamp(.9, 1.4),
+                ),
                 child: SizedBox(
                   height: calHeight,
                   child: TableCalendar<CalendarEvent>(
@@ -388,7 +404,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     calendarFormat: _format,
                     startingDayOfWeek: StartingDayOfWeek.monday,
                     selectedDayPredicate: (d) =>
-                    _selected != null && _dOnly(d) == _selected,
+                        _selected != null && _dOnly(d) == _selected,
                     onDaySelected: (sel, foc) => setState(() {
                       _selected = _dOnly(sel);
                       _focused.value = foc;
@@ -434,8 +450,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     ),
                     calendarBuilders: CalendarBuilders(
                       dowBuilder: (context, day) {
-                        final text =
-                        DateFormat('E').format(day).substring(0, 1).toUpperCase();
+                        final text = DateFormat(
+                          'E',
+                        ).format(day).substring(0, 1).toUpperCase();
                         final isSunday = day.weekday == DateTime.sunday;
                         return Center(
                           child: Text(
@@ -450,12 +467,12 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         );
                       },
                       markerBuilder: (context, day, events) =>
-                      const SizedBox.shrink(),
+                          const SizedBox.shrink(),
                       defaultBuilder: (context, day, _) => _DayCell(
                         day: day,
                         isToday: _dOnly(day) == _dOnly(DateTime.now()),
                         isSelected:
-                        _selected != null && _dOnly(day) == _selected,
+                            _selected != null && _dOnly(day) == _selected,
                         inStreak: _isStreakDay(day),
                         events: _eventsFor(day),
                         dateAreaHeight: dateAreaHeight,
@@ -476,7 +493,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         day: day,
                         isToday: true,
                         isSelected:
-                        _selected != null && _dOnly(day) == _selected,
+                            _selected != null && _dOnly(day) == _selected,
                         inStreak: _isStreakDay(day),
                         events: _eventsFor(day),
                         dateAreaHeight: dateAreaHeight,
@@ -561,21 +578,19 @@ class _StreakBar extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFFF5D6),
-      ),
+      decoration: const BoxDecoration(color: Color(0xFFFFF5D6)),
       alignment: Alignment.topLeft,
       child: showLabel
           ? Text(
-        event.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: event.category.color,
-        ),
-      )
+              event.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: event.category.color,
+              ),
+            )
           : const SizedBox.shrink(),
     );
   }
@@ -610,7 +625,9 @@ class _DayCell extends StatelessWidget {
     final streaks = events.where((e) => e.allDay && e.end != null).toList();
     final CalendarEvent? streak = streaks.isNotEmpty ? streaks.first : null;
 
-    final dayEvents = events.where((e) => !(e.allDay && e.end != null)).toList();
+    final dayEvents = events
+        .where((e) => !(e.allDay && e.end != null))
+        .toList();
 
     final bool isStreakStart =
         streak != null && _dOnly(day).isAtSameMomentAs(_dOnly(streak.start));
@@ -631,9 +648,9 @@ class _DayCell extends StatelessWidget {
           ),
           decoration: hasGreyCard
               ? BoxDecoration(
-            color: const Color(0xFFE0E1E3),
-            borderRadius: BorderRadius.circular(16),
-          )
+                  color: const Color(0xFFE0E1E3),
+                  borderRadius: BorderRadius.circular(16),
+                )
               : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -688,88 +705,90 @@ class _DayCell extends StatelessWidget {
                   child: dayEvents.isEmpty
                       ? const SizedBox.shrink()
                       : LayoutBuilder(
-                    builder: (context, evConstraints) {
-                      final available = max(0.0, evConstraints.maxHeight);
+                          builder: (context, evConstraints) {
+                            final available = max(0.0, evConstraints.maxHeight);
 
-                      const rowGap = 2.0;
-                      const maxVisibleRows = 3;
-                      const maxVisibleEventsWhenOverflow = 2;
+                            const rowGap = 2.0;
+                            const maxVisibleRows = 3;
+                            const maxVisibleEventsWhenOverflow = 2;
 
-                      final totalEvents = dayEvents.length;
-                      final hasOverflow =
-                          totalEvents > maxVisibleRows;
+                            final totalEvents = dayEvents.length;
+                            final hasOverflow = totalEvents > maxVisibleRows;
 
-                      final eventsToShow = hasOverflow
-                          ? maxVisibleEventsWhenOverflow
-                          : min(maxVisibleRows, totalEvents);
+                            final eventsToShow = hasOverflow
+                                ? maxVisibleEventsWhenOverflow
+                                : min(maxVisibleRows, totalEvents);
 
-                      final rows =
-                      hasOverflow ? maxVisibleRows : eventsToShow;
+                            final rows = hasOverflow
+                                ? maxVisibleRows
+                                : eventsToShow;
 
-                      if (rows == 0) {
-                        return const SizedBox.shrink();
-                      }
+                            if (rows == 0) {
+                              return const SizedBox.shrink();
+                            }
 
-                      final rowH = max(
-                        0.0,
-                        (available -
-                            rowGap * max(0, rows - 1)) /
-                            rows,
-                      ) *
-                          0.98;
+                            final rowH =
+                                max(
+                                  0.0,
+                                  (available - rowGap * max(0, rows - 1)) /
+                                      rows,
+                                ) *
+                                0.98;
 
-                      final children = <Widget>[];
+                            final children = <Widget>[];
 
-                      if (!hasOverflow) {
-                        for (int i = 0; i < eventsToShow; i++) {
-                          children.add(
-                            _EventRow(
-                              e: dayEvents[i],
-                              height: rowH,
-                              indicatorColor: _indicatorColors[
-                              i % _indicatorColors.length],
-                            ),
-                          );
-                          if (i != eventsToShow - 1) {
-                            children.add(const SizedBox(height: rowGap));
-                          }
-                        }
-                      } else {
-                        for (int i = 0; i < eventsToShow; i++) {
-                          children.add(
-                            _EventRow(
-                              e: dayEvents[i],
-                              height: rowH,
-                              indicatorColor: _indicatorColors[
-                              i % _indicatorColors.length],
-                            ),
-                          );
-                          children.add(const SizedBox(height: rowGap));
-                        }
-                        children.add(
-                          SizedBox(
-                            height: rowH,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                '3+',
-                                style: TextStyle(
-                                  fontSize: min(12.0, rowH * 0.9),
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.black87,
+                            if (!hasOverflow) {
+                              for (int i = 0; i < eventsToShow; i++) {
+                                children.add(
+                                  _EventRow(
+                                    e: dayEvents[i],
+                                    height: rowH,
+                                    indicatorColor:
+                                        _indicatorColors[i %
+                                            _indicatorColors.length],
+                                  ),
+                                );
+                                if (i != eventsToShow - 1) {
+                                  children.add(const SizedBox(height: rowGap));
+                                }
+                              }
+                            } else {
+                              for (int i = 0; i < eventsToShow; i++) {
+                                children.add(
+                                  _EventRow(
+                                    e: dayEvents[i],
+                                    height: rowH,
+                                    indicatorColor:
+                                        _indicatorColors[i %
+                                            _indicatorColors.length],
+                                  ),
+                                );
+                                children.add(const SizedBox(height: rowGap));
+                              }
+                              children.add(
+                                SizedBox(
+                                  height: rowH,
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '3+',
+                                      style: TextStyle(
+                                        fontSize: min(12.0, rowH * 0.9),
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }
+                              );
+                            }
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: children,
-                      );
-                    },
-                  ),
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: children,
+                            );
+                          },
+                        ),
                 ),
               ),
             ],
@@ -843,8 +862,9 @@ class _EventPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final streaks = events.where((e) => e.allDay && e.end != null).toList();
-    final allDaySingles =
-    events.where((e) => e.allDay && e.end == null).toList();
+    final allDaySingles = events
+        .where((e) => e.allDay && e.end == null)
+        .toList();
     final timed = events.where((e) => !e.allDay).toList()
       ..sort((a, b) => a.start.compareTo(b.start));
 
@@ -948,18 +968,18 @@ class _StreakTile extends StatelessWidget {
                       ChatScreen(event: event),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOut;
-                    final tween = Tween(
-                      begin: begin,
-                      end: end,
-                    ).chain(CurveTween(curve: curve));
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
                 ),
               );
             },
@@ -1019,8 +1039,28 @@ class _AllDayTile extends StatelessWidget {
               color: Colors.black26,
             ),
             onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => const AllDayScreen()));
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const AllDayScreen(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0); // from right to left
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                ),
+              );
             },
           ),
         ],
@@ -1042,6 +1082,9 @@ class _TimedTile extends StatelessWidget {
     final hasChecklist = event.checklist.isNotEmpty;
 
     return _BaseEventCard(
+      // ↓ less vertical padding than default 10
+      marginTop: 6,
+      verticalPadding: 6,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1049,17 +1092,20 @@ class _TimedTile extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // left color bar
               Container(
                 width: 4,
-                height: 22,
+                height: 20,
                 decoration: BoxDecoration(
                   color: const Color(0xFF4CAF50),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 3),
+
+              // ↓ time column made narrower (was 70)
               SizedBox(
-                width: 70,
+                width: 56,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1084,16 +1130,18 @@ class _TimedTile extends StatelessWidget {
                   ],
                 ),
               ),
+
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: 1,
-                      height: 18,
+                      height: 16,
                       color: const Color(0xFFE0E0E0),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4), // ↓ smaller gap before "task"
+                    // ↓ this is the red-boxed area (task + USA)
                     Expanded(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -1105,7 +1153,8 @@ class _TimedTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontWeight: FontWeight.w900,
-                              fontSize: 14,
+                              fontSize: 13, // slightly smaller
+                              height: 1.0,
                             ),
                           ),
                           if (event.location != null)
@@ -1115,6 +1164,7 @@ class _TimedTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 11,
+                                height: 1.0,
                                 color: Colors.black54,
                               ),
                             ),
@@ -1124,7 +1174,10 @@ class _TimedTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+
+              const SizedBox(width: 6),
+
+              // right-side icons unchanged
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
@@ -1133,18 +1186,18 @@ class _TimedTile extends StatelessWidget {
                           ChatScreen(event: event),
                       transitionsBuilder:
                           (_, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0); // start off-screen right
-                        const end = Offset.zero; // end at normal position
-                        const curve = Curves.easeInOut;
-
-                        final tween = Tween(begin: begin, end: end)
-                            .chain(CurveTween(curve: curve));
-
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
+                            const begin = Offset(1.0, 0.0);
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            final tween = Tween(
+                              begin: begin,
+                              end: end,
+                            ).chain(CurveTween(curve: curve));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
                     ),
                   );
                 },
@@ -1199,7 +1252,7 @@ class _TimedTile extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     const Icon(
                       Icons.keyboard_arrow_up_rounded,
                       size: 18,
@@ -1210,8 +1263,9 @@ class _TimedTile extends StatelessWidget {
               ),
             ],
           ),
+
           if (hasChecklist) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Column(
               children: [
                 for (final raw in event.checklist) ...[
@@ -1266,15 +1320,15 @@ class _ChecklistRow extends StatelessWidget {
             ),
             child: checked
                 ? Center(
-              child: Container(
-                width: 10,
-                height: 10,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF18A957),
-                ),
-              ),
-            )
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF18A957),
+                      ),
+                    ),
+                  )
                 : null,
           ),
           const SizedBox(width: 10),
@@ -1372,19 +1426,12 @@ class _GhostPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: borderColor,
-            width: 1.5,
-          ),
+          border: Border.all(color: borderColor, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 14,
-              color: borderColor,
-            ),
+            Icon(icon, size: 14, color: borderColor),
             const SizedBox(width: 4),
             Text(
               label.toUpperCase(),
@@ -1481,10 +1528,8 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => TimeRangeBottomSheet(
-        initialStart: _startTime,
-        initialEnd: _endTime,
-      ),
+      builder: (_) =>
+          TimeRangeBottomSheet(initialStart: _startTime, initialEnd: _endTime),
     );
 
     if (result != null) {
@@ -1499,8 +1544,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     if (!_form.currentState!.validate()) return;
 
     final start = _allDay ? _startDate : _combine(_startDate, _startTime);
-    final DateTime? end =
-    _allDay ? (_multiDay ? _endDate : null) : _combine(_startDate, _endTime);
+    final DateTime? end = _allDay
+        ? (_multiDay ? _endDate : null)
+        : _combine(_startDate, _endTime);
 
     Navigator.pop(
       context,
@@ -1510,8 +1556,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
         start: start,
         end: end,
         allDay: _allDay,
-        location:
-        _location.text.trim().isEmpty ? null : _location.text.trim(),
+        location: _location.text.trim().isEmpty ? null : _location.text.trim(),
         category: _category,
         checklist: _todos,
       ),
@@ -1581,8 +1626,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
-                    validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Enter a title'
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -1639,7 +1685,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                       EventCategory selected;
                       if (newSet.length >= _editorFilters.length) {
                         selected = newSet.firstWhere(
-                              (c) => !_editorFilters.contains(c),
+                          (c) => !_editorFilters.contains(c),
                           orElse: () => newSet.first,
                         );
                       } else {
@@ -1675,13 +1721,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  _CircleIconButton(
-                    icon: Icons.notifications_none_rounded,
-                  ),
+                  _CircleIconButton(icon: Icons.notifications_none_rounded),
                   SizedBox(width: 8),
-                  _CircleIconButton(
-                    icon: Icons.autorenew_rounded,
-                  ),
+                  _CircleIconButton(icon: Icons.autorenew_rounded),
                 ],
               ),
               onTap: _openDateRangePicker,
@@ -1703,8 +1745,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        DateFormat('hh : mm a')
-                            .format(_combine(_startDate, _startTime)),
+                        DateFormat(
+                          'hh : mm a',
+                        ).format(_combine(_startDate, _startTime)),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1734,8 +1777,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        DateFormat('hh : mm a')
-                            .format(_combine(_startDate, _endTime)),
+                        DateFormat(
+                          'hh : mm a',
+                        ).format(_combine(_startDate, _endTime)),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1803,8 +1847,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(Icons.lock_outline_rounded,
-                      size: 16, color: labelColor),
+                  Icon(Icons.lock_outline_rounded, size: 16, color: labelColor),
                   SizedBox(width: 4),
                   Text(
                     "Let's JAM",
@@ -1869,7 +1912,8 @@ class _EditorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final middle = middleChild ??
+    final middle =
+        middleChild ??
         Text(
           label,
           style: TextStyle(
@@ -1897,10 +1941,7 @@ class _EditorRow extends StatelessWidget {
 }
 
 class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({
-    required this.icon,
-    this.onTap,
-  });
+  const _CircleIconButton({required this.icon, this.onTap});
 
   final IconData icon;
   final VoidCallback? onTap;
@@ -1918,11 +1959,7 @@ class _CircleIconButton extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: borderColor, width: 1),
       ),
-      child: Icon(
-        icon,
-        size: 14,
-        color: iconColor,
-      ),
+      child: Icon(icon, size: 14, color: iconColor),
     );
 
     if (onTap == null) return child;
@@ -2072,10 +2109,7 @@ class _TodoBubble extends StatelessWidget {
               isCollapsed: true,
               hintText: 'New todo',
               border: InputBorder.none,
-              hintStyle: TextStyle(
-                fontSize: 12,
-                color: hintColor,
-              ),
+              hintStyle: TextStyle(fontSize: 12, color: hintColor),
             ),
             style: const TextStyle(fontSize: 12),
           ),
@@ -2089,10 +2123,7 @@ class _TodoBubble extends StatelessWidget {
               isCollapsed: true,
               hintText: 'New notes',
               border: InputBorder.none,
-              hintStyle: TextStyle(
-                fontSize: 12,
-                color: hintColor,
-              ),
+              hintStyle: TextStyle(fontSize: 12, color: hintColor),
             ),
             style: TextStyle(fontSize: 12),
           ),
@@ -2103,10 +2134,7 @@ class _TodoBubble extends StatelessWidget {
 }
 
 class _FlatPlusButton extends StatelessWidget {
-  const _FlatPlusButton({
-    required this.initialDate,
-    required this.onAdd,
-  });
+  const _FlatPlusButton({required this.initialDate, required this.onAdd});
 
   final DateTime initialDate;
   final void Function(CalendarEvent e) onAdd;
@@ -2124,18 +2152,20 @@ class _FlatPlusButton extends StatelessWidget {
                   EventEditorScreen(initialDate: initialDate),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
 
-                final tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                    final tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
 
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
             ),
           );
 

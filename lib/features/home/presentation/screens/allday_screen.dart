@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
+// your date / time bottom sheets
+import '../widgets/date_time_widget.dart';
+
 const Color kScreenBg = Color(0xFFFDFDFD);
 const Color kPrimaryBlue = Color(0xFF2E8CFF);
 const Color kTodoFill = Color(0xFFF7F7F7);
@@ -19,10 +22,17 @@ class AllDayScreen extends StatefulWidget {
 }
 
 class _AllDayScreenState extends State<AllDayScreen> {
-  bool _isAllDay = true;
   bool _notifOn = true;
+  bool _allDay = true;
 
-  DateTime _selectedDate = DateTime(2026, 6, 17);
+  // date + time state
+  late DateTime _startDate;
+  late DateTime _endDate;
+  late TimeOfDay _startTime;
+  late TimeOfDay _endTime;
+
+  // editable location
+  late TextEditingController _locationCtrl;
 
   final List<String> _participants = [
     'Grace Miller',
@@ -48,21 +58,66 @@ class _AllDayScreenState extends State<AllDayScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    _startDate = DateTime(2026, 6, 17);
+    _endDate = _startDate;
+    _startTime = const TimeOfDay(hour: 12, minute: 0);
+    _endTime = const TimeOfDay(hour: 12, minute: 0);
+
+    _locationCtrl = TextEditingController(text: '30, Farm Road');
+  }
+
+  @override
   void dispose() {
+    _locationCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+  DateTime _combine(DateTime d, TimeOfDay t) =>
+      DateTime(d.year, d.month, d.day, t.hour, t.minute);
+
+  String _fmtDay(DateTime d) => DateFormat('EEEE').format(d);
+  String _fmtDate(DateTime d) =>
+      DateFormat('dd MMM yyyy').format(d).toUpperCase();
+  String _fmtTime(DateTime d) => DateFormat('hh : mm').format(d);
+  String _fmtAmPm(DateTime d) => DateFormat('a').format(d);
+
+  Future<void> _pickDateRange() async {
+    final result = await showModalBottomSheet<DateRangeResult>(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => DateRangeBottomSheet(
+        initialStart: _startDate,
+        initialEnd: _endDate,
+      ),
     );
 
-    if (picked != null && picked != _selectedDate) {
+    if (result != null) {
       setState(() {
-        _selectedDate = picked;
+        _startDate = result.start;
+        _endDate = result.end;
+      });
+    }
+  }
+
+  Future<void> _pickTimeRange() async {
+    final result = await showModalBottomSheet<TimeRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => TimeRangeBottomSheet(
+        initialStart: _startTime,
+        initialEnd: _endTime,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _startTime = result.start;
+        _endTime = result.end;
       });
     }
   }
@@ -151,9 +206,12 @@ class _AllDayScreenState extends State<AllDayScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final String weekdayLabel = DateFormat('EEEE').format(_selectedDate);
-    final String dateLabel =
-    DateFormat('dd MMM yyyy').format(_selectedDate).toUpperCase();
+    final startDT = _combine(_startDate, _startTime);
+    final endDT = _combine(_endDate, _endTime);
+
+    final String shareDateLabel = _startDate.isAtSameMomentAs(_endDate)
+        ? _fmtDate(_startDate)
+        : '${_fmtDate(_startDate)} – ${_fmtDate(_endDate)}';
 
     const double chatPreviewHeight = 250;
 
@@ -162,8 +220,6 @@ class _AllDayScreenState extends State<AllDayScreen> {
       body: SafeArea(
         child: Column(
           children: [
-
-
             // TOP BAR (delete + check)
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
@@ -298,10 +354,19 @@ class _AllDayScreenState extends State<AllDayScreen> {
                         const SizedBox(width: 8),
                         IconButton(
                           visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.share, size: 22),
+                          icon: const Icon(
+                            Icons.share_outlined,
+                            size: 20,
+                            color: Colors.black54,
+                          ),
                           onPressed: () {
+                            final locText = _locationCtrl.text.trim().isEmpty
+                                ? 'Location'
+                                : _locationCtrl.text.trim();
+
                             Share.share(
-                              'Family Dinner\n$dateLabel – All day\n30, Farm Road',
+                              'Family Dinner\n$shareDateLabel – '
+                                  '${_allDay ? "All day" : "Timed"}\n$locText',
                               subject: 'Family Dinner',
                             );
                           },
@@ -313,53 +378,41 @@ class _AllDayScreenState extends State<AllDayScreen> {
 
                     // DATE ROW
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        GestureDetector(
-                          onTap: _pickDate,
-                          behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 28,
-                                height: 28,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 18,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: _pickDateRange,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _fmtDay(_startDate),
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: Colors.grey.shade500,
+                                    letterSpacing: 0.1,
                                   ),
                                 ),
-                                child: const Icon(
-                                  Icons.calendar_today_outlined,
-                                  size: 14,
+                                const SizedBox(height: 2),
+                                Text(
+                                  _startDate.isAtSameMomentAs(_endDate)
+                                      ? _fmtDate(_startDate)
+                                      : '${_fmtDate(_startDate)}   –   ${_fmtDate(_endDate)}',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    weekdayLabel,
-                                    style:
-                                    theme.textTheme.labelSmall?.copyWith(
-                                      color: Colors.grey.shade500,
-                                      letterSpacing: 0.2,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    dateLabel,
-                                    style:
-                                    theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                        const Spacer(),
                         IconButton(
                           splashRadius: 20,
                           onPressed: () {
@@ -375,23 +428,91 @@ class _AllDayScreenState extends State<AllDayScreen> {
                                 : Colors.grey.shade400,
                           ),
                         ),
-                        Opacity(
-                          opacity: 0.35,
-                          child: IconButton(
-                            splashRadius: 20,
-                            onPressed: () {},
-                            icon: const Icon(Icons.sync, size: 20),
+                        IconButton(
+                          splashRadius: 20,
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.autorenew_rounded,
+                            size: 18,
+                            color: Colors.grey.shade400,
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
+
+                    // TIME ROW (only when not All day)
+                    if (!_allDay) ...[
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _pickTimeRange,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 32.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _fmtTime(startDT),
+                                      style: theme.textTheme.bodyLarge
+                                          ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _fmtAmPm(startDT),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      _fmtTime(endDT),
+                                      style: theme.textTheme.bodyLarge
+                                          ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _fmtAmPm(endDT),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
 
                     // ALL DAY ROW
                     Row(
                       children: [
-                        const Icon(Icons.access_time, size: 18),
+                        Icon(
+                          Icons.access_time,
+                          size: 18,
+                          color: Colors.grey.shade600,
+                        ),
                         const SizedBox(width: 12),
                         Text(
                           'All day',
@@ -400,7 +521,7 @@ class _AllDayScreenState extends State<AllDayScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            setState(() => _isAllDay = !_isAllDay);
+                            setState(() => _allDay = !_allDay);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -411,7 +532,7 @@ class _AllDayScreenState extends State<AllDayScreen> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color: _isAllDay
+                                color: _allDay
                                     ? Colors.black87
                                     : Colors.grey.shade500,
                                 width: 1.1,
@@ -422,7 +543,7 @@ class _AllDayScreenState extends State<AllDayScreen> {
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w500,
-                                color: _isAllDay
+                                color: _allDay
                                     ? Colors.black87
                                     : Colors.grey.shade600,
                               ),
@@ -434,28 +555,42 @@ class _AllDayScreenState extends State<AllDayScreen> {
 
                     const SizedBox(height: 14),
 
-                    // LOCATION ROW
+                    // LOCATION ROW (editable)
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_on_outlined, size: 20),
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 20,
+                          color: Colors.grey.shade700,
+                        ),
                         const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '30, Farm Road',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: _locationCtrl,
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  border: InputBorder.none,
+                                  hintText: '30, Farm Road',
+                                ),
+                                style:
+                                theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Location',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: Colors.grey.shade500,
+                              const SizedBox(height: 2),
+                              Text(
+                                'Location',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: Colors.grey.shade500,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -463,12 +598,12 @@ class _AllDayScreenState extends State<AllDayScreen> {
                     const SizedBox(height: 26),
 
                     // TODO CARDS
-                    TodoInputCard(
+                    const TodoInputCard(
                       initialTitle: 'New todo',
                       initialNotes: '',
                     ),
                     const SizedBox(height: 12),
-                    TodoInputCard(
+                    const TodoInputCard(
                       initialTitle: 'New shared todo',
                       initialNotes: '',
                     ),
@@ -485,7 +620,6 @@ class _AllDayScreenState extends State<AllDayScreen> {
                                 ChatExpandedScreen(messages: _messages),
                           ),
                         );
-                        // rebuild to refresh preview times / messages
                         setState(() {});
                       },
                       child: Container(
@@ -506,14 +640,13 @@ class _AllDayScreenState extends State<AllDayScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            // show last 2 messages as preview
                             Expanded(
                               child: ListView.separated(
                                 padding: EdgeInsets.zero,
                                 physics:
                                 const NeverScrollableScrollPhysics(),
                                 itemCount:
-                                _messages.length.clamp(0, 2), // last 2
+                                _messages.length.clamp(0, 2),
                                 separatorBuilder: (_, __) =>
                                 const SizedBox(height: 10),
                                 itemBuilder: (context, index) {
@@ -526,7 +659,6 @@ class _AllDayScreenState extends State<AllDayScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            // fake input bar (visual only)
                             Container(
                               height: 40,
                               decoration: BoxDecoration(
@@ -610,10 +742,10 @@ class _AllDayScreenState extends State<AllDayScreen> {
   }
 }
 
-/* -------------------- TODO INPUT CARD -------------------- */
+/* -------------------- TodoInputCard -------------------- */
 
 class TodoInputCard extends StatefulWidget {
-  final String initialTitle;   // used as hint
+  final String initialTitle;
   final String initialNotes;
 
   const TodoInputCard({
@@ -635,7 +767,6 @@ class _TodoInputCardState extends State<TodoInputCard> {
   @override
   void initState() {
     super.initState();
-    // ❌ do NOT set the text to "New todo" / "New shared todo"
     _titleCtrl = TextEditingController(text: '');
     _notesCtrl = TextEditingController(text: widget.initialNotes);
   }
@@ -681,12 +812,11 @@ class _TodoInputCardState extends State<TodoInputCard> {
               decoration: InputDecoration(
                 isCollapsed: true,
                 border: InputBorder.none,
-                // ✅ use initialTitle as hint text
                 hintText: widget.initialTitle,
                 hintStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: kDisabledText, // same grey as "New notes"
+                  color: kDisabledText,
                 ),
               ),
               onSubmitted: (_) => _notesFocus.requestFocus(),
@@ -716,8 +846,7 @@ class _TodoInputCardState extends State<TodoInputCard> {
   }
 }
 
-
-/* -------------------- CHAT MODELS / ROW -------------------- */
+/* -------------------- Chat models / rows -------------------- */
 
 class _ChatMessage {
   final String senderName;
@@ -767,8 +896,8 @@ class _ChatRow extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: Text(
                   message.text,
                   style: const TextStyle(fontSize: 13.5),
@@ -798,7 +927,7 @@ class _ChatRow extends StatelessWidget {
   }
 }
 
-/* -------------------- FULL-SCREEN CHAT -------------------- */
+/* -------------------- Full-screen chat -------------------- */
 
 class ChatExpandedScreen extends StatefulWidget {
   final List<_ChatMessage> messages;
@@ -846,7 +975,6 @@ class _ChatExpandedScreenState extends State<ChatExpandedScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // TOP BAR
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 4, 16, 8),
               child: Row(
@@ -881,7 +1009,6 @@ class _ChatExpandedScreenState extends State<ChatExpandedScreen> {
               ),
             ),
 
-            // CHAT MESSAGES
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -968,10 +1095,8 @@ class _ChatExpandedScreenState extends State<ChatExpandedScreen> {
               ),
             ),
 
-            // INPUT BAR
             Padding(
-              padding:
-              const EdgeInsets.fromLTRB(18, 0, 18, 18),
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
