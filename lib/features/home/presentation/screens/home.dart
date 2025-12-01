@@ -61,7 +61,6 @@ extension EventCategoryX on EventCategory {
   };
 }
 
-
 class CalendarEvent {
   final String id;
   final String title;
@@ -187,6 +186,26 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     color: Colors.black54,
   );
 
+  Future<void> _openHeaderDatePicker() async {
+    final result = await showModalBottomSheet<DateRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => DateRangeBottomSheet(
+        initialStart: _focused.value, // or _selected ?? DateTime.now()
+        initialEnd: null,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        // Use the start of the picked range as focused/selected day
+        _focused.value = result.start;
+        _selected = _dOnly(result.start);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final selected = _selected ?? _dOnly(DateTime.now());
@@ -212,14 +231,25 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                 child: Row(
                   children: [
-                    Text(
-                      DateFormat('MMM').format(_focused.value).toUpperCase(),
-                      style: _monthBig,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      DateFormat('yyyy').format(_focused.value),
-                      style: _yearLight,
+                    InkWell(
+                      onTap: _openHeaderDatePicker,
+                      borderRadius: BorderRadius.circular(6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            DateFormat('MMM')
+                                .format(_focused.value)
+                                .toUpperCase(),
+                            style: _monthBig,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            DateFormat('yyyy').format(_focused.value),
+                            style: _yearLight,
+                          ),
+                        ],
+                      ),
                     ),
                     const Spacer(),
                     IconButton(
@@ -229,8 +259,8 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
                             const MinimalSearchScreen(),
-                            transitionsBuilder:
-                                (context, animation, secondaryAnimation, child) {
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
                               const begin = Offset(1.0, 0.0);
                               const end = Offset.zero;
                               const curve = Curves.easeInOut;
@@ -341,7 +371,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                   }),
                 ),
               ),
-
 
               // Calendar
               GestureDetector(
@@ -474,7 +503,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                       }),
                     ),
                     const SizedBox(width: 10),
-                    _WhiteRoundPlus(
+                    _FlatPlusButton(
                       initialDate: _selected ?? DateTime.now(),
                       onAdd: (e) => _addEvent(e),
                     ),
@@ -486,9 +515,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
               _EventPane(
                 day: selected,
                 events: _eventsFor(selected),
-                onToggle: (id, original, checked) {
-
-                },
+                onToggle: (id, original, checked) {},
               ),
             ],
           ),
@@ -500,8 +527,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   static String _oneLetterDow(DateTime dt, Locale? _) =>
       DateFormat('E').format(dt).substring(0, 1).toUpperCase();
 }
-
-
 
 /// ---------------------------------------------------------------------------
 /// DAY CELL
@@ -585,8 +610,7 @@ class _DayCell extends StatelessWidget {
     final streaks = events.where((e) => e.allDay && e.end != null).toList();
     final CalendarEvent? streak = streaks.isNotEmpty ? streaks.first : null;
 
-    final dayEvents =
-    events.where((e) => !(e.allDay && e.end != null)).toList();
+    final dayEvents = events.where((e) => !(e.allDay && e.end != null)).toList();
 
     final bool isStreakStart =
         streak != null && _dOnly(day).isAtSameMomentAs(_dOnly(streak.start));
@@ -672,7 +696,8 @@ class _DayCell extends StatelessWidget {
                       const maxVisibleEventsWhenOverflow = 2;
 
                       final totalEvents = dayEvents.length;
-                      final hasOverflow = totalEvents > maxVisibleRows;
+                      final hasOverflow =
+                          totalEvents > maxVisibleRows;
 
                       final eventsToShow = hasOverflow
                           ? maxVisibleEventsWhenOverflow
@@ -687,7 +712,9 @@ class _DayCell extends StatelessWidget {
 
                       final rowH = max(
                         0.0,
-                        (available - rowGap * max(0, rows - 1)) / rows,
+                        (available -
+                            rowGap * max(0, rows - 1)) /
+                            rows,
                       ) *
                           0.98;
 
@@ -699,8 +726,8 @@ class _DayCell extends StatelessWidget {
                             _EventRow(
                               e: dayEvents[i],
                               height: rowH,
-                              indicatorColor:
-                              _indicatorColors[i % _indicatorColors.length],
+                              indicatorColor: _indicatorColors[
+                              i % _indicatorColors.length],
                             ),
                           );
                           if (i != eventsToShow - 1) {
@@ -713,8 +740,8 @@ class _DayCell extends StatelessWidget {
                             _EventRow(
                               e: dayEvents[i],
                               height: rowH,
-                              indicatorColor:
-                              _indicatorColors[i % _indicatorColors.length],
+                              indicatorColor: _indicatorColors[
+                              i % _indicatorColors.length],
                             ),
                           );
                           children.add(const SizedBox(height: rowGap));
@@ -1104,13 +1131,14 @@ class _TimedTile extends StatelessWidget {
                     PageRouteBuilder(
                       pageBuilder: (_, animation, secondaryAnimation) =>
                           ChatScreen(event: event),
-                      transitionsBuilder: (_, animation, secondaryAnimation, child) {
+                      transitionsBuilder:
+                          (_, animation, secondaryAnimation, child) {
                         const begin = Offset(1.0, 0.0); // start off-screen right
-                        const end = Offset.zero;        // end at normal position
+                        const end = Offset.zero; // end at normal position
                         const curve = Curves.easeInOut;
 
-                        final tween =
-                        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                        final tween = Tween(begin: begin, end: end)
+                            .chain(CurveTween(curve: curve));
 
                         return SlideTransition(
                           position: animation.drive(tween),
@@ -1120,7 +1148,6 @@ class _TimedTile extends StatelessWidget {
                     ),
                   );
                 },
-
                 child: Row(
                   children: [
                     Stack(
@@ -1139,7 +1166,6 @@ class _TimedTile extends StatelessWidget {
                           ),
                       ],
                     ),
-
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -1149,7 +1175,6 @@ class _TimedTile extends StatelessWidget {
                           color: Colors.black45,
                         ),
                         Positioned(
-                          // adjust these to match your design
                           right: -6,
                           top: -12,
                           child: Container(
@@ -1174,10 +1199,7 @@ class _TimedTile extends StatelessWidget {
                         ),
                       ],
                     ),
-
-
                     const SizedBox(width: 8),
-
                     const Icon(
                       Icons.keyboard_arrow_up_rounded,
                       size: 18,
@@ -1339,83 +1361,42 @@ class _GhostPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const borderColor = Color(0xFFB6B5B5); // Gray4 from your Figma
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        height: 28,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF6F7FB),
-          borderRadius: BorderRadius.circular(999),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: borderColor,
+            width: 1.5,
+          ),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18, color: Colors.black54),
-            const SizedBox(width: 8),
+            Icon(
+              icon,
+              size: 14,
+              color: borderColor,
+            ),
+            const SizedBox(width: 4),
             Text(
-              label,
+              label.toUpperCase(),
               style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Colors.black,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: borderColor,
+                letterSpacing: 0.5,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _WhiteRoundPlus extends StatelessWidget {
-  const _WhiteRoundPlus({required this.initialDate, required this.onAdd});
-
-  final DateTime initialDate;
-  final void Function(CalendarEvent e) onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        final created = await Navigator.of(context).push<CalendarEvent>(
-          PageRouteBuilder<CalendarEvent>(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                EventEditorScreen(initialDate: initialDate),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0); // from right
-              const end = Offset.zero;
-              const curve = Curves.easeInOut;
-
-              final tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: curve));
-
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: child,
-              );
-            },
-          ),
-        );
-
-        if (created != null) onAdd(created);
-      },
-
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.06),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(Icons.add, color: Colors.black),
       ),
     );
   }
@@ -1443,6 +1424,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
 
   EventCategory _category = EventCategory.home;
 
+  // Local filter set for the editor chips
+  late Set<EventCategory> _editorFilters;
+
   DateTime _startDate = _dOnly(DateTime.now());
   DateTime _endDate = _dOnly(DateTime.now());
   bool _allDay = true;
@@ -1456,6 +1440,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     super.initState();
     _startDate = _dOnly(widget.initialDate);
     _endDate = _startDate;
+
+    // start with only the current category selected
+    _editorFilters = {_category};
   }
 
   DateTime _combine(DateTime d, TimeOfDay t) =>
@@ -1637,72 +1624,140 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               ],
             ),
             const SizedBox(height: 16),
+
+            // CATEGORY FILTER BAR (same style as home screen)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Expanded(
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      for (final c in EventCategory.values)
-                        _CategoryPill(
-                          label: c.label,
-                          color: c.color,
-                          selected: _category == c,
-                          onTap: () => setState(() => _category = c),
-                        ),
-                    ],
+                  child: CategoryFilterBar(
+                    active: _editorFilters,
+                    onChange: (newSet) {
+                      if (newSet.isEmpty) return;
+
+                      // figure out the newly selected one (or fallback)
+                      EventCategory selected;
+                      if (newSet.length >= _editorFilters.length) {
+                        selected = newSet.firstWhere(
+                              (c) => !_editorFilters.contains(c),
+                          orElse: () => newSet.first,
+                        );
+                      } else {
+                        selected = newSet.first;
+                      }
+
+                      setState(() {
+                        _category = selected;
+                        // keep only one chip selected in the editor
+                        _editorFilters = {selected};
+                      });
+                    },
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
+
+            // DATE ROW (with bell & repeat icons)
             _EditorRow(
               icon: Icons.event_outlined,
-              label: DateFormat('EEE, MMM d, yyyy').format(_startDate),
-              labelColor: Colors.black,
-              trailing: _multiDay
-                  ? Text(
-                '—  ${DateFormat('EEE, MMM d, yyyy').format(_endDate)}',
+              label: 'Date',
+              labelColor: labelColor,
+              expandMiddle: true,
+              middleChild: Text(
+                DateFormat('EEE, MMM d, yyyy').format(_startDate),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  color: Colors.black,
                 ),
-              )
-                  : null,
-              onTap: _openDateRangePicker,
-            ),
-            const Divider(color: dividerColor, height: 16),
-            _EditorRow(
-              icon: Icons.access_time_rounded,
-              label: DateFormat('hh : mm a')
-                  .format(_combine(_startDate, _startTime)),
-              labelColor: Colors.black,
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '—  ${DateFormat('hh : mm a').format(_combine(_startDate, _endTime))}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                children: const [
+                  _CircleIconButton(
+                    icon: Icons.notifications_none_rounded,
                   ),
-                  const SizedBox(width: 12),
-                  _AllDayPill(
-                    value: _allDay,
-                    onChanged: (v) => setState(() {
-                      _allDay = v;
-                      if (!_allDay) _multiDay = false;
-                    }),
+                  SizedBox(width: 8),
+                  _CircleIconButton(
+                    icon: Icons.autorenew_rounded,
                   ),
                 ],
               ),
-              onTap: !_allDay ? _openTimeRangePicker : null,
+              onTap: _openDateRangePicker,
             ),
             const Divider(color: dividerColor, height: 16),
+
+            // TIME ROW (start — end + All day pill)
+            _EditorRow(
+              icon: Icons.access_time_rounded,
+              label: 'Time',
+              labelColor: Colors.black,
+              expandMiddle: true,
+              middleChild: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  // start time
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        DateFormat('hh : mm a')
+                            .format(_combine(_startDate, _startTime)),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  // horizontal dash between times
+                  const Text(
+                    '—',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  // end time
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        DateFormat('hh : mm a')
+                            .format(_combine(_startDate, _endTime)),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              trailing: _AllDayPill(
+                value: _allDay,
+                onChanged: (v) => setState(() {
+                  _allDay = v;
+                  if (!_allDay) _multiDay = false;
+                }),
+              ),
+              onTap: !_allDay ? _openTimeRangePicker : null,
+            ),
+
+            const Divider(color: dividerColor, height: 16),
+
             _EditorRow(
               icon: Icons.place_outlined,
               label: 'Location',
@@ -1841,6 +1896,45 @@ class _EditorRow extends StatelessWidget {
   }
 }
 
+class _CircleIconButton extends StatelessWidget {
+  const _CircleIconButton({
+    required this.icon,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const borderColor = Color(0xFFE1E3EC);
+    const iconColor = Color(0xFFC7CAD3);
+
+    final child = Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Icon(
+        icon,
+        size: 14,
+        color: iconColor,
+      ),
+    );
+
+    if (onTap == null) return child;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: child,
+    );
+  }
+}
+
 class _CategoryPill extends StatelessWidget {
   const _CategoryPill({
     required this.label,
@@ -1900,7 +1994,6 @@ class _AllDayPill extends StatelessWidget {
         ),
         child: Text(
           'All day',
-
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -2007,4 +2100,93 @@ class _TodoBubble extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FlatPlusButton extends StatelessWidget {
+  const _FlatPlusButton({
+    required this.initialDate,
+    required this.onAdd,
+  });
+
+  final DateTime initialDate;
+  final void Function(CalendarEvent e) onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: () async {
+          final created = await Navigator.of(context).push<CalendarEvent>(
+            PageRouteBuilder<CalendarEvent>(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  EventEditorScreen(initialDate: initialDate),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+
+                final tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            ),
+          );
+
+          if (created != null) onAdd(created);
+        },
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CustomPaint(
+            painter: _PlusPainter(
+              color: const Color(0xFFCFCFCF),
+              strokeWidth: 1.5,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlusPainter extends CustomPainter {
+  _PlusPainter({required this.color, required this.strokeWidth});
+
+  final Color color;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final center = size.center(Offset.zero);
+    final halfLen = size.shortestSide * 0.35;
+
+    // horizontal line
+    canvas.drawLine(
+      Offset(center.dx - halfLen, center.dy),
+      Offset(center.dx + halfLen, center.dy),
+      paint,
+    );
+
+    // vertical line
+    canvas.drawLine(
+      Offset(center.dx, center.dy - halfLen),
+      Offset(center.dx, center.dy + halfLen),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
