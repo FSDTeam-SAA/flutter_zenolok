@@ -615,11 +615,18 @@ class _EventCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (showTinyIconsRow) ...const [
-                            SizedBox(width: 6),
+                            // SizedBox(width: 6),
+                            _CircleIconOutline(
+                                icon: Icons.comment),
+
+                            // SizedBox(width: 6),
+                            _CircleIconOutline(
+                                icon: Icons.refresh),
+
+                            // SizedBox(width: 6),
                             _CircleIconOutline(
                                 icon: Icons.notifications_none_rounded),
-                            SizedBox(width: 6),
-                            SizedBox(width: 6),
+                            // SizedBox(width: 6),
                           ],
                           // menu with red badge
                           Stack(
