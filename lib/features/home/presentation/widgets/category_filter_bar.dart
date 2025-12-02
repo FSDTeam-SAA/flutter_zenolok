@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../event/presentation/screens/event_screen.dart';
-import '../screens/home.dart';           // for EventCategory + extension
+import '../screens/home.dart';
+import 'cateogry_widget.dart';           // for EventCategory + extension
 
 typedef CategoryFilterChanged = void Function(Set<EventCategory>);
 

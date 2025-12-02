@@ -387,6 +387,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
 
+
               // Calendar
               GestureDetector(
                 onScaleStart: (d) => _baseScale = _scale,

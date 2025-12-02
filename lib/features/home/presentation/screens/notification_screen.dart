@@ -42,7 +42,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded,color:Colors.black),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Spacer(),
