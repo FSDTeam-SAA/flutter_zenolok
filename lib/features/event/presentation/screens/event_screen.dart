@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
 import '../../../home/presentation/screens/home.dart';
 import '../../../home/presentation/screens/notification_screen.dart';
 import '../../../home/presentation/screens/searchScreen.dart';
@@ -8,361 +7,462 @@ import '../../../home/presentation/screens/setting_screen.dart';
 import '../../../home/presentation/widgets/category_filter_bar.dart';
 
 /// ───────────────────────── MODEL ─────────────────────────────────────────────
-
-class CategoryDesign {
-  final Color? color;
-  final IconData icon;
-  final String name;
-
-  const CategoryDesign({this.color, required this.icon, required this.name});
-}
-
-enum EventsTab { upcoming, past, all }
-
 class Event {
-  final String id;
   final String title;
   final DateTime start;
   final DateTime? end;
-  final String category;
+  final String location;
   final Color color;
-  final String? location;
-  final int badgeCount;
   final bool allDay;
-  final bool showParticipantsRow;
+  final bool showTinyIconsRow;
+  final bool hasBadge;
 
   const Event({
-    required this.id,
     required this.title,
     required this.start,
     this.end,
-    required this.category,
+    required this.location,
     required this.color,
-    this.location,
-    this.badgeCount = 0,
     this.allDay = false,
-    this.showParticipantsRow = false,
+    this.showTinyIconsRow = false,
+    this.hasBadge = false,
   });
 }
 
-/// ───────────────────────── HELPERS ───────────────────────────────────────────
-
-bool _sameDay(DateTime a, DateTime b) =>
-    a.year == b.year && a.month == b.month && a.day == b.day;
-
-const _months = [
-  'JAN','FEB','MAR','APR','MAY','JUN',
-  'JUL','AUG','SEP','OCT','NOV','DEC',
-];
-
-String _fmt12(DateTime t) {
-  var h = t.hour % 12;
-  if (h == 0) h = 12;
-  final m = t.minute.toString().padLeft(2, '0');
-  final ampm = t.hour >= 12 ? 'PM' : 'AM';
-  return '${h.toString().padLeft(2, '0')} : $m $ampm';
-}
-
-String _formatDateRange(DateTime start, DateTime? end) {
-  final a =
-      '${start.day.toString().padLeft(2, '0')} ${_months[start.month - 1]} ${start.year}';
-  if (end == null || _sameDay(start, end)) return a;
-  final b =
-      '${end.day.toString().padLeft(2, '0')} ${_months[end.month - 1]} ${end.year}';
-  return '$a  -  $b';
-}
-
-String _formatTimeRange(DateTime start, DateTime? end, bool allDay) {
-  if (allDay) return 'All day';
-  if (end == null) return _fmt12(start);
-  return '${_fmt12(start)}  -  ${_fmt12(end)}';
-}
-
-String _timelineLabelForAnchor(DateTime d, DateTime anchor) {
-  final a = DateTime(anchor.year, anchor.month, anchor.day);
-  final b = DateTime(d.year, d.month, d.day);
-  final diff = b.difference(a).inDays;
-  if (diff == 0) return 'Now';
-  return diff > 0
-      ? '$diff day${diff == 1 ? '' : 's'}'
-      : '${-diff} day${diff == -1 ? '' : 's'} ago';
-}
+enum TabKind { upcoming, past, all }
 
 /// ───────────────────────── SCREEN ────────────────────────────────────────────
-
 class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
-
-  static const _horizontalPadding = 24.0;
 
   @override
   State<EventsScreen> createState() => _EventsScreenState();
 }
 
 class _EventsScreenState extends State<EventsScreen> {
-  EventsTab _selectedTab = EventsTab.upcoming;
+  TabKind _selected = TabKind.upcoming;
 
-  final List<CategoryDesign> _categories = const [
-    CategoryDesign(color: Color(0xFF1D9BF0), icon: Icons.home_rounded, name: 'Home'),
-    CategoryDesign(color: Color(0xFFF6B700), icon: Icons.work_rounded, name: 'Work'),
-    CategoryDesign(color: Color(0xFFB277FF), icon: Icons.school_rounded, name: 'School'),
-    CategoryDesign(color: Color(0xFF22C55E), icon: Icons.person_rounded, name: 'Personal'),
-    CategoryDesign(color: Color(0xFFFF3366), icon: Icons.sports_soccer_rounded, name: 'Sport'),
+  // Anchor to reproduce labels like "Now", "1 day", "4 days"
+  final DateTime _anchor = DateTime(2026, 6, 17);
+
+  // Sample data (matches your screenshot)
+  late final List<Event> _upcoming = [
+    Event(
+      title: 'Body check',
+      start: DateTime(2026, 6, 17, 8),
+      end: DateTime(2026, 6, 17, 9),
+      location: '20, Farm Road',
+      color: const Color(0xFF22C55E),
+      hasBadge: true,
+    ),
+    Event(
+      title: 'Exhibition week',
+      start: DateTime(2026, 6, 18, 8),
+      end: DateTime(2026, 6, 21, 9),
+      location: 'Asia Expo',
+      color: const Color(0xFFF59E0B),
+      hasBadge: true,
+      showTinyIconsRow: true,
+    ),
+    Event(
+      title: 'Family dinner',
+      start: DateTime(2026, 6, 21),
+      location: 'Home',
+      color: const Color(0xFF60A5FA),
+      hasBadge: true,
+      allDay: true,
+    ),
   ];
 
-  // make reassignable; don't mutate shared Set instances
-  Set<EventCategory> _filters = {
+  // Simple past/all data (customize as needed)
+  late final List<Event> _past = [
+    Event(
+      title: 'Standup',
+      start: DateTime(2026, 6, 15, 9),
+      end: DateTime(2026, 6, 15, 9, 30),
+      location: 'HQ',
+      color: const Color(0xFF9CA3AF),
+    ),
+  ];
+
+  List<Event> get _all =>
+      [..._upcoming, ..._past]..sort((a, b) => a.start.compareTo(b.start));
+
+  final Set<EventCategory> _filters = {
     EventCategory.home,
     EventCategory.work,
     EventCategory.school,
     EventCategory.personal,
   };
 
-  final DateTime _upcomingAnchor = DateTime(2026, 6, 17);
+  @override
+  Widget build(BuildContext context) {
+    final list = switch (_selected) {
+    // All tabs now use the **same layout** with timeline pill + card rows
+      TabKind.upcoming => _buildSection(_upcoming),
+      TabKind.past => _buildSection(_past),
+      TabKind.all => _buildSection(_all),
+    };
 
-  // sample data
-  late final List<Event> _upcoming = [
-    Event(
-      id: 'u1',
-      title: 'Body check',
-      start: DateTime(2026, 6, 17, 8),
-      end: DateTime(2026, 6, 17, 9),
-      category: 'Personal',
-      color: const Color(0xFF34C759),
-      location: '20, Farm Road',
-      badgeCount: 2,
-    ),
-    Event(
-      id: 'u2',
-      title: 'Exhibition week',
-      start: DateTime(2026, 6, 18, 8),
-      end: DateTime(2026, 6, 21, 9),
-      category: 'Work',
-      color: const Color(0xFFFFCC00),
-      location: 'Asia Expo',
-      badgeCount: 2,
-    ),
-    Event(
-      id: 'u3',
-      title: 'Family dinner',
-      start: DateTime(2026, 6, 21),
-      category: 'Home',
-      color: const Color(0xFF32ADE6),
-      location: 'Home',
-      allDay: true,
-      badgeCount: 2,
-    ),
-  ];
-
-  late final DateTime _today =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-
-  late final List<Event> _past = [
-    Event(
-      id: 'p1',
-      title: 'Project kickoff',
-      start: _today.subtract(const Duration(days: 1, hours: 2)),
-      end: _today.subtract(const Duration(days: 1, hours: 1)),
-      category: 'Work',
-      color: const Color(0xFF9CA3AF),
-      location: 'HQ – Room 3',
-      badgeCount: 1,
-    ),
-  ];
-
-  late final List<Event> _all = [..._upcoming, ..._past];
-
-  List<Event> get _tabSorted {
-    switch (_selectedTab) {
-      case EventsTab.upcoming:
-        return [..._upcoming]..sort((a, b) => a.start.compareTo(b.start));
-      case EventsTab.past:
-        return [..._past]..sort((a, b) => b.start.compareTo(a.start));
-      case EventsTab.all:
-        return [..._all]..sort((a, b) => a.start.compareTo(b.start));
-    }
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const _TopBar(),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+              child: CategoryFilterBar(
+                active: _filters,
+                onChange: (newSet) => setState(() {
+                  _filters
+                    ..clear()
+                    ..addAll(newSet);
+                }),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _TabsRow(
+              selected: _selected,
+              onSelect: (t) => setState(() => _selected = t),
+            ),
+            const SizedBox(height: 6),
+            const Divider(height: 1, thickness: 0.3),
+            Expanded(child: list),
+          ],
+        ),
+      ),
+    );
   }
 
-  bool _isOn(String cat) {
-    if (_filters.isEmpty) return true;
-    switch (cat) {
-      case 'Home': return _filters.contains(EventCategory.home);
-      case 'Work': return _filters.contains(EventCategory.work);
-      case 'School': return _filters.contains(EventCategory.school);
-      case 'Personal': return _filters.contains(EventCategory.personal);
-      case 'Sport':
-        try {
-          return _filters.contains(
-            EventCategory.values.firstWhere((e) => e.toString().endsWith('sport')),
-          );
-        } catch (_) { return true; }
-      default: return true;
+  /// Common builder for Upcoming / Past / All (timeline pill + card on SAME ROW)
+  Widget _buildSection(List<Event> events) {
+    String labelFor(DateTime t) {
+      final days = t.difference(_anchor).inDays;
+      if (days == 0) return 'Now';
+      if (days > 0) return days == 1 ? '1 day' : '$days days';
+      final past = days.abs();
+      return past == 1 ? '1 day ago' : '$past days ago';
     }
+
+    Widget row(String label, Widget card) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // left: the small timeline pill (fixed width so cards align)
+          SizedBox(width: 46, child: _TimelinePill(text: label)),
+          const SizedBox(width: 8),
+          // right: the event card
+          Expanded(child: card),
+        ],
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      itemCount: events.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, i) =>
+          row(labelFor(events[i].start), _eventCardFrom(events[i])),
+    );
   }
 
-  List<Event> get _filtered =>
-      _filters.isEmpty ? _tabSorted : _tabSorted.where((e) => _isOn(e.category)).toList();
+  Widget _eventCardFrom(Event e) {
+    final dateText = _formatDateRange(e.start, e.end);
+    final timeText = e.allDay ? 'All day' : _formatTimeRange(e.start, e.end);
+    return _EventCard(
+      accentColor: e.color,
+      title: e.title,
+      dateText: dateText,
+      timeText: timeText,
+      locationText: e.location,
+      isAllDay: e.allDay,
+      hasBadge: e.hasBadge,
+      showTinyIconsRow: e.showTinyIconsRow,
+    );
+  }
+
+  // formatting helpers
+  static const _months = [
+    'JAN',
+    'FEB',
+    'MAR',
+    'APR',
+    'MAY',
+    'JUN',
+    'JUL',
+    'AUG',
+    'SEP',
+    'OCT',
+    'NOV',
+    'DEC'
+  ];
+  String _fmt12(DateTime t) {
+    var h = t.hour % 12;
+    if (h == 0) h = 12;
+    final m = t.minute.toString().padLeft(2, '0');
+    return '${h.toString().padLeft(2, '0')} : $m ${t.hour >= 12 ? 'PM' : 'AM'}';
+  }
+
+  String _formatDateRange(DateTime start, DateTime? end) {
+    final a =
+        '${start.day.toString().padLeft(2, '0')} ${_months[start.month - 1]} ${start.year}';
+    if (end == null ||
+        (start.year == end.year &&
+            start.month == end.month &&
+            start.day == end.day)) {
+      return a;
+    }
+    final b =
+        '${end.day.toString().padLeft(2, '0')} ${_months[end.month - 1]} ${end.year}';
+    return '$a - $b';
+  }
+
+  String _formatTimeRange(DateTime start, DateTime? end) {
+    if (end == null) return _fmt12(start);
+    return '${_fmt12(start)} - ${_fmt12(end)}';
+  }
+}
+
+/// ───────────────────────── UI CHROME ─────────────────────────────────────────
+class _TopBar extends StatelessWidget {
+  const _TopBar();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+      child: Row(
+        children: [
+          const Text(
+            'Events',
+            style:
+            TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                  const MinimalSearchScreen(),
+                  transitionsBuilder: (
+                      context,
+                      animation,
+                      secondaryAnimation,
+                      child,
+                      ) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+                    final tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+            icon: const Icon(
+              CupertinoIcons.search,
+              color: Colors.black,
+            ),
+          ),
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                      const NotificationScreen(),
+                      transitionsBuilder: (
+                          context,
+                          animation,
+                          secondaryAnimation,
+                          child,
+                          ) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  CupertinoIcons.bell,
+                  color: Colors.black,
+                ),
+              ),
+              Positioned(
+                right: 10,
+                top: 10,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFF5757),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                  const SettingsScreen(),
+                  transitionsBuilder: (
+                      context,
+                      animation,
+                      secondaryAnimation,
+                      child,
+                      ) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+                    final tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.settings_outlined,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryChips extends StatelessWidget {
+  const _CategoryChips();
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <_ChipData>[
+      _ChipData('All', Colors.grey.shade300, Colors.black87, isSolid: false),
+      _ChipData('Home', const Color(0xFF3B82F6), Colors.white),
+      _ChipData('Work', const Color(0xFFF59E0B), Colors.white),
+      _ChipData('School', const Color(0xFFA78BFA), Colors.white),
+      _ChipData('Personal', const Color(0xFF10B981), Colors.white),
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final c in items) ...[
+            _PillChip(data: c),
+            const SizedBox(width: 8),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Interactive tabs
+class _TabsRow extends StatelessWidget {
+  final TabKind selected;
+  final ValueChanged<TabKind> onSelect;
+  const _TabsRow({required this.selected, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 6),
+      child: Row(
+        children: [
+          _Segment(
+            text: 'Upcoming',
+            selected: selected == TabKind.upcoming,
+            onTap: () => onSelect(TabKind.upcoming),
+          ),
+          const SizedBox(width: 45),
+          _Segment(
+            text: 'Past',
+            selected: selected == TabKind.past,
+            onTap: () => onSelect(TabKind.past),
+          ),
+          const SizedBox(width: 45),
+          _Segment(
+            text: 'All',
+            selected: selected == TabKind.all,
+            onTap: () => onSelect(TabKind.all),
+          ),
+          const Spacer(),
+          const _IconRounded(icon: Icons.tune_rounded),
+        ],
+      ),
+    );
+  }
+}
+
+class _Segment extends StatelessWidget {
+  final String text;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  const _Segment({
+    required this.text,
+    this.selected = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const inactiveText = Color(0xFF6B7280);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // ── TOP BAR ───────────────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                EventsScreen._horizontalPadding, 16, EventsScreen._horizontalPadding, 0,
-              ),
-              child: Row(
-                children: [
-                  const _MaybeBackButton(),                // ← back arrow if canPop()
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'Events',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder: (_, a, __) => const MinimalSearchScreen(),
-                          transitionsBuilder: (_, a, __, child) {
-                            final tween = Tween(begin: const Offset(1, 0), end: Offset.zero)
-                                .chain(CurveTween(curve: Curves.easeInOut));
-                            return SlideTransition(position: a.drive(tween), child: child);
-                          },
-                        ),
-                      );
-                    },
-                    icon: const Icon(CupertinoIcons.search, color: Colors.black),
-                  ),
-                  Stack(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder: (_, a, __) => const NotificationScreen(),
-                              transitionsBuilder: (_, a, __, child) {
-                                final tween = Tween(begin: const Offset(1, 0), end: Offset.zero)
-                                    .chain(CurveTween(curve: Curves.easeInOut));
-                                return SlideTransition(position: a.drive(tween), child: child);
-                              },
-                            ),
-                          );
-                        },
-                        icon: const Icon(CupertinoIcons.bell, color: Colors.black45),
-                      ),
-                      Positioned(
-                        right: 10,
-                        top: 10,
-                        child: Container(
-                          width: 8, height: 8,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF5757), shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder: (_, a, __) => const SettingsScreen(),
-                          transitionsBuilder: (_, a, __, child) {
-                            final tween = Tween(begin: const Offset(1, 0), end: Offset.zero)
-                                .chain(CurveTween(curve: Curves.easeInOut));
-                            return SlideTransition(position: a.drive(tween), child: child);
-                          },
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.settings_outlined, color: Colors.black),
-                  ),
-                ],
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: selected ? Colors.black : inactiveText,
               ),
             ),
-
-            const SizedBox(height: 12),
-
-            // FILTER BAR (pills)
-            SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: EventsScreen._horizontalPadding,
-                ),
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
-                    child: CategoryFilterBar(
-                      active: _filters,
-                      onChange: (newSet) => setState(() {
-                        _filters = Set<EventCategory>.from(newSet); // replace, don’t mutate
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // TABS
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: EventsScreen._horizontalPadding,
-              ),
-              child: Row(
-                children: [
-                  _TabLabel(
-                    text: 'Upcoming',
-                    selected: _selectedTab == EventsTab.upcoming,
-                    onTap: () => setState(() => _selectedTab = EventsTab.upcoming),
-                  ),
-                  const Spacer(),
-                  _TabLabel(
-                    text: 'Past',
-                    selected: _selectedTab == EventsTab.past,
-                    onTap: () => setState(() => _selectedTab = EventsTab.past),
-                  ),
-                  const Spacer(),
-                  _TabLabel(
-                    text: 'All',
-                    selected: _selectedTab == EventsTab.all,
-                    onTap: () => setState(() => _selectedTab = EventsTab.all),
-                  ),
-                  const Spacer(),
-                  const _CircleIcon(icon: Icons.sort_rounded, size: 32),
-                ],
-              ),
-            ),
-
-            // LIST (cards)
-            Expanded(
-              child: _selectedTab == EventsTab.upcoming
-                  ? UpcomingRedPanel(
-                events: _filtered,
-                anchorDate: _upcomingAnchor,
-                onEventTap: (e) {},
-              )
-                  : Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: EventsScreen._horizontalPadding,
-                ),
-                child: EventsListSection(
-                  events: _filtered,
-                  timelineAnchor: null,
-                  onEventTap: (e) {},
-                ),
+            const SizedBox(height: 6),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              height: 3,
+              width: selected ? 26 : 0,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(999),
               ),
             ),
           ],
@@ -372,397 +472,284 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 }
 
-/// ───────────────────────── helpers (icons / chips / tabs) ───────────────────
-
-class _CircleIcon extends StatelessWidget {
+class _IconRounded extends StatelessWidget {
   final IconData icon;
-  final double size;
-  const _CircleIcon({required this.icon, this.size = 36, super.key});
+  const _IconRounded({required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size, height: size,
-      decoration: const BoxDecoration(color: Color(0xFFF9FAFB), shape: BoxShape.circle),
-      alignment: Alignment.center,
-      child: Icon(icon, size: 18, color: Colors.black87),
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(10)),
+      child: Icon(icon, size: 18, color: const Color(0xFF6B7280)),
     );
   }
 }
 
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final bool filled;
-  final VoidCallback onTap;
+/// ───────────────────────── CARD (exact design) ───────────────────────────────
+class _EventCard extends StatelessWidget {
+  final Color accentColor;
+  final String title;
+  final String dateText;
+  final String timeText;
+  final String locationText;
+  final bool isAllDay;
+  final bool hasBadge;
+  final bool showTinyIconsRow;
 
-  const _CategoryChip({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.filled,
-    required this.onTap,
+  const _EventCard({
     super.key,
+    required this.accentColor,
+    required this.title,
+    required this.dateText,
+    required this.timeText,
+    required this.locationText,
+    this.isAllDay = false,
+    this.hasBadge = false,
+    this.showTinyIconsRow = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = filled ? color : Colors.white;
-    final borderColor = filled ? color : color.withOpacity(0.35);
-    final contentColor = filled ? Colors.white : color;
+    const bg = Color(0xFFF6F7F9);
+    const stroke = Color(0xFFE8ECF2);
+    const mainText = Color(0xFF0F172A);
+    const subText = Color(0xFF6B7280);
+    const muteIcon = Color(0xFF9AA3AF);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor, width: 1),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 16, color: contentColor),
-          const SizedBox(width: 6),
-          Text(label,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: contentColor)),
-        ]),
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: stroke),
+      ),
+      padding: const EdgeInsets.fromLTRB(0, 10, 8, 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // thin colored rail
+          Container(
+            width: 4,
+            height: 20,
+            margin: const EdgeInsets.only(left: 10, right: 2, top: 4),
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+
+          // content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: mainText,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // date + trailing location
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_month_outlined,
+                        size: 16, color: muteIcon),
+                    const SizedBox(width: 8),
+                    Text(
+                      dateText,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: subText,
+                      ),
+                    ),
+
+                    const SizedBox(width: 40,),
+
+                    const Icon(Icons.place_outlined,
+                        size: 16, color: muteIcon),
+                    const SizedBox(width: 4),
+                    Text(
+                      locationText,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: subText,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // time + TRAILING STRIP (icons + red badge)
+                Row(
+                  children: [
+                    const Icon(Icons.access_time, size: 16, color: muteIcon),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        timeText,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: subText,
+                        ),
+                      ),
+                    ),
+
+                    // —— this whole block is the "red portion" UI —— //
+                    Container(
+                      height: 28,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (showTinyIconsRow) ...const [
+                            SizedBox(width: 6),
+                            _CircleIconOutline(
+                                icon: Icons.notifications_none_rounded),
+                            SizedBox(width: 6),
+                            SizedBox(width: 6),
+                          ],
+                          // menu with red badge
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              const _CircleIconOutline(icon: CupertinoIcons.list_bullet),
+                              if (hasBadge)
+                                Positioned(
+                                  right: -2,
+                                  top: -8,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEF4444),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: const Text(
+                                      '2',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // ———————————————————————————————————————————————— //
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _TabLabel extends StatelessWidget {
-  final String text;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _TabLabel({
-    required this.text,
-    required this.selected,
-    required this.onTap,
-    super.key,
-  });
+/// Tiny outlined round icon used inside the trailing strip
+class _CircleIconOutline extends StatelessWidget {
+  final IconData icon;
+  const _CircleIconOutline({required this.icon});
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? const Color(0xFF444444) : const Color(0xFFC4C4C4);
-    return InkWell(
-      onTap: onTap,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(text,
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                color: color)),
-        const SizedBox(height: 4),
-        if (selected)
+    return Container(
+      width: 22,
+      height: 22,
+      alignment: Alignment.center,
+      child: Icon(icon, size: 14, color: const Color(0xFFB0B6C0)),
+    );
+  }
+}
+
+class _ChipData {
+  final String label;
+  final Color color;
+  final Color fg;
+  final bool isSolid;
+  _ChipData(this.label, this.color, this.fg, {this.isSolid = true});
+}
+
+class _PillChip extends StatelessWidget {
+  final _ChipData data;
+  const _PillChip({required this.data});
+  @override
+  Widget build(BuildContext context) {
+    final outlined = !data.isSolid;
+    return Container(
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: outlined ? Colors.white : data.color.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(999),
+        border: outlined ? Border.all(color: const Color(0xFFE5E7EB)) : null,
+      ),
+      alignment: Alignment.center,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (!outlined)
           Container(
-            width: 22, height: 3,
-            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(999)),
+            width: 16,
+            height: 16,
+            margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(
+                shape: BoxShape.circle, color: Colors.white.withOpacity(0.9)),
+            child: Icon(Icons.check,
+                size: 12, color: data.color.withOpacity(0.95)),
           ),
+        Text(
+          data.label,
+          style: TextStyle(
+            color: outlined ? const Color(0xFF4B5563) : data.fg,
+            fontWeight: FontWeight.w700,
+            fontSize: 12,
+          ),
+        ),
       ]),
     );
   }
 }
 
-/// ───────────────────────── EVENTS LIST / TIMELINE (for Past/All) ────────────
-
-class EventsListSection extends StatelessWidget {
-  final List<Event> events;
-  final DateTime? timelineAnchor;
-  final void Function(Event e)? onEventTap;
-
-  const EventsListSection({
-    super.key,
-    required this.events,
-    this.timelineAnchor,
-    this.onEventTap,
-  });
+/// The small timeline pill on the left of each card
+class _TimelinePill extends StatelessWidget {
+  final String text;
+  const _TimelinePill({required this.text});
 
   @override
   Widget build(BuildContext context) {
-    if (events.isEmpty) {
-      return const Center(
-        child: Text('No events', style: TextStyle(color: Color(0xFFB0B0B0))),
-      );
-    }
-    return ListView.separated(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 16),
-      itemCount: events.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) {
-        final e = events[i];
-        final label = timelineAnchor == null ? '' : _timelineLabelForAnchor(e.start, timelineAnchor!);
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 44,
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(label,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFFBDBDBD))),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(18),
-                onTap: () => onEventTap?.call(e),
-                child: _EventCard(
-                  color: e.color,
-                  title: e.title,
-                  date: _formatDateRange(e.start, e.end),
-                  time: _formatTimeRange(e.start, e.end, e.allDay),
-                  location: e.location ?? '',
-                  badgeCount: e.badgeCount,
-                  showParticipantsRow: e.showParticipantsRow,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
 
-class _EventCard extends StatelessWidget {
-  final Color color;
-  final String title;
-  final String date;
-  final String time;
-  final String location;
-  final int badgeCount;
-  final bool showParticipantsRow;
-
-  const _EventCard({
-    super.key,
-    required this.color,
-    required this.title,
-    required this.date,
-    required this.time,
-    required this.location,
-    required this.badgeCount,
-    required this.showParticipantsRow,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const cardBg = Color(0xFFF8F8F8);
-    const textMain = Color(0xFF5C5C5C);
-    const textSub = Color(0xFFBDBDBD);
-    const kIconMute = Color(0xFFCBCBCB);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: 5,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                bottomLeft: Radius.circular(18),
-              ),
-            ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFF9AA3AF),
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            height: 1.0,
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Expanded(
-                    child: Text(title,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textMain)),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.location_on_outlined, size: 14, color: textSub),
-                  const SizedBox(width: 3),
-                  Flexible(
-                    child: Text(location, style: const TextStyle(fontSize: 11, color: textSub), overflow: TextOverflow.ellipsis),
-                  ),
-                  const SizedBox(width: 6),
-                  _IconWithBadge(icon: Icons.chat_bubble_outline_rounded, count: badgeCount > 0 ? 2 : 0),
-                  const SizedBox(width: 8),
-                  _IconWithBadge(icon: Icons.notifications_none_rounded, count: badgeCount),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.more_horiz, size: 18, color: kIconMute),
-                ]),
-                const SizedBox(height: 8),
-                Row(children: [
-                  const Icon(Icons.calendar_today_outlined, size: 14, color: textSub),
-                  const SizedBox(width: 6),
-                  Text(date, style: const TextStyle(fontSize: 12, color: textSub)),
-                ]),
-                const SizedBox(height: 4),
-                Row(children: [
-                  const Icon(Icons.access_time, size: 14, color: textSub),
-                  const SizedBox(width: 6),
-                  Text(time, style: const TextStyle(fontSize: 12, color: textSub)),
-                ]),
-                if (showParticipantsRow) ...[
-                  const SizedBox(height: 8),
-                  Row(children: const [
-                    _ParticipantCircle(), SizedBox(width: 4),
-                    _ParticipantCircle(), SizedBox(width: 4),
-                    _ParticipantCircle(), SizedBox(width: 4),
-                    _ParticipantCircle(), Spacer(),
-                    Icon(Icons.notifications_none_rounded, size: 16, color: kIconMute),
-                  ]),
-                ],
-              ]),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-}
-
-class _IconWithBadge extends StatelessWidget {
-  final IconData icon;
-  final int count;
-  const _IconWithBadge({required this.icon, required this.count, super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Icon(icon, size: 18, color: const Color(0xFFCBCBCB)),
-        if (count > 0)
-          Positioned(
-            right: -4,
-            top: -4,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              height: 14,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFF3B30),
-                borderRadius: BorderRadius.all(Radius.circular(7)),
-              ),
-              alignment: Alignment.center,
-              child: Text('$count',
-                  style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.w700, height: 1)),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ParticipantCircle extends StatelessWidget {
-  const _ParticipantCircle({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 18, height: 18,
-      decoration: BoxDecoration(
-        color: Colors.white, shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE5E5E5), width: 1),
-      ),
-    );
-  }
-}
-
-/// Renders only the "red portion" from the screenshot (Upcoming list)
-class UpcomingRedPanel extends StatelessWidget {
-  final List<Event> events;
-  final DateTime anchorDate; // e.g. DateTime(2026, 6, 17)
-  final EdgeInsetsGeometry horizontalPadding;
-  final void Function(Event e)? onEventTap;
-
-  const UpcomingRedPanel({
-    super.key,
-    required this.events,
-    required this.anchorDate,
-    this.onEventTap,
-    this.horizontalPadding = const EdgeInsets.symmetric(horizontal: 24),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (events.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Center(child: Text('No events', style: TextStyle(color: Color(0xFFB0B0B0)))),
-      );
-    }
-
-    return Padding(
-      padding: horizontalPadding,
-      child: ListView.separated(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 16),
-        itemCount: events.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, i) {
-          final e = events[i];
-          final label = _timelineLabelForAnchor(e.start, anchorDate);
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 44,
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(label,
-                        style: const TextStyle(fontSize: 11, color: Color(0xFFBDBDBD))),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
-                  onTap: () => onEventTap?.call(e),
-                  child: _EventCard(
-                    color: e.color,
-                    title: e.title,
-                    date: _formatDateRange(e.start, e.end),
-                    time: _formatTimeRange(e.start, e.end, e.allDay),
-                    location: e.location ?? '',
-                    badgeCount: e.badgeCount,
-                    showParticipantsRow: e.showParticipantsRow,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// Back button that appears only when there is a previous route to pop.
-class _MaybeBackButton extends StatelessWidget {
-  const _MaybeBackButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final canPop = Navigator.canPop(context);
-    if (!canPop) return const SizedBox(width: 40); // keep layout aligned
-    return IconButton(
-      icon: const Icon(CupertinoIcons.back, color: Colors.black),
-      onPressed: () => Navigator.maybePop(context),
-      tooltip: 'Back',
     );
   }
 }
