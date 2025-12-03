@@ -399,7 +399,7 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                               MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: const Text(
-                              'Done >',
+                              'Done',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,

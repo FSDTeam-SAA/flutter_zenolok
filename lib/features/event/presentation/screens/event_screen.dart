@@ -574,7 +574,7 @@ class _EventCard extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(width: 40,),
+                    const SizedBox(width: 70,),
 
                     const Icon(Icons.place_outlined,
                         size: 16, color: muteIcon),
