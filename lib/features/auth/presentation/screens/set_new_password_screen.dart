@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../controller/auth_controller.dart';
 import 'login_screen.dart';
 
 class SetNewPasswordScreen extends StatefulWidget {
@@ -40,8 +41,12 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (mounted) FocusScope.of(context).unfocus();
-    Get.snackbar('Success', 'Password has been reset successfully');
-    Get.offAll(() => LoginScreen());
+    
+    Get.find<AuthController>().setNewPass(
+      widget.email,
+      widget.otp,
+      _passwordTEController.text,
+    );
   }
 
   @override
@@ -99,7 +104,15 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
                                   focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: Colors.grey.shade400, width: 1.2)),
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                                 ),
-                                validator: Validators.password,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Password is required';
+                                  }
+                                  if (value.length < 6) {
+                                    return 'Password must be at least 6 characters';
+                                  }
+                                  return null;
+                                },
                               );
                             },
                           ),
