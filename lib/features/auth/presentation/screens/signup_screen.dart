@@ -289,7 +289,15 @@ class _SignupScreenState extends State<SignupScreen> {
                                       ),
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                                     ),
-                                    validator: Validators.password,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Password is required';
+                                      }
+                                      if (value.length < 6) {
+                                        return 'Password must be at least 6 characters';
+                                      }
+                                      return null;
+                                    },
                                     onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
                                   );
                                 },
@@ -401,16 +409,36 @@ class _SignupScreenState extends State<SignupScreen> {
 
                               Gap.h16,
 
-                              // Sign Up button
-                              PrimaryButton(
-                                isLoading: false,
-                                onPressed: _submit,
-                                text: "Sign up",
-                                backgroundColor: const Color(0xFF21A9F3),
-                                textColor: Colors.white,
-                                borderRadius: 30,
-                                height: 52,
+                              // Error message
+                              GetBuilder<AuthController>(
+                                builder: (controller) {
+                                  if (controller.errorMessage.value.isNotEmpty) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 16.0),
+                                      child: Text(
+                                        controller.errorMessage.value,
+                                        style: TextStyle(color: Colors.red, fontSize: 14),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    );
+                                  }
+                                  return SizedBox.shrink();
+                                },
                               ),
+
+                              // Sign Up button
+                              Obx(() {
+                                final authController = Get.find<AuthController>();
+                                return PrimaryButton(
+                                  isLoading: authController.isLoading.value,
+                                  onPressed: _submit,
+                                  text: "Sign up",
+                                  backgroundColor: const Color(0xFF21A9F3),
+                                  textColor: Colors.white,
+                                  borderRadius: 30,
+                                  height: 52,
+                                );
+                              }),
 
                               SizedBox(height: 20),
 
