@@ -10,9 +10,14 @@ import '../../data/models/reset_password_response_model.dart';
 import '../../data/models/set_new_password_request_model.dart';
 import '../../data/models/set_new_password_response_model.dart';
 import '../../data/models/user_model.dart';
+import '../../data/models/register_request_model.dart';
+import '../../data/models/register_response_model.dart';
+import '../../data/models/verify_account_request_model.dart';
 
 abstract class AuthRepository {
   NetworkResult<AuthResponseData> login(LoginRequestModel request);
+  NetworkResult<RegisterResponseModel> register(RegisterRequestModel request);
+  NetworkResult<void> verifyAccount(VerifyAccountRequestModel request);
 
   NetworkResult<ResetPasswordResponseModel> resetPassword(ResetPasswordRequestModel request);
   NetworkResult<OtpVerificationResponseModel> otpVerify(OtpVerificationRequestModel request);

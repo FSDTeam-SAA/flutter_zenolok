@@ -42,7 +42,7 @@ class AuthEndpoints {
   final String resetPass = '$_base/send-reset-otp';
   final String refreshToken = '$_base/refresh-token';
   final String otpVerify = '$_base/verify-reset-otp';
-  final String otpVerifyRegister = '$_base/verify-otp';
+  final String otpVerifyRegister = '$_base/verify';
   final String setNewPass = '$_base/reset-password';
 }
 

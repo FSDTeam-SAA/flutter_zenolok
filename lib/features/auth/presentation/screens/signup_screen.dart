@@ -8,6 +8,7 @@ import '../../../../core/common/constants/app_images.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../controller/auth_controller.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -56,7 +57,13 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     if (mounted) FocusScope.of(context).unfocus();
-    Get.snackbar('Success', 'Sign up functionality will be implemented');
+    // Get.snackbar('Success', 'Sign up functionality will be implemented');
+    final authController = Get.find<AuthController>();
+    authController.register(
+      _usernameController.text,
+      _emailController.text,
+      _passwordController.text,
+    );
   }
 
   @override

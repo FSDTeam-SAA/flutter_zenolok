@@ -13,6 +13,9 @@ import '../models/reset_password_response_model.dart';
 import '../models/set_new_password_request_model.dart';
 import '../models/set_new_password_response_model.dart';
 import '../models/user_model.dart';
+import '../models/register_request_model.dart';
+import '../models/register_response_model.dart';
+import '../models/verify_account_request_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final ApiClient _apiClient;
@@ -25,7 +28,24 @@ class AuthRepositoryImpl implements AuthRepository {
       ApiConstants.auth.login,
       data: request.toJson(),
       fromJsonT: (json) => AuthResponseData.fromJson(json),
-      // isFormData: true
+    );
+  }
+
+  @override
+  NetworkResult<RegisterResponseModel> register(RegisterRequestModel request) {
+    return _apiClient.post<RegisterResponseModel>(
+      ApiConstants.auth.register,
+      data: request.toJson(),
+      fromJsonT: (json) => RegisterResponseModel.fromJson(json),
+    );
+  }
+
+  @override
+  NetworkResult<void> verifyAccount(VerifyAccountRequestModel request) {
+    return _apiClient.post<void>(
+      ApiConstants.auth.otpVerifyRegister,
+      data: request.toJson(),
+      fromJsonT: (json) {},
     );
   }
 

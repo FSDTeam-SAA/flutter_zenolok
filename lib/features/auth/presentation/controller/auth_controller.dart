@@ -12,6 +12,9 @@ import '../../domain/repo/auth_repo.dart';
 import '../screens/login_screen.dart';
 import '../screens/otp_verification_screen.dart';
 import '../screens/set_new_password_screen.dart';
+import '../../data/models/register_request_model.dart';
+import '../../data/models/verify_account_request_model.dart';
+import '../screens/otp_verification_to_complete_register.dart';
 
 class AuthController extends BaseController {
   final AuthRepository _authRepository;
@@ -48,6 +51,50 @@ class AuthController extends BaseController {
         } else {
           setError(success.message);
         }
+        setLoading(false);
+      },
+    );
+  }
+
+  Future<void> register(String name, String email, String password) async {
+    setLoading(true);
+    setError("");
+
+    final request = RegisterRequestModel(
+      name: name,
+      email: email,
+      password: password,
+    );
+
+    final result = await _authRepository.register(request);
+
+    result.fold(
+      (fail) {
+        setError(fail.message);
+        setLoading(false);
+      },
+      (success) {
+        Get.to(() => OtpVerificationToCompleteRegister(email: email));
+        setLoading(false);
+      },
+    );
+  }
+
+  Future<void> verifyAccount(String email, String otp) async {
+    setLoading(true);
+    setError("");
+
+    final request = VerifyAccountRequestModel(email: email, otp: otp);
+
+    final result = await _authRepository.verifyAccount(request);
+
+    result.fold(
+      (fail) {
+        setError(fail.message);
+        setLoading(false);
+      },
+      (success) {
+        Get.offAll(() => LoginScreen());
         setLoading(false);
       },
     );
