@@ -29,9 +29,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Get.to(() => AppGroundScreen());
-      },
+      onTap: isLoading ? null : onPressed,
       child: AbsorbPointer(
         absorbing: isLoading,
         child: Opacity(

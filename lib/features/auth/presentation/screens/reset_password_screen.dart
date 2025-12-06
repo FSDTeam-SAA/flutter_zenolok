@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../controller/auth_controller.dart';
 import 'login_screen.dart';
 import 'otp_verification_screen.dart';
 
@@ -32,7 +34,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (mounted) FocusScope.of(context).unfocus();
-    Get.to(() => OtpVerificationScreen(email: _emailController.text));
+    Get.find<AuthController>().resetPass(_emailController.text);
   }
 
   @override

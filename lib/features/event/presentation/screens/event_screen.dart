@@ -950,8 +950,9 @@ class _EventCard extends StatelessWidget {
         color: cardBg,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // colored strip
           Container(
@@ -1073,6 +1074,7 @@ class _EventCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

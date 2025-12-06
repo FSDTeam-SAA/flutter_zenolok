@@ -19,16 +19,35 @@ class BaseResponse<T> {
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
-    return BaseResponse<T>(
-      success: json['success'] ?? json['status'] ?? false, // Handle both 'success' and 'status'
-      message: json['message'] ?? '',
-      data: json['data'] != null ? fromJsonT(json['data']) : null,
-      errorSources: json['errorSources'] != null
-          ? (json['errorSources'] as List)
-              .map((e) => ErrorSource.fromJson(e))
-              .toList()
-          : null,
-    );
+    // Check if the response follows the standard structure
+    if (json.containsKey('success') || json.containsKey('status')) {
+      return BaseResponse<T>(
+        success: json['success'] ?? json['status'] ?? false,
+        message: json['message'] ?? '',
+        data: json['data'] != null ? fromJsonT(json['data']) : null,
+        errorSources: json['errorSources'] != null
+            ? (json['errorSources'] as List)
+                .map((e) => ErrorSource.fromJson(e))
+                .toList()
+            : null,
+      );
+    } else {
+      // Assume the response is the data itself (direct object)
+      // This handles APIs that return the object directly without a wrapper
+      try {
+        return BaseResponse<T>(
+          success: true,
+          message: 'Success',
+          data: fromJsonT(json),
+        );
+      } catch (e) {
+        // If parsing fails, it might be an error response or unexpected format
+        return BaseResponse<T>(
+          success: false,
+          message: 'Unexpected response format',
+        );
+      }
+    }
   }
 
   String get combinedErrorMessage {
