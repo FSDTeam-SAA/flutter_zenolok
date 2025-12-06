@@ -1,7 +1,7 @@
 class ApiConstants {
   /// [Base Configuration]
   // static const String baseDomain = 'https://karlfive223-backend.onrender.com';
-  static const String baseDomain = 'http://10.10.5.91:5001';
+  static const String baseDomain = 'http://10.10.5.67:8001';
   static const String baseUrl = '$baseDomain/api/v1';
 
   /// [Headers]
@@ -39,7 +39,7 @@ class AuthEndpoints {
 
   final String login = '$_base/login';
   final String register = '$_base/register';
-  final String resetPass = '$_base/send-reset-otp';
+  final String resetPass = '$_base/forget';
   final String refreshToken = '$_base/refresh-token';
   final String otpVerify = '$_base/verify-reset-otp';
   final String otpVerifyRegister = '$_base/verify';

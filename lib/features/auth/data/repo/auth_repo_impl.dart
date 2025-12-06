@@ -51,36 +51,36 @@ class AuthRepositoryImpl implements AuthRepository {
 
 
   @override
-  NetworkResult<ResetPasswordResponseModel> resetPassword(
+  NetworkResult<void> resetPassword(
     ResetPasswordRequestModel request,
   ) {
     return _apiClient.post(
       ApiConstants.auth.resetPass,
       data: request.toJson(),
-      fromJsonT: (json) => ResetPasswordResponseModel.fromJson(json),
+      fromJsonT: (json) {},
     );
   }
 
   @override
-  NetworkResult<OtpVerificationResponseModel> otpVerify(
+  NetworkResult<void> otpVerify(
     OtpVerificationRequestModel request,
   ) {
     return _apiClient.post(
       ApiConstants.auth.otpVerify,
       data: request.toJson(),
-      fromJsonT: (json) => OtpVerificationResponseModel.fromJson(json),
+      fromJsonT: (json) {},
     );
   }
 
 
   @override
-  NetworkResult<SetNewPasswordResponseModel> setNewPassword(
+  NetworkResult<void> setNewPassword(
     SetNewPasswordRequestModel request,
   ) {
     return _apiClient.post(
       ApiConstants.auth.setNewPass,
       data: request.toJson(),
-      fromJsonT: (json) => SetNewPasswordResponseModel.fromJson(json),
+      fromJsonT: (json) {},
     );
   }
 
