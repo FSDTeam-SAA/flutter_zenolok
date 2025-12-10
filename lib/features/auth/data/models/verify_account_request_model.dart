@@ -1,19 +1,15 @@
-class SetNewPasswordRequestModel {
+class VerifyAccountRequestModel {
   final String email;
-  final String newPassword;
   final String otp;
 
-  SetNewPasswordRequestModel({
+  VerifyAccountRequestModel({
     required this.email,
-    required this.newPassword,
     required this.otp,
   });
 
-  // Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'email': email,
-      'password': newPassword,
       'otp': otp,
     };
   }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'set_new_password_screen.dart';
+import '../controller/auth_controller.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key, required this.email});
@@ -31,7 +32,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   void _submit() {
     String otp = _controllers.map((c) => c.text).join();
     if (otp.length == 6) {
-      Get.to(() => SetNewPasswordScreen(email: widget.email, otp: otp));
+      Get.find<AuthController>().verifyOTP(widget.email, otp);
     }
   }
 
@@ -111,10 +112,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Didn't see your verification email? ", style: TextStyle(color: AppColors.secondaryText, fontSize: 14)),
+                              Text("Didn't see your verification email? ", style: TextStyle(color: AppColors.secondaryText, fontSize: 12)),
                               GestureDetector(
                                 onTap: () {},
-                                child: Text('Resend email', style: TextStyle(color: Color(0xFF21A9F3), fontWeight: FontWeight.w600, fontSize: 14)),
+                                child: Text('Resend email', style: TextStyle(color: Color(0xFF21A9F3), fontWeight: FontWeight.w600, fontSize: 12)),
                               ),
                             ],
                           ),

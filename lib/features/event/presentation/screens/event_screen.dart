@@ -526,9 +526,9 @@ class _EventCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: stroke),
       ),
-      padding: const EdgeInsets.fromLTRB(0, 10, 8, 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // thin colored rail
           Container(
@@ -667,6 +667,7 @@ class _EventCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -256,7 +256,15 @@ class _LoginScreenState extends State<LoginScreen>
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                               ),
           
-                              // validator: Validators.password,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Password is required';
+                                }
+                                if (value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                }
+                                return null;
+                              },
                               onFieldSubmitted: (_) => _submit(),
                             );
                           },
