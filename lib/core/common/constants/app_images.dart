@@ -7,6 +7,9 @@ class AppImages {
   static const String iconnotification = 'assets/icons/notification.png';
   static const String iconsetting = 'assets/icons/setting.png';
   static const String iconschedule = 'assets/icons/schedule.png';
+  static const String sliders = 'assets/icons/sliders.png';
+  static const String repeat = 'assets/icons/repeat.png';
+  static const String notification2 = 'assets/icons/notification 2.png';
 
 
 
