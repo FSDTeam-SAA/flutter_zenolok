@@ -2,7 +2,7 @@ class ApiConstants {
   /// [Base Configuration]
   // static const String baseDomain = 'https://karlfive223-backend.onrender.com';
   static const String baseDomain = 'http://10.10.5.89:8001';
-  static const String baseUrl = '$baseDomain/api/v1';
+  static const String baseUrl = '$baseDomain';
 
   /// [Headers]
   static Map<String, String> get defaultHeaders => {
@@ -27,6 +27,9 @@ class ApiConstants {
   static NotificationEndpoints get notification => NotificationEndpoints();
   static ReportEndpoints get report => ReportEndpoints();
 
+  //  ADD THIS
+  static BrickEndpoints get bricks => BrickEndpoints();
+
   static get team => null;
 
   static get league => null;
@@ -43,6 +46,21 @@ class AuthEndpoints {
   final String otpVerify = '$_base/verify-reset-otp';
   final String otpVerifyRegister = '$_base/verify';
   final String setNewPass = '$_base/reset-password';
+}
+
+
+///  NEW: Brick endpoints (matches your Postman collection)
+class BrickEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/bricks';
+
+  /// POST /bricks  – create brick
+  /// GET  /bricks  – list bricks
+  final String base = _base;
+
+  /// GET /bricks/:id
+  /// PATCH /bricks/:id
+  /// DELETE /bricks/:id
+  String byId(String id) => '$_base/$id';
 }
 
 class UserEndpoints {
