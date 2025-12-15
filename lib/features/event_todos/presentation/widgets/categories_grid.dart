@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'category_dialog.dart';
 
 class CategoriesGrid extends StatelessWidget {
   const CategoriesGrid({super.key});
@@ -19,11 +20,23 @@ class CategoriesGrid extends StatelessWidget {
             ),
             SizedBox(width: 12),
             Expanded(
-              child: _CategoryCard(
-                title: 'Groceries',
-                titleColor: Colors.deepOrange,
-                todos: ['Yogurt', 'Ice cream', 'Turkey'],
-                showMoreCount: '+1',
+              child: GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CategoryDialog(
+                      categoryTitle: 'Groceries',
+                      categoryColor: Colors.deepOrange,
+                      initialTodos: ['Yogurt', 'Ice cream', 'Turkey', 'Bread'],
+                    ),
+                  );
+                },
+                child: _CategoryCard(
+                  title: 'Groceries',
+                  titleColor: Colors.deepOrange,
+                  todos: ['Yogurt', 'Ice cream', 'Turkey'],
+                  showMoreCount: '+1',
+                ),
               ),
             ),
           ],
