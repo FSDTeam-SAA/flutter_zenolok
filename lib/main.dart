@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_zenolok/features/auth/presentation/screens/splash_screen.dart';
+import 'package:flutter_zenolok/features/auth/presentation/screens/login_screen.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 import 'core/bindings/initial_binding.dart';
@@ -23,9 +23,13 @@ class MyApp extends StatelessWidget {
       initialBinding: InitialBinding(),
       home: const CalendarHomePage(),
     );
+
+
   }
+
 }
-// //
+
+
 // // //------------------------------------------
 
 
