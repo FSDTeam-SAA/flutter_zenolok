@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/core/common/constants/app_images.dart';
+import 'scheduled_dialog.dart';
 
 class ScheduledSection extends StatelessWidget {
   const ScheduledSection({super.key});
@@ -27,50 +28,58 @@ class ScheduledSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F7),
-            borderRadius: BorderRadius.circular(35),
-          ),
-          child: Column(
-            children: const [
-              _ScheduledTodoRow(
-                timeLabel: '-1 hour',
-                timeColor: Colors.red,
-                dotColor: Color(0xFFF9C74F),
-                title: 'Yogurt',
-              ),
-              SizedBox(height: 10),
-              _ScheduledTodoRow(
-                timeLabel: '4 days',
-                timeColor: Colors.grey,
-                dotColor: Color(0xFFF9844A),
-                title: 'History assignment',
-              ),
-              SizedBox(height: 10),
-              _ScheduledTodoRow(
-                timeLabel: '8 days',
-                timeColor: Colors.grey,
-                dotColor: Color(0xFF43AA8B),
-                title: 'Pay rent',
-              ),
-              SizedBox(height: 10),
-              Padding(
-                padding: EdgeInsets.only(left: 80),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '+1',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
+        GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const ScheduledDialog(),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F7),
+              borderRadius: BorderRadius.circular(35),
+            ),
+            child: Column(
+              children: const [
+                _ScheduledTodoRow(
+                  timeLabel: '-1 hour',
+                  timeColor: Colors.red,
+                  dotColor: Color(0xFFF9C74F),
+                  title: 'Yogurt',
+                ),
+                SizedBox(height: 10),
+                _ScheduledTodoRow(
+                  timeLabel: '4 days',
+                  timeColor: Colors.grey,
+                  dotColor: Color(0xFFF9844A),
+                  title: 'History assignment',
+                ),
+                SizedBox(height: 10),
+                _ScheduledTodoRow(
+                  timeLabel: '8 days',
+                  timeColor: Colors.grey,
+                  dotColor: Color(0xFF43AA8B),
+                  title: 'Pay rent',
+                ),
+                SizedBox(height: 10),
+                Padding(
+                  padding: EdgeInsets.only(left: 80),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '+1',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

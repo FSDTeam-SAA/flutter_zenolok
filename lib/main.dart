@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 import 'core/init/app_initializer.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/screens/splash_screen.dart';
 
 void main() async {
   await AppInitializer.initializeApp();
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Zenelok',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: const LoginScreen(),
+      home:  SplashScreen(),
     );
   }
 }

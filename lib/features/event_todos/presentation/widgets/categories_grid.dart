@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'category_dialog.dart';
 
 class CategoriesGrid extends StatelessWidget {
   const CategoriesGrid({super.key});
@@ -6,7 +7,7 @@ class CategoriesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: [
         // Row 1
         Row(
           children: [
@@ -14,23 +15,28 @@ class CategoriesGrid extends StatelessWidget {
               child: _CategoryCard(
                 title: 'Routine',
                 titleColor: Colors.orange,
-                todos: [
-                  'Mop floor',
-                  'Clean the bathr...',
-                ],
+                todos: ['Mop floor', 'Clean the bathr...'],
               ),
             ),
             SizedBox(width: 12),
             Expanded(
-              child: _CategoryCard(
-                title: 'Groceries',
-                titleColor: Colors.deepOrange,
-                todos: [
-                  'Yogurt',
-                  'Ice cream',
-                  'Turkey',
-                ],
-                showMoreCount: '+1',
+              child: GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CategoryDialog(
+                      categoryTitle: 'Groceries',
+                      categoryColor: Colors.deepOrange,
+                      initialTodos: ['Yogurt', 'Ice cream', 'Turkey', 'Bread'],
+                    ),
+                  );
+                },
+                child: _CategoryCard(
+                  title: 'Groceries',
+                  titleColor: Colors.deepOrange,
+                  todos: ['Yogurt', 'Ice cream', 'Turkey'],
+                  showMoreCount: '+1',
+                ),
               ),
             ),
           ],
@@ -44,10 +50,7 @@ class CategoriesGrid extends StatelessWidget {
               child: _CategoryCard(
                 title: 'Gym',
                 titleColor: Colors.purple,
-                todos: [
-                  '10 push ups',
-                  '20 sit ups',
-                ],
+                todos: ['10 push ups', '20 sit ups'],
               ),
             ),
             SizedBox(width: 12),
@@ -55,10 +58,7 @@ class CategoriesGrid extends StatelessWidget {
               child: _CategoryCard(
                 title: 'Homework',
                 titleColor: Color(0xFFF4A300),
-                todos: [
-                  'History assignm...',
-                  'Fill a form',
-                ],
+                todos: ['History assignm...', 'Fill a form'],
               ),
             ),
           ],
@@ -72,16 +72,11 @@ class CategoriesGrid extends StatelessWidget {
               child: _CategoryCard(
                 title: 'Bills',
                 titleColor: Colors.lightBlue,
-                todos: [
-                  'Pay rent',
-                  'Water bill',
-                ],
+                todos: ['Pay rent', 'Water bill'],
               ),
             ),
             SizedBox(width: 12),
-            Expanded(
-              child: _AddCategoryCard(),
-            ),
+            Expanded(child: _AddCategoryCard()),
           ],
         ),
       ],
@@ -122,20 +117,20 @@ class _CategoryCard extends StatelessWidget {
         const SizedBox(height: 6),
 
         /// Actual card
-        Align(
-          alignment: Alignment.topCenter, // Align the content to top
-          child: Container(
+        Container(
+          height: 140, // Fixed height for all cards (adjust as needed)
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F7F8),
+            borderRadius: BorderRadius.circular(35),
+          ),
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            height: 140, // Fixed height for all cards (adjust as needed)
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7F7F8),
-              borderRadius: BorderRadius.circular(35),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 ...todos.map(
-                      (t) => Padding(
+                  (t) => Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Row(
                       children: [
@@ -190,8 +185,6 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-
-
 class _TodoCircle extends StatelessWidget {
   const _TodoCircle();
 
@@ -202,10 +195,7 @@ class _TodoCircle extends StatelessWidget {
       height: 18,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: const Color(0xFFD0D0D0),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0xFFD0D0D0), width: 1.5),
       ),
     );
   }
@@ -218,12 +208,9 @@ class _AddCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        SizedBox(height: 20), // title nai, tai thora gap
-        SizedBox(
-          height: 118,
-          child: _DashedAddBox(),
-        ),
+      children: [
+        const SizedBox(height: 20), // title nai, tai thora gap
+        const SizedBox(height: 118, child: _DashedAddBox()),
       ],
     );
   }
@@ -239,18 +226,9 @@ class _DashedAddBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFFE0E0E0),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
       ),
-      child: const Center(
-        child: Icon(
-          Icons.add,
-          size: 28,
-          color: Colors.grey,
-        ),
-      ),
+      child: const Center(child: Icon(Icons.add, size: 28, color: Colors.grey)),
     );
   }
 }
