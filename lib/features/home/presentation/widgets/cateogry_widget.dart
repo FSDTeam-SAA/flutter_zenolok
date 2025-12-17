@@ -15,7 +15,7 @@ class CategoryEditorScreen extends StatelessWidget {
             initial: const CategoryDesign(
               color: null,
               icon: Icons.work_outline,
-              name: 'Bricks',
+              name: '',
             ),
             onChanged: (design) {
               // here you get color, icon, and name
@@ -112,7 +112,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
     _selectedColor = init?.color;
     _selectedIcon = init?.icon ?? Icons.work_outline;
-    _name = init?.name ?? 'Bricks';
+    _name = init?.name ?? '';
     _nameController = TextEditingController(text: _name);
   }
 
@@ -131,6 +131,11 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
   @override
   Widget build(BuildContext context) {
     final pillColor = _hasColor ? _selectedColor! : const Color(0xFFF1F1F1);
+
+    final pillText = _nameController.text.trim().isEmpty
+        ? 'Bricks' // ✅ placeholder shown in pill
+        : _nameController.text.trim();
+
     final enabledBackColor = _hasColor
         ? const Color(0xFF444444)
         : const Color(0xFFDDDDDD);
@@ -208,8 +213,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
         Center(
           child: _CategoryHeaderPill(
             color: pillColor,
-            icon: _selectedIcon,
-            text: _name,
+            icon: _hasColor ? _selectedIcon : Icons.work_outline,
+            text: pillText,
             enabled: _hasColor,
           ),
         ),
@@ -225,6 +230,14 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
             textAlign: TextAlign.center,
             decoration: InputDecoration(
               isDense: true,
+              hintText: 'Bricks',
+              hintStyle: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: _hasColor
+                    ? const Color(0xFFBDBDBD)
+                    : const Color(0xFFE0E0E0),
+              ),
               border: const UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xFFE5E5E5)),
               ),
@@ -239,6 +252,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 borderSide: BorderSide(color: Color(0xFF444444)),
               ),
             ),
+
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -249,7 +263,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
             onChanged: (value) {
               if (!_hasColor) return;
               setState(() {
-                _name = value.isEmpty ? ' ' : value;
+                _name = value;
               });
               _notify();
             },
