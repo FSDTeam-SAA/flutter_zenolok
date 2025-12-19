@@ -3,14 +3,14 @@ class UserModel {
   final String email;
   final String username;
   final String role;
-  final AvatarModel avatar;
+  final Avatar? avatar;
 
   UserModel({
     required this.id,
     required this.email,
     required this.username,
     required this.role,
-    required this.avatar,
+    this.avatar,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -20,8 +20,8 @@ class UserModel {
       username: json['username'] ?? '',
       role: json['role'] ?? '',
       avatar: json['avatar'] != null
-          ? AvatarModel.fromJson(json['avatar'])
-          : AvatarModel(publicId: '', url: ''),
+          ? Avatar.fromJson(json['avatar'])
+          : null,
     );
   }
 
@@ -31,22 +31,22 @@ class UserModel {
       'email': email,
       'username': username,
       'role': role,
-      'avatar': avatar.toJson(),
+      'avatar': avatar?.toJson(),
     };
   }
 }
 
-class AvatarModel {
+class Avatar {
   final String publicId;
   final String url;
 
-  AvatarModel({
+  Avatar({
     required this.publicId,
     required this.url,
   });
 
-  factory AvatarModel.fromJson(Map<String, dynamic> json) {
-    return AvatarModel(
+  factory Avatar.fromJson(Map<String, dynamic> json) {
+    return Avatar(
       publicId: json['public_id'] ?? '',
       url: json['url'] ?? '',
     );

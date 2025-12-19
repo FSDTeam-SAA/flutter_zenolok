@@ -1,5 +1,6 @@
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
+
 import '../../../../core/base/base_controller.dart';
 import '../../../../core/network/services/auth_storage_service.dart';
 import '../../../../core/services/get_user_profile_service.dart';
@@ -7,15 +8,15 @@ import '../../../appground_screen.dart';
 import '../../data/models/login_request_model.dart';
 import '../../data/models/otp_request_model.dart';
 import '../../data/models/refresh_token_request_model.dart';
+import '../../data/models/register_request_model.dart';
 import '../../data/models/reset_password_request_model.dart';
 import '../../data/models/set_new_password_request_model.dart';
+import '../../data/models/verify_account_request_model.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../screens/login_screen.dart';
 import '../screens/otp_verification_screen.dart';
-import '../screens/set_new_password_screen.dart';
-import '../../data/models/register_request_model.dart';
-import '../../data/models/verify_account_request_model.dart';
 import '../screens/otp_verification_to_complete_register.dart';
+import '../screens/set_new_password_screen.dart';
 
 class AuthController extends BaseController {
   final AuthRepository _authRepository;
@@ -52,15 +53,16 @@ class AuthController extends BaseController {
     );
 }
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(String username, String email, String password, bool termsAccepted) async {
     setLoading(true);
     setError("");
     print("Attempting to register with email: $email");
 
     final request = RegisterRequestModel(
-      name: name,
+      username: username,
       email: email,
       password: password,
+      termsAccepted: termsAccepted,
     );
 
     final result = await _authRepository.register(request);

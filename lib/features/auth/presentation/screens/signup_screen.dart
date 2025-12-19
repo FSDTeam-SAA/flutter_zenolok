@@ -63,6 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
       _usernameController.text,
       _emailController.text,
       _passwordController.text,
+      _agreeToTerms.value,
     );
   }
 
