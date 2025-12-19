@@ -50,6 +50,7 @@ class AuthEndpoints {
   final String otpVerify = '$_base/verify-reset-otp';
   final String otpVerifyRegister = '$_base/verify';
   final String setNewPass = '$_base/reset-password';
+  final String verifyEmail = '$_base/verify-email';
 }
 
 /// NEW: Events endpoints

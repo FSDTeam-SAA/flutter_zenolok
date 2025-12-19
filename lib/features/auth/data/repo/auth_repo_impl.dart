@@ -5,16 +5,13 @@ import '../../domain/repo/auth_repo.dart';
 import '../models/auth_response_model.dart';
 import '../models/login_request_model.dart';
 import '../models/otp_request_model.dart';
-import '../models/otp_response_model.dart';
 import '../models/refresh_token_request_model.dart';
 import '../models/refresh_token_response_model.dart';
-import '../models/reset_password_request_model.dart';
-import '../models/reset_password_response_model.dart';
-import '../models/set_new_password_request_model.dart';
-import '../models/set_new_password_response_model.dart';
-import '../models/user_model.dart';
 import '../models/register_request_model.dart';
 import '../models/register_response_model.dart';
+import '../models/reset_password_request_model.dart';
+import '../models/set_new_password_request_model.dart';
+import '../models/user_model.dart';
 import '../models/verify_account_request_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -43,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   NetworkResult<void> verifyAccount(VerifyAccountRequestModel request) {
     return _apiClient.post<void>(
-      ApiConstants.auth.otpVerifyRegister,
+      ApiConstants.auth.verifyEmail,
       data: request.toJson(),
       fromJsonT: (json) {},
     );

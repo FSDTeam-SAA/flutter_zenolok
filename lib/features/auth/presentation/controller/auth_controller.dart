@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutx_core/flutx_core.dart';
 import 'package:get/get.dart';
 
@@ -94,6 +95,13 @@ class AuthController extends BaseController {
         setLoading(false);
       },
       (success) {
+        Get.snackbar(
+          "Registration Successful", 
+          "Your account has been verified successfully. Please login to continue.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
         Get.offAll(() => LoginScreen());
         setLoading(false);
       },
