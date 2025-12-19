@@ -16,6 +16,7 @@ class UserModel {
   final String createdAt;
   final String updatedAt;
   final int v;
+  final Avatar? avatar;
   final VerificationInfo? verificationInfo;
   final UserRating? userRating;
   final TrendingProfile? trendingProfile;
@@ -38,6 +39,7 @@ class UserModel {
     required this.createdAt,
     required this.updatedAt,
     required this.v,
+    this.avatar,
     this.verificationInfo,
     this.userRating,
     this.trendingProfile,
@@ -62,6 +64,9 @@ class UserModel {
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
       v: json['__v'] ?? 0,
+      avatar: json['avatar'] != null
+          ? Avatar.fromJson(json['avatar'])
+          : null,
       verificationInfo: json['verificationInfo'] != null
           ? VerificationInfo.fromJson(json['verificationInfo'])
           : null,
@@ -93,6 +98,7 @@ class UserModel {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       '__v': v,
+      'avatar': avatar?.toJson(),
       'verificationInfo': verificationInfo?.toJson(),
       'userRating': userRating?.toJson(),
       'treding_profile': trendingProfile?.toJson(),
@@ -186,6 +192,30 @@ class TrendingProfile {
   Map<String, dynamic> toJson() {
     return {
       'preffered_learning': prefferedLearning,
+    };
+  }
+}
+
+class Avatar {
+  final String publicId;
+  final String url;
+
+  Avatar({
+    required this.publicId,
+    required this.url,
+  });
+
+  factory Avatar.fromJson(Map<String, dynamic> json) {
+    return Avatar(
+      publicId: json['public_id'] ?? '',
+      url: json['url'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'public_id': publicId,
+      'url': url,
     };
   }
 }
