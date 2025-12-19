@@ -338,14 +338,17 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                       ..clear()
                       ..addAll(newSet);
                   }),
-                  onAddPressed: () {
-                    Navigator.of(context).push(
+                  onAddPressed: () async {
+                    await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const CategoryEditorScreen(),
                       ),
                     );
                     // OR if you prefer GetX:
                     // Get.to(() => const CategoryEditorScreen());
+
+                    // ✅ reload and rebuild chips immediately after coming back
+                    Get.find<BrickController>().loadBricks(); // make sure loadBricks() calls update()
                   },
                 ),
               ),
@@ -1609,28 +1612,58 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               children: [
                 Expanded(
                   child: CategoryFilterBar(
+                    // keep showing the selected one (or empty)
                     activeIds: _editorFilters,
                     onChange: (newSet) {
+                      // If user taps "All" (empty set) in editor, ignore it
                       if (newSet.isEmpty) return;
 
-                      // keep only ONE selected (last/new one)
+                      // Pick ONLY one id (the newest one if possible)
                       String selectedId;
 
-                      if (newSet.length >= _editorFilters.length) {
+                      // if user added something (size grew), pick the new id
+                      if (newSet.length > _editorFilters.length) {
                         selectedId = newSet.firstWhere(
                               (id) => !_editorFilters.contains(id),
-                          orElse: () => newSet.first,
+                          orElse: () => newSet.last, // fallback
                         );
                       } else {
+                        // otherwise user removed/toggled -> keep first remaining
                         selectedId = newSet.first;
                       }
 
                       setState(() {
                         _selectedBrickId = selectedId;
-                        _editorFilters = {selectedId};
+                        _editorFilters = {selectedId}; // ✅ force single selection
                       });
                     },
+
+                    // ✅ show "+" inside editor too (if you want)
+                    onAddPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const CategoryEditorScreen()),
+                      );
+
+                      // reload bricks so the new chip appears immediately
+                      await Get.find<BrickController>().loadBricks();
+
+                      // if nothing selected yet, auto-select the newest brick (optional)
+                      final bricks = Get.find<BrickController>().bricks;
+                      if (_selectedBrickId == null && bricks.isNotEmpty) {
+                        final lastId = bricks.last.id;
+                        setState(() {
+                          _selectedBrickId = lastId;
+                          _editorFilters = {lastId};
+                        });
+                      } else {
+                        // keep current selection visible
+                        setState(() {});
+                      }
+                    },
                   ),
+
+
+
                 ),
               ],
             ),

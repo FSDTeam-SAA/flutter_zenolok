@@ -19,7 +19,7 @@ class BrickController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxnString errorMessage = RxnString();
 
-  final RxList<BrickModel> bricks = <BrickModel>[].obs;
+  late final RxList<BrickModel> bricks = <BrickModel>[].obs;
 
   void resetDesign() {
     design.value = const CategoryDesign(
@@ -30,6 +30,10 @@ class BrickController extends GetxController {
     );
     errorMessage.value = null;
   }
+
+
+
+
 
 
   /// ✅ Editor state (start grey)
@@ -62,6 +66,7 @@ class BrickController extends GetxController {
 
     isLoading.value = true;
     errorMessage.value = null;
+    update(); // ✅ so GetBuilder UIs can show loading if you want
 
     final request = CreateBrickRequestModel(
       name: d.name.trim().isEmpty ? 'Bricks' : d.name.trim(),
@@ -70,31 +75,54 @@ class BrickController extends GetxController {
     );
 
     final Either<NetworkFailure, NetworkSuccess<BrickModel>> result =
-        await _repository.createBrick(request);
+    await _repository.createBrick(request);
 
     BrickModel? created;
-    result.fold((failure) => errorMessage.value = failure.message, (success) {
-      created = success.data;
-      bricks.add(success.data);
-      resetDesign();
-    });
+
+    result.fold(
+          (failure) => errorMessage.value = failure.message,
+          (success) {
+        created = success.data;
+
+        // ✅ Update list
+        bricks.add(success.data);
+
+        // ✅ IMPORTANT: rebuild GetBuilder widgets immediately
+        update();
+
+        // Optional: also refresh Rx listeners
+        bricks.refresh();
+
+        resetDesign();
+      },
+    );
 
     isLoading.value = false;
+    update(); // ✅ reflect loading false in GetBuilder screens
+
     return created;
   }
 
   Future<void> loadBricks() async {
     isLoading.value = true;
     errorMessage.value = null;
+    update(); // ✅ rebuild before fetch (optional)
 
     final Either<NetworkFailure, NetworkSuccess<List<BrickModel>>> result =
-        await _repository.getBricks();
+    await _repository.getBricks();
 
     result.fold(
-      (failure) => errorMessage.value = failure.message,
-      (success) => bricks.assignAll(success.data),
+          (failure) => errorMessage.value = failure.message,
+          (success) {
+        // ✅ Update list FIRST
+        bricks.assignAll(success.data);
+        bricks.refresh();
+      },
     );
 
     isLoading.value = false;
+
+    // ✅ IMPORTANT: rebuild AFTER the list is updated
+    update();
   }
 }
