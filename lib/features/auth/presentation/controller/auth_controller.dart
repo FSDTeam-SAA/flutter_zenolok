@@ -52,15 +52,16 @@ class AuthController extends BaseController {
     );
 }
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(String username, String email, String password, bool termsAccepted) async {
     setLoading(true);
     setError("");
     print("Attempting to register with email: $email");
 
     final request = RegisterRequestModel(
-      name: name,
+      username: username,
       email: email,
       password: password,
+      termsAccepted: termsAccepted,
     );
 
     final result = await _authRepository.register(request);
