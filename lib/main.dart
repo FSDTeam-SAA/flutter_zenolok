@@ -5,6 +5,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'core/bindings/initial_binding.dart';
 import 'core/init/app_initializer.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/screens/splash_screen.dart';
 import 'features/home/presentation/screens/home.dart';
 
 void main() async {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       initialBinding: InitialBinding(),
-      home: const CalendarHomePage(),
+      home: const SplashScreen(),
     );
 
 
