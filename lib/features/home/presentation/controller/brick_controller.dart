@@ -12,7 +12,7 @@ import '../../domain/repo/brick_repo.dart';
 
 class BrickController extends GetxController {
   BrickController({required BrickRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final BrickRepository _repository;
 
@@ -20,6 +20,17 @@ class BrickController extends GetxController {
   final RxnString errorMessage = RxnString();
 
   final RxList<BrickModel> bricks = <BrickModel>[].obs;
+
+  void resetDesign() {
+    design.value = const CategoryDesign(
+      color: null,
+      icon: Icons.work_outline,
+      iconKey: 'ri-focus-2-fill',
+      name: '',
+    );
+    errorMessage.value = null;
+  }
+
 
   /// ✅ Editor state (start grey)
   final Rx<CategoryDesign> design = const CategoryDesign(
@@ -59,16 +70,14 @@ class BrickController extends GetxController {
     );
 
     final Either<NetworkFailure, NetworkSuccess<BrickModel>> result =
-    await _repository.createBrick(request);
+        await _repository.createBrick(request);
 
     BrickModel? created;
-    result.fold(
-          (failure) => errorMessage.value = failure.message,
-          (success) {
-        created = success.data;
-        bricks.add(success.data);
-      },
-    );
+    result.fold((failure) => errorMessage.value = failure.message, (success) {
+      created = success.data;
+      bricks.add(success.data);
+      resetDesign();
+    });
 
     isLoading.value = false;
     return created;
@@ -79,11 +88,11 @@ class BrickController extends GetxController {
     errorMessage.value = null;
 
     final Either<NetworkFailure, NetworkSuccess<List<BrickModel>>> result =
-    await _repository.getBricks();
+        await _repository.getBricks();
 
     result.fold(
-          (failure) => errorMessage.value = failure.message,
-          (success) => bricks.assignAll(success.data),
+      (failure) => errorMessage.value = failure.message,
+      (success) => bricks.assignAll(success.data),
     );
 
     isLoading.value = false;

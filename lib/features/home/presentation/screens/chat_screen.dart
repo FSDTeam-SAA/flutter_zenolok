@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 
-// CalendarEvent
-import 'package:flutter_zenolok/features/home/presentation/screens/home.dart';
+import '../../data/models/brick_model.dart';
+import '../../data/models/calendar_event.dart';
+import '../controller/brick_controller.dart';
+
+// ✅ import CalendarEvent from NEW file (avoids circular import)
 
 // date + time widgets
 import '../widgets/date_time_widget.dart';
@@ -77,8 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  String _fmtDate(DateTime d) =>
-      DateFormat('d MMM yyyy').format(d).toUpperCase();
+  String _fmtDate(DateTime d) => DateFormat('d MMM yyyy').format(d).toUpperCase();
   String _fmtDay(DateTime d) => DateFormat('EEEE').format(d);
   String _fmtTime(DateTime d) => DateFormat('hh : mm').format(d);
   String _fmtAmPm(DateTime d) => DateFormat('a').format(d);
@@ -125,6 +128,63 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  /// "#RRGGBB" or "#AARRGGBB" -> Color
+  Color _hexToColor(String hex, {Color fallback = const Color(0xFF3AA1FF)}) {
+    final raw = hex.replaceAll('#', '').trim();
+    if (raw.length == 6) {
+      return Color(int.parse('FF$raw', radix: 16));
+    }
+    if (raw.length == 8) {
+      return Color(int.parse(raw, radix: 16));
+    }
+    return fallback;
+  }
+
+  BrickModel? _brickById(List<BrickModel> bricks, String id) {
+    for (final b in bricks) {
+      if (b.id == id) return b;
+    }
+    return null;
+  }
+
+  /// maps your stored iconKey -> IconData (same list you use in editor)
+  IconData _iconFromKey(String key) {
+    const map = <String, IconData>{
+      'ri-focus-2-fill': Icons.work_outline,
+      'ri-home-4-line': Icons.home_outlined,
+      'ri-book-3-line': Icons.school_outlined,
+      'ri-heart-3-line': Icons.favorite_border,
+      'ri-football-line': Icons.sports_soccer_outlined,
+      'ri-cup-line': Icons.local_cafe_outlined,
+      'ri-book-open-line': Icons.book_outlined,
+      'ri-flight-takeoff-line': Icons.flight_outlined,
+      'ri-shopping-bag-3-line': Icons.shopping_bag_outlined,
+      'ri-music-2-line': Icons.music_note_outlined,
+      'ri-movie-2-line': Icons.movie_outlined,
+      'ri-dumbbell-line': Icons.fitness_center_outlined,
+      'ri-bear-smile-line': Icons.pets_outlined,
+      'ri-camera-3-line': Icons.camera_alt_outlined,
+      'ri-computer-line': Icons.computer_outlined,
+      'ri-restaurant-2-line': Icons.restaurant_outlined,
+      'ri-hotel-bed-line': Icons.bed_outlined,
+      'ri-sun-line': Icons.beach_access_outlined,
+      'ri-calendar-event-line': Icons.event_outlined,
+      'ri-alarm-line': Icons.alarm_outlined,
+      'ri-bike-line': Icons.directions_bike_outlined,
+      'ri-bus-line': Icons.directions_bus_outlined,
+      'ri-hospital-line': Icons.local_hospital_outlined,
+      'ri-lightbulb-line': Icons.lightbulb_outline,
+      'ri-star-line': Icons.star_border,
+      'ri-layout-grid-line': Icons.workspaces_outline,
+      'ri-puzzle-line': Icons.extension_outlined,
+      'ri-brush-line': Icons.brush_outlined,
+      'ri-car-line': Icons.drive_eta_outlined,
+      'ri-gamepad-line': Icons.games_outlined,
+      'ri-cake-3-line': Icons.emoji_food_beverage_outlined,
+    };
+    return map[key] ?? Icons.work_outline;
+  }
+
   void _onSave() {
     // build new start / end based on allDay + selections
     late DateTime start;
@@ -144,20 +204,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final updated = CalendarEvent(
       id: event.id,
-      category: event.category,
-      title: _titleCtrl.text.trim().isEmpty
-          ? event.title
-          : _titleCtrl.text.trim(),
+      categoryId: event.categoryId, // ✅ keep brick category
+      title: _titleCtrl.text.trim().isEmpty ? event.title : _titleCtrl.text.trim(),
       start: start,
       end: end,
       allDay: _allDay,
-      location: _locationCtrl.text.trim().isEmpty
-          ? null
-          : _locationCtrl.text.trim(),
+      location: _locationCtrl.text.trim().isEmpty ? null : _locationCtrl.text.trim(),
       checklist: _todos
-          .map(
-            (t) => '${t.checked ? "[x]" : "[ ]"} ${t.label}',
-      )
+          .map((t) => '${t.checked ? "[x]" : "[ ]"} ${t.label}')
           .toList(),
     );
 
@@ -167,6 +221,18 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     const bg = Colors.white;
+
+    final BrickController controller = Get.find<BrickController>();
+
+    // ✅ resolve brick from event.categoryId
+    final BrickModel? brick = _brickById(controller.bricks, event.categoryId);
+
+    // ✅ fallback if brick not loaded yet
+    final Color categoryColor =
+    brick != null ? _hexToColor(brick.color) : const Color(0xFF3AA1FF);
+    final String categoryLabel = brick?.name ?? 'Category';
+    final IconData categoryIcon =
+    brick != null ? _iconFromKey(brick.icon) : Icons.work_outline;
 
     final startDate = _startDate;
     final endDate = _endDate;
@@ -225,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: 3,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: event.category.color,
+                  color: categoryColor,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -261,24 +327,24 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: event.category.color.withOpacity(0.16),
+                color: categoryColor.withOpacity(0.16),
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    event.category.icon,
+                    categoryIcon,
                     size: 14,
-                    color: event.category.color,
+                    color: categoryColor,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    event.category.label,
+                    categoryLabel,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: event.category.color,
+                      color: categoryColor,
                     ),
                   ),
                 ],
@@ -288,7 +354,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 26),
 
-          // DATE ROW  (opens DateRangeBottomSheet)
+          // DATE ROW
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _pickDateRange,
@@ -300,7 +366,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      // left date
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,7 +392,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // right date
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -357,24 +421,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Icon(
-                  Icons.notifications_none_rounded,
-                  size: 18,
-                  color: _lightIconGrey,
-                ),
+                const Icon(Icons.notifications_none_rounded,
+                    size: 18, color: _lightIconGrey),
                 const SizedBox(width: 12),
-                const Icon(
-                  Icons.autorenew_rounded,
-                  size: 18,
-                  color: _lightIconGrey,
-                ),
+                const Icon(Icons.autorenew_rounded,
+                    size: 18, color: _lightIconGrey),
               ],
             ),
           ),
 
           const SizedBox(height: 14),
 
-          // TIME ROW  (opens TimeRangeBottomSheet when not all-day)
+          // TIME ROW
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _allDay ? null : _pickTimeRange,
@@ -449,23 +507,19 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 6),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _allDay
-                          ? const Color(0xFFF6F7FA)
-                          : Colors.white,
+                      color: _allDay ? const Color(0xFFF6F7FA) : Colors.white,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: const Color(0xFFE7E8EE)),
                     ),
-                    child: Text(
+                    child: const Text(
                       'All day',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: _allDay
-                            ? const Color(0xFFD0D3DD)
-                            : const Color(0xFFD0D3DD),
+                        color: Color(0xFFD0D3DD),
                       ),
                     ),
                   ),
@@ -504,15 +558,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
           const SizedBox(height: 26),
 
-          _buildTodoBubble(),
+          _buildTodoBubble(categoryColor),
 
           const SizedBox(height: 26),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Icon(Icons.lock_outline_rounded,
-                  size: 16, color: _labelGrey),
+              Icon(Icons.lock_outline_rounded, size: 16, color: _labelGrey),
               SizedBox(width: 4),
               Text(
                 "Let's JAM",
@@ -534,7 +587,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // todo bubble --------------------------------------------------------------
 
-  Widget _buildTodoBubble() {
+  Widget _buildTodoBubble(Color highlightColor) {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 14, 22, 14),
       decoration: BoxDecoration(
@@ -548,7 +601,7 @@ class _ChatScreenState extends State<ChatScreen> {
             _TodoRadioRow(
               label: _todos[i].label,
               selected: _todos[i].checked,
-              highlightColor: event.category.color,
+              highlightColor: highlightColor,
               onTap: () {
                 setState(() {
                   for (int j = 0; j < _todos.length; j++) {
@@ -588,10 +641,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
           const SizedBox(height: 6),
-          Container(
-            height: 1,
-            color: const Color(0xFFE1E2E8),
-          ),
+          Container(height: 1, color: const Color(0xFFE1E2E8)),
           const SizedBox(height: 6),
           TextField(
             controller: _notesCtrl,
@@ -632,8 +682,7 @@ class _TodoRadioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =
-    selected ? highlightColor : const Color(0xFFCDCFD7);
+    final borderColor = selected ? highlightColor : const Color(0xFFCDCFD7);
     final fillColor = selected ? highlightColor : Colors.transparent;
 
     return InkWell(
@@ -645,10 +694,7 @@ class _TodoRadioRow extends StatelessWidget {
             height: 20,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: borderColor,
-                width: 2,
-              ),
+              border: Border.all(color: borderColor, width: 2),
             ),
             child: selected
                 ? Center(
@@ -667,10 +713,7 @@ class _TodoRadioRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 13, color: Colors.black87),
             ),
           ),
         ],

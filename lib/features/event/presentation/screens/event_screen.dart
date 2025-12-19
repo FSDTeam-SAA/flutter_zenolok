@@ -88,12 +88,8 @@ class _EventsScreenState extends State<EventsScreen> {
   List<Event> get _all =>
       [..._upcoming, ..._past]..sort((a, b) => a.start.compareTo(b.start));
 
-  final Set<EventCategory> _filters = {
-    EventCategory.home,
-    EventCategory.work,
-    EventCategory.school,
-    EventCategory.personal,
-  };
+  final Set<String> _filters = <String>{}; // brick ids
+
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +109,7 @@ class _EventsScreenState extends State<EventsScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
               child: CategoryFilterBar(
-                active: _filters,
+                activeIds: _filters,
                 onChange: (newSet) => setState(() {
                   _filters
                     ..clear()
