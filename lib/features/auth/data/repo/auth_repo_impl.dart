@@ -43,7 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   NetworkResult<void> verifyAccount(VerifyAccountRequestModel request) {
     return _apiClient.post<void>(
-      ApiConstants.auth.otpVerifyRegister,
+      ApiConstants.auth.verifyEmail,
       data: request.toJson(),
       fromJsonT: (json) {},
     );
