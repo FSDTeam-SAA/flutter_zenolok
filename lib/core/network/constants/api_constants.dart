@@ -30,6 +30,10 @@ class ApiConstants {
   //  ADD THIS
   static BrickEndpoints get bricks => BrickEndpoints();
 
+  //  ADD THIS
+  static EventEndpoints get events => EventEndpoints();
+  static EventTodoEndpoints get eventTodos => EventTodoEndpoints();
+
   static get team => null;
 
   static get league => null;
@@ -47,6 +51,32 @@ class AuthEndpoints {
   final String otpVerifyRegister = '$_base/verify';
   final String setNewPass = '$_base/reset-password';
 }
+
+/// NEW: Events endpoints
+class EventEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/events';
+
+  /// POST /events
+  final String create = _base;
+
+  /// GET /events?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+  final String list = _base;
+
+  /// Optional: GET /events/:id etc (if backend supports)
+  String byId(String id) => '$_base/$id';
+}
+
+/// NEW: Event Todos endpoints
+class EventTodoEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/event-todos';
+
+  /// POST /event-todos
+  final String create = _base;
+
+  /// GET /event-todos/event/:eventId
+  String listByEvent(String eventId) => '$_base/event/$eventId';
+}
+
 
 
 ///  NEW: Brick endpoints (matches your Postman collection)
