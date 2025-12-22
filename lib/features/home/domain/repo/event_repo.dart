@@ -17,6 +17,11 @@ abstract class EventRepo {
     required String eventId,
   });
 
+  Future<Either<NetworkFailure, NetworkSuccess<CalendarEvent>>> updateEvent({
+    required String eventId,
+    required Map<String, dynamic> body,
+  });
+
   Future<Either<NetworkFailure, NetworkSuccess<void>>> createTodo({
     required Map<String, dynamic> body,
   });

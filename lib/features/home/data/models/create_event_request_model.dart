@@ -1,12 +1,13 @@
 class CreateEventRequestModel {
   final String title;
-  final String brick; // brickId
+  final String brick;
   final DateTime startTime;
   final DateTime endTime;
   final bool isAllDay;
   final String? location;
-  final DateTime? reminder;
-  final String? recurrence;
+  final String? notes; // ✅ NEW
+
+  final List<Map<String, dynamic>>? todos;
 
   CreateEventRequestModel({
     required this.title,
@@ -15,8 +16,8 @@ class CreateEventRequestModel {
     required this.endTime,
     required this.isAllDay,
     this.location,
-    this.reminder,
-    this.recurrence,
+    this.notes,
+    this.todos,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,9 +27,11 @@ class CreateEventRequestModel {
       "startTime": startTime.toUtc().toIso8601String(),
       "endTime": endTime.toUtc().toIso8601String(),
       "isAllDay": isAllDay,
-      if (location != null) "location": location,
-      if (reminder != null) "reminder": reminder!.toUtc().toIso8601String(),
-      if (recurrence != null) "recurrence": recurrence,
+      "location": location,
+      if (notes != null) "notes": notes, // ✅ NEW
+      if (todos != null) "todos": todos,
     };
   }
 }
+
+
