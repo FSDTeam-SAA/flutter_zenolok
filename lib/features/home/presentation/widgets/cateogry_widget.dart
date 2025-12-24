@@ -10,14 +10,13 @@ class CategoryEditorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final BrickController controller = Get.find<BrickController>(); // ✅ must be bound before opening
+    final BrickController controller = Get.find<BrickController>();
 
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true, // ✅ FIXED (keyboard)
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Obx(() {
-          // ✅ FIXED: read Rx values INSIDE Obx (prevents "improper use of Obx")
           final CategoryDesign initial = controller.design.value;
           final bool isSaving = controller.isLoading.value;
           final String? errorText = controller.errorMessage.value;
@@ -25,21 +24,18 @@ class CategoryEditorScreen extends StatelessWidget {
           final bottomKeyboard = MediaQuery.of(context).viewInsets.bottom;
 
           return GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(), // ✅ close keyboard on tap
+            onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.translucent,
             child: SingleChildScrollView(
-              // ✅ FIXED: scroll + keyboard padding
               padding: EdgeInsets.fromLTRB(24, 8, 24, 16 + bottomKeyboard),
               child: CategoryEditorWidget(
-                initial: initial, // ✅ FIXED
-                isSaving: isSaving, // ✅ FIXED
-                errorText: errorText, // ✅ FIXED
+                initial: initial,
+                isSaving: isSaving,
+                errorText: errorText,
                 onChanged: controller.updateDesign,
                 onAdd: () async {
                   final BrickModel? created = await controller.createBrick();
-                  if (created != null) {
-                    Get.back(result: created);
-                  }
+                  if (created != null) Get.back(result: created);
                 },
               ),
             ),
@@ -74,25 +70,55 @@ class CategoryEditorWidget extends StatefulWidget {
 }
 
 class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
+  // 10 x 4 grid (like your screenshot)
   static const List<Color> _colors = [
-    Color(0xFFFF4B4B),
-    Color(0xFFFF9F0A),
-    Color(0xFFFFD60A),
+    // row 1
+    Color(0xFFFF3B30),
+    Color(0xFFFF9500),
+    Color(0xFFFFCC00),
     Color(0xFF34C759),
+    Color(0xFF00C7BE),
     Color(0xFF30B0C7),
+    Color(0xFF32ADE6),
     Color(0xFF007AFF),
-    Color(0xFF5E5CE6),
+    Color(0xFF5856D6),
     Color(0xFFFF2D55),
-    Color(0xFFFFCCCC),
-    Color(0xFFFFE0B2),
-    Color(0xFFFFF2B2),
-    Color(0xFFC8E6C9),
-    Color(0xFFB2EBF2),
-    Color(0xFFBBDEFB),
-    Color(0xFFE1BEE7),
-    Color(0xFFF8BBD0),
+
+    // row 2
+    Color(0xFFFFD7D5),
+    Color(0xFFFFE3C4),
+    Color(0xFFFFF3C4),
+    Color(0xFFD9F4DE),
+    Color(0xFFCFF5F2),
+    Color(0xFFD6F3F6),
+    Color(0xFFD6EEFF),
+    Color(0xFFD6E8FF),
+    Color(0xFFE3E1FF),
+    Color(0xFFFFD6E4),
+
+    // row 3
+    Color(0xFFFFFFFF),
+    Color(0xFFF2F2F2),
+    Color(0xFFE6E6E6),
+    Color(0xFFDADADA),
+    Color(0xFFCCCCCC),
+    Color(0xFFBDBDBD),
+    Color(0xFFAAAAAA),
+    Color(0xFF8E8E93),
+    Color(0xFF6B6B6B),
+    Color(0xFF3A3A3A),
+
+    // row 4
     Color(0xFF8D6E63),
+    Color(0xFF795548),
     Color(0xFF607D8B),
+    Color(0xFF455A64),
+    Color(0xFF1C1C1E),
+    Color(0xFF2C2C2E),
+    Color(0xFF48484A),
+    Color(0xFF636366),
+    Color(0xFF0A84FF),
+    Color(0xFF5E5CE6),
   ];
 
   static const List<_IconOpt> _icons = [
@@ -144,7 +170,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
     final init = widget.initial;
 
     _selectedColor = init.color;
-
     _selectedIcon = _icons.firstWhere(
           (x) => x.key == init.iconKey,
       orElse: () => _icons.first,
@@ -156,7 +181,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
   @override
   void dispose() {
-    _nameController.dispose(); // ✅ FIXED
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -177,8 +202,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
     final pillText =
     _nameController.text.trim().isEmpty ? 'Bricks' : _nameController.text.trim();
 
-    final enabledBackColor =
-    _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
+    final enabledBackColor = _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
 
     final addTextColor =
     (_hasColor && !widget.isSaving) ? const Color(0xFF444444) : const Color(0xFFE0E0E0);
@@ -194,11 +218,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 18,
-                color: enabledBackColor,
-              ),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: enabledBackColor),
               onPressed: _hasColor ? () => Get.back() : null,
             ),
             const Spacer(),
@@ -222,7 +242,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
           ],
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
 
         // PILL
         Center(
@@ -234,7 +254,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
           ),
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
         // NAME FIELD
         Padding(
@@ -252,7 +272,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 ),
                 onChanged: (value) {
                   if (!_hasColor) return;
-                  setState(() => _name = value); // ✅ FIXED: update model value
+                  setState(() => _name = value);
                   _notify();
                 },
               ),
@@ -275,38 +295,91 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
         const SizedBox(height: 20),
 
-        // COLORS
+        // COLORS (red marked area 1)
         _RoundedPanel(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: _colors.map((c) {
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _colors.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 10,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+              ),
+              itemBuilder: (context, index) {
+                final c = _colors[index];
                 final isSelected = _selectedColor == c;
+
+                final isWhite = c.value == const Color(0xFFFFFFFF).value;
+
                 return GestureDetector(
                   onTap: () {
                     setState(() => _selectedColor = c);
                     _notify();
                   },
                   child: Container(
-                    width: 22,
-                    height: 22,
                     decoration: BoxDecoration(
-                      color: c,
                       shape: BoxShape.circle,
-                      border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                          color: Color(0x14000000),
+                        )
+                      ],
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // base dot
+                        Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: c,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isWhite ? const Color(0xFFE5E5EA) : Colors.transparent,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+
+                        // selection ring (white ring like screenshot)
+                        if (isSelected)
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                            ),
+                          ),
+
+                        // outer subtle ring (helps on white backgrounds)
+                        if (isSelected)
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0x22000000), width: 1),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 );
-              }).toList(),
+              },
             ),
           ),
         ),
 
         const SizedBox(height: 20),
 
-        // ICONS
+        // ICONS (red marked area 2)
         _RoundedPanel(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -318,16 +391,16 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 itemCount: _icons.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 6,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
                 ),
                 itemBuilder: (context, index) {
                   final opt = _icons[index];
                   final isSelected = opt.key == _selectedIcon.key;
 
-                  final color = !_hasColor
+                  final iconColor = !_hasColor
                       ? const Color(0xFFD0D0D0)
-                      : (isSelected ? const Color(0xFF444444) : const Color(0xFFB0B0B0));
+                      : (isSelected ? const Color(0xFF4A4A4A) : const Color(0xFFB0B0B0));
 
                   return GestureDetector(
                     onTap: _hasColor
@@ -336,12 +409,15 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                       _notify();
                     }
                         : null,
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 120),
                       decoration: BoxDecoration(
-                        color: isSelected && _hasColor ? Colors.white : Colors.transparent,
                         shape: BoxShape.circle,
+                        color: (isSelected && _hasColor) ? const Color(0xFFF1F1F1) : Colors.transparent,
                       ),
-                      child: Icon(opt.icon, size: 20, color: color),
+                      child: Center(
+                        child: Icon(opt.icon, size: 20, color: iconColor),
+                      ),
                     ),
                   );
                 },
@@ -410,13 +486,11 @@ class _RoundedPanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
+        color: const Color(0xFFF2F3F5), // closer to screenshot
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE7E7EA), width: 1),
       ),
       child: child,
     );
   }
 }
-
-
-
