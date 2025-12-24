@@ -70,7 +70,7 @@ class CategoryEditorWidget extends StatefulWidget {
 }
 
 class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
-  // 10 x 4 grid (like your screenshot)
+  // 10 x 4 palette (like screenshot)
   static const List<Color> _colors = [
     // row 1
     Color(0xFFFF3B30),
@@ -121,38 +121,123 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
     Color(0xFF5E5CE6),
   ];
 
+  // MORE ICONS (8 columns like screenshot)
   static const List<_IconOpt> _icons = [
-    _IconOpt(Icons.work_outline, 'ri-focus-2-fill'),
-    _IconOpt(Icons.home_outlined, 'ri-home-4-line'),
-    _IconOpt(Icons.school_outlined, 'ri-book-3-line'),
-    _IconOpt(Icons.favorite_border, 'ri-heart-3-line'),
-    _IconOpt(Icons.sports_soccer_outlined, 'ri-football-line'),
-    _IconOpt(Icons.local_cafe_outlined, 'ri-cup-line'),
-    _IconOpt(Icons.book_outlined, 'ri-book-open-line'),
-    _IconOpt(Icons.flight_outlined, 'ri-flight-takeoff-line'),
-    _IconOpt(Icons.shopping_bag_outlined, 'ri-shopping-bag-3-line'),
-    _IconOpt(Icons.music_note_outlined, 'ri-music-2-line'),
-    _IconOpt(Icons.movie_outlined, 'ri-movie-2-line'),
-    _IconOpt(Icons.fitness_center_outlined, 'ri-dumbbell-line'),
-    _IconOpt(Icons.pets_outlined, 'ri-bear-smile-line'),
-    _IconOpt(Icons.camera_alt_outlined, 'ri-camera-3-line'),
-    _IconOpt(Icons.computer_outlined, 'ri-computer-line'),
-    _IconOpt(Icons.restaurant_outlined, 'ri-restaurant-2-line'),
-    _IconOpt(Icons.bed_outlined, 'ri-hotel-bed-line'),
-    _IconOpt(Icons.beach_access_outlined, 'ri-sun-line'),
-    _IconOpt(Icons.event_outlined, 'ri-calendar-event-line'),
-    _IconOpt(Icons.alarm_outlined, 'ri-alarm-line'),
-    _IconOpt(Icons.directions_bike_outlined, 'ri-bike-line'),
-    _IconOpt(Icons.directions_bus_outlined, 'ri-bus-line'),
-    _IconOpt(Icons.local_hospital_outlined, 'ri-hospital-line'),
-    _IconOpt(Icons.lightbulb_outline, 'ri-lightbulb-line'),
-    _IconOpt(Icons.star_border, 'ri-star-line'),
-    _IconOpt(Icons.workspaces_outline, 'ri-layout-grid-line'),
-    _IconOpt(Icons.extension_outlined, 'ri-puzzle-line'),
-    _IconOpt(Icons.brush_outlined, 'ri-brush-line'),
-    _IconOpt(Icons.drive_eta_outlined, 'ri-car-line'),
-    _IconOpt(Icons.games_outlined, 'ri-gamepad-line'),
-    _IconOpt(Icons.emoji_food_beverage_outlined, 'ri-cake-3-line'),
+    // row 1 (matches screenshot style)
+    _IconOpt(Icons.widgets_outlined, 'grid'),
+    _IconOpt(Icons.wb_sunny_outlined, 'sun'),
+    _IconOpt(Icons.light_mode_outlined, 'sun_alt'),
+    _IconOpt(Icons.nightlight_outlined, 'moon'),
+    _IconOpt(Icons.star_outline, 'star'),
+    _IconOpt(Icons.cloud_outlined, 'cloud'),
+    _IconOpt(Icons.eco_outlined, 'leaf'),
+    _IconOpt(Icons.pets_outlined, 'animal'),
+
+    // row 2
+    _IconOpt(Icons.home_outlined, 'home'),
+    _IconOpt(Icons.work_outline, 'briefcase'),
+    _IconOpt(Icons.shopping_cart_outlined, 'cart'),
+    _IconOpt(Icons.directions_bike_outlined, 'bike'),
+    _IconOpt(Icons.stacked_bar_chart_outlined, 'stats'),
+    _IconOpt(Icons.person_outline, 'person'),
+    _IconOpt(Icons.delete_outline, 'trash'),
+    _IconOpt(Icons.school_outlined, 'cap'),
+
+    // row 3
+    _IconOpt(Icons.umbrella_outlined, 'umbrella'),
+    _IconOpt(Icons.checkroom_outlined, 'tshirt'),
+    _IconOpt(Icons.dry_cleaning_outlined, 'dress'),
+    _IconOpt(Icons.bathtub_outlined, 'bath'),
+    _IconOpt(Icons.weekend_outlined, 'sofa'),
+    _IconOpt(Icons.bed_outlined, 'bed'),
+    _IconOpt(Icons.light_outlined, 'lamp'),
+    _IconOpt(Icons.bolt_outlined, 'bolt'),
+
+    // row 4
+    _IconOpt(Icons.image_outlined, 'image'),
+    _IconOpt(Icons.park_outlined, 'tree'),
+    _IconOpt(Icons.sentiment_very_satisfied_outlined, 'ghost_like'),
+    _IconOpt(Icons.celebration_outlined, 'balloon_like'),
+    _IconOpt(Icons.palette_outlined, 'palette'),
+    _IconOpt(Icons.style_outlined, 'cards'),
+    _IconOpt(Icons.sports_esports_outlined, 'game'),
+    _IconOpt(Icons.gps_fixed, 'target'),
+
+    // row 5
+    _IconOpt(Icons.calendar_month_outlined, 'calendar'),
+    _IconOpt(Icons.music_note_outlined, 'music'),
+    _IconOpt(Icons.movie_outlined, 'movie'),
+    _IconOpt(Icons.headphones_outlined, 'headphones'),
+    _IconOpt(Icons.menu_book_outlined, 'book'),
+    _IconOpt(Icons.radio_outlined, 'radio'),
+    _IconOpt(Icons.campaign_outlined, 'megaphone'),
+    _IconOpt(Icons.timer_outlined, 'timer'),
+
+    // row 6
+    _IconOpt(Icons.camera_alt_outlined, 'camera'),
+    _IconOpt(Icons.tv_outlined, 'tv'),
+    _IconOpt(Icons.phone_iphone_outlined, 'phone'),
+    _IconOpt(Icons.watch_outlined, 'watch'),
+    _IconOpt(Icons.favorite_border, 'heart'),
+    _IconOpt(Icons.diamond_outlined, 'diamond'),
+    _IconOpt(Icons.content_cut_outlined, 'scissors'),
+    _IconOpt(Icons.local_florist_outlined, 'flower'),
+
+    // row 7
+    _IconOpt(Icons.local_fire_department_outlined, 'fire'),
+    _IconOpt(Icons.power_settings_new_outlined, 'power'),
+    _IconOpt(Icons.outdoor_grill_outlined, 'campfire'),
+    _IconOpt(Icons.sentiment_satisfied_alt_outlined, 'smile'),
+    _IconOpt(Icons.apartment_outlined, 'apartment'),
+    _IconOpt(Icons.account_balance_outlined, 'bank'),
+    _IconOpt(Icons.holiday_village_outlined, 'tent'),
+
+    // row 8
+    _IconOpt(Icons.storefront_outlined, 'store'),
+    _IconOpt(Icons.train_outlined, 'train'),
+    _IconOpt(Icons.tram_outlined, 'tram'),
+    _IconOpt(Icons.directions_car_outlined, 'car'),
+    _IconOpt(Icons.local_shipping_outlined, 'truck'),
+    _IconOpt(Icons.flight_outlined, 'plane'),
+    _IconOpt(Icons.rocket_launch_outlined, 'rocket'),
+    _IconOpt(Icons.science_outlined, 'lab'),
+
+    // extra (so you have a big list like screenshot)
+    _IconOpt(Icons.restaurant_outlined, 'food'),
+    _IconOpt(Icons.local_cafe_outlined, 'coffee'),
+    _IconOpt(Icons.fitness_center_outlined, 'gym'),
+    _IconOpt(Icons.sports_soccer_outlined, 'football'),
+    _IconOpt(Icons.beach_access_outlined, 'beach'),
+    _IconOpt(Icons.local_hospital_outlined, 'hospital'),
+    _IconOpt(Icons.lightbulb_outline, 'idea'),
+    _IconOpt(Icons.extension_outlined, 'puzzle'),
+
+    _IconOpt(Icons.brush_outlined, 'brush'),
+    _IconOpt(Icons.edit_outlined, 'pen'),
+    _IconOpt(Icons.color_lens_outlined, 'color'),
+    _IconOpt(Icons.cleaning_services_outlined, 'clean'),
+    _IconOpt(Icons.lock_outline, 'lock'),
+    _IconOpt(Icons.security_outlined, 'security'),
+    _IconOpt(Icons.language_outlined, 'globe'),
+    _IconOpt(Icons.map_outlined, 'map'),
+
+    _IconOpt(Icons.location_on_outlined, 'pin'),
+    _IconOpt(Icons.credit_card_outlined, 'card'),
+    _IconOpt(Icons.attach_money, 'money'),
+    _IconOpt(Icons.savings_outlined, 'savings'),
+    _IconOpt(Icons.shopping_bag_outlined, 'bag'),
+    _IconOpt(Icons.local_mall_outlined, 'mall'),
+    _IconOpt(Icons.list_alt_outlined, 'list'),
+    _IconOpt(Icons.task_alt_outlined, 'task'),
+
+    _IconOpt(Icons.chat_bubble_outline, 'chat'),
+    _IconOpt(Icons.forum_outlined, 'forum'),
+    _IconOpt(Icons.mail_outline, 'mail'),
+    _IconOpt(Icons.share_outlined, 'share'),
+    _IconOpt(Icons.link_outlined, 'link'),
+    _IconOpt(Icons.group_outlined, 'group'),
+    _IconOpt(Icons.handshake_outlined, 'handshake'),
+    _IconOpt(Icons.public_outlined, 'public'),
   ];
 
   Color? _selectedColor;
@@ -202,10 +287,12 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
     final pillText =
     _nameController.text.trim().isEmpty ? 'Bricks' : _nameController.text.trim();
 
-    final enabledBackColor = _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
+    final enabledBackColor =
+    _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
 
-    final addTextColor =
-    (_hasColor && !widget.isSaving) ? const Color(0xFF444444) : const Color(0xFFE0E0E0);
+    final addTextColor = (_hasColor && !widget.isSaving)
+        ? const Color(0xFF444444)
+        : const Color(0xFFE0E0E0);
 
     final canAdd = _hasColor && !widget.isSaving;
 
@@ -218,7 +305,11 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: enabledBackColor),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                color: enabledBackColor,
+              ),
               onPressed: _hasColor ? () => Get.back() : null,
             ),
             const Spacer(),
@@ -248,7 +339,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
         Center(
           child: _CategoryHeaderPill(
             color: pillColor,
-            icon: _hasColor ? _selectedIcon.icon : Icons.work_outline,
+            icon: _hasColor ? _selectedIcon.icon : Icons.widgets_outlined,
             text: pillText,
             enabled: _hasColor,
           ),
@@ -295,7 +386,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
         const SizedBox(height: 20),
 
-        // COLORS (red marked area 1)
+        // COLORS
         _RoundedPanel(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -311,7 +402,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
               itemBuilder: (context, index) {
                 final c = _colors[index];
                 final isSelected = _selectedColor == c;
-
                 final isWhite = c.value == const Color(0xFFFFFFFF).value;
 
                 return GestureDetector(
@@ -320,9 +410,9 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                     _notify();
                   },
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
                           blurRadius: 6,
                           offset: Offset(0, 2),
@@ -333,7 +423,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // base dot
                         Container(
                           width: 22,
                           height: 22,
@@ -346,8 +435,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                             ),
                           ),
                         ),
-
-                        // selection ring (white ring like screenshot)
                         if (isSelected)
                           Container(
                             width: 26,
@@ -357,8 +444,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                               border: Border.all(color: Colors.white, width: 3),
                             ),
                           ),
-
-                        // outer subtle ring (helps on white backgrounds)
                         if (isSelected)
                           Container(
                             width: 28,
@@ -379,7 +464,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
         const SizedBox(height: 20),
 
-        // ICONS (red marked area 2)
+        // ICONS (now 8 columns + more icons)
         _RoundedPanel(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -390,7 +475,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _icons.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
+                  crossAxisCount: 8, // ✅ like screenshot
                   mainAxisSpacing: 14,
                   crossAxisSpacing: 14,
                 ),
@@ -413,7 +498,9 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                       duration: const Duration(milliseconds: 120),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: (isSelected && _hasColor) ? const Color(0xFFF1F1F1) : Colors.transparent,
+                        color: (isSelected && _hasColor)
+                            ? const Color(0xFFF1F1F1)
+                            : Colors.transparent,
                       ),
                       child: Center(
                         child: Icon(opt.icon, size: 20, color: iconColor),
@@ -486,7 +573,7 @@ class _RoundedPanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F3F5), // closer to screenshot
+        color: const Color(0xFFF2F3F5),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE7E7EA), width: 1),
       ),

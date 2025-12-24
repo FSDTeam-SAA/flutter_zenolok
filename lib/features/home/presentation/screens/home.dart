@@ -239,12 +239,33 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             DateFormat(
                               'MMM',
                             ).format(_focused.value).toUpperCase(),
-                            style: _monthBig,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontFamily: 'Dongle',
+                              fontWeight: FontWeight.w300,
+                              // 300 Light
+                              fontSize: 70,
+                              height: 22 / 70,
+                              // lineHeight 22px
+                              letterSpacing: 0,
+                              color: Color(0xFF363538),
+                            ),
                           ),
+
                           const SizedBox(width: 8),
                           Text(
                             DateFormat('yyyy').format(_focused.value),
-                            style: _yearLight,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontFamily: 'Dongle',
+                              fontWeight: FontWeight.w400,
+                              // 400 Regular
+                              fontSize: 36,
+                              height: 22 / 36,
+                              // lineHeight 22px
+                              letterSpacing: 0,
+                              color: Color(0xFFB6B5B5), // Gray4
+                            ),
                           ),
                         ],
                       ),
@@ -381,23 +402,34 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
               ),
 
               // Filter chips row
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
-                child: CategoryFilterBar(
-                  activeIds: _filters,
-                  onChange: (newSet) => setState(() {
-                    _filters
-                      ..clear()
-                      ..addAll(newSet);
-                  }),
-                  onAddPressed: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const CategoryEditorScreen(),
-                      ),
-                    );
-                    Get.find<BrickController>().loadBricks();
-                  },
+              // ✅ Figma: Sorting_bar = 309w × 30h (horizontal overflow, scroll with parent)
+              // Replace your Padding block with this:
+              const SizedBox(height: 6),
+
+              SizedBox(
+                height: 30, // ✅ fixed height like Figma
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: 309,
+                    // ✅ fixed width like Figma (remove if you want full width)
+                    child: CategoryFilterBar(
+                      activeIds: _filters,
+                      onChange: (newSet) => setState(() {
+                        _filters
+                          ..clear()
+                          ..addAll(newSet);
+                      }),
+                      onAddPressed: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CategoryEditorScreen(),
+                          ),
+                        );
+                        Get.find<BrickController>().loadBricks();
+                      },
+                    ),
+                  ),
                 ),
               ),
 
@@ -1046,7 +1078,6 @@ class _StreakTile extends StatelessWidget {
   }
 }
 
-
 class _AllDayTile extends StatelessWidget {
   const _AllDayTile({required this.event});
 
@@ -1124,7 +1155,6 @@ class _AllDayTile extends StatelessWidget {
     );
   }
 }
-
 
 class _TimedTile extends StatelessWidget {
   const _TimedTile({required this.event, required this.onToggle});
@@ -1238,14 +1268,15 @@ class _TimedTile extends StatelessWidget {
               GestureDetector(
                 onTap: () async {
                   // ✅ open editor with existing event data
-                  final edited = await Navigator.of(context).push<CalendarEvent>(
-                    MaterialPageRoute(
-                      builder: (_) => EventEditorScreen(
-                        initialDate: event.start,
-                        existingEvent: event,
-                      ),
-                    ),
-                  );
+                  final edited = await Navigator.of(context)
+                      .push<CalendarEvent>(
+                        MaterialPageRoute(
+                          builder: (_) => EventEditorScreen(
+                            initialDate: event.start,
+                            existingEvent: event,
+                          ),
+                        ),
+                      );
 
                   if (edited == null) return;
 
@@ -1355,8 +1386,6 @@ class _TimedTile extends StatelessWidget {
     );
   }
 }
-
-
 
 class _ChecklistRow extends StatelessWidget {
   const _ChecklistRow({required this.raw, required this.onTap});
@@ -1672,10 +1701,8 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => TimeRangeBottomSheet(
-        initialStart: _startTime,
-        initialEnd: _endTime,
-      ),
+      builder: (_) =>
+          TimeRangeBottomSheet(initialStart: _startTime, initialEnd: _endTime),
     );
 
     if (result != null) {
@@ -1715,9 +1742,9 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     if (!_form.currentState!.validate()) return;
 
     if (_selectedBrickId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
       return;
     }
 
@@ -1867,7 +1894,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                       String selectedId;
                       if (newSet.length > _editorFilters.length) {
                         selectedId = newSet.firstWhere(
-                              (id) => !_editorFilters.contains(id),
+                          (id) => !_editorFilters.contains(id),
                           orElse: () => newSet.last,
                         );
                       } else {
@@ -1943,58 +1970,60 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               expandMiddle: true,
               middleChild: _allDay
                   ? Text(
-                'All day',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black.withOpacity(.55),
-                ),
-              )
+                      'All day',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black.withOpacity(.55),
+                      ),
+                    )
                   : Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        DateFormat('hh : mm a')
-                            .format(_combine(_startDate, _startTime)),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              DateFormat(
+                                'hh : mm a',
+                              ).format(_combine(_startDate, _startTime)),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text(
-                    '—',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        DateFormat('hh : mm a')
-                            .format(_combine(_startDate, _endTime)),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                        const SizedBox(width: 6),
+                        const Text(
+                          '—',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              DateFormat(
+                                'hh : mm a',
+                              ).format(_combine(_startDate, _endTime)),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               trailing: _AllDayPill(value: _allDay, onChanged: _setAllDay),
               onTap: !_allDay ? _openTimeRangePicker : null,
             ),
@@ -2056,7 +2085,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
     );
   }
 }
-
 
 // ---------------- Editor widgets + plus button (unchanged) ----------------
 
