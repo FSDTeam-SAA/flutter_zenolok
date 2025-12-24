@@ -215,7 +215,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     final cellGapV = max(8.0, rowHeight * 0.3);
 
     // ✅ UI FIX (streak yellow line looks continuous like your screenshots)
-    final cellGapH = 0.0;
+    final cellGapH = 3.0;
 
     final calHeight = dowHeight + rowHeight * 5;
 
@@ -518,22 +518,27 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             ),
                             calendarBuilders: CalendarBuilders(
                               dowBuilder: (context, day) {
-                                final text = DateFormat(
-                                  'E',
-                                ).format(day).substring(0, 1).toUpperCase();
+                                final text = DateFormat('E').format(day).substring(0, 1).toUpperCase();
                                 final isSunday = day.weekday == DateTime.sunday;
+
                                 return Center(
                                   child: Text(
                                     text,
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w800,
+                                      fontFamily: 'Dongle',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      height: 16 / 14, // ✅ line height 16px
+                                      letterSpacing: 0,
                                       color: isSunday
-                                          ? const Color(0xFFFF5757)
-                                          : Colors.black54,
+                                          ? const Color(0xFFFF3B30) // ✅ Sunday red
+                                          : const Color(0xFFB6B5B5), // ✅ weekday grey (change if you want)
                                     ),
                                   ),
                                 );
                               },
+
                               markerBuilder: (context, day, events) =>
                                   const SizedBox.shrink(),
                               defaultBuilder: (context, day, _) => _DayCell(
@@ -647,7 +652,7 @@ class _StreakBar extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(color: const Color(0xFFFFF5D6)),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
       alignment: Alignment.centerLeft,
       child: showLabel
           ? Text(
@@ -702,7 +707,7 @@ class _DayCell extends StatelessWidget {
     final numberColor = isSunday ? const Color(0xFFFF5757) : Colors.black;
 
     const double cardInsetV = 1.0;
-    const double cardInsetH = 1.0;
+    const double cardInsetH = 0.6;
     const double streakHeight = 16.0;
 
     return LayoutBuilder(
@@ -710,7 +715,7 @@ class _DayCell extends StatelessWidget {
         return Container(
           margin: EdgeInsets.symmetric(
             vertical: cardInsetV,
-            horizontal: streak != null ? 0 : cardInsetH,
+            horizontal: cardInsetH,
           ),
           decoration: hasGreyCard
               ? BoxDecoration(
@@ -749,11 +754,17 @@ class _DayCell extends StatelessWidget {
                     }(),
                     child: Text(
                       '${day.day}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: numberColor,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: 'Dongle',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                        height: 16 / 20,
+                        letterSpacing: 0,
+                        color: Color(0xFF212121),
                       ),
                     ),
+
                   ),
                 ),
               ),
@@ -1156,20 +1167,55 @@ class _AllDayTile extends StatelessWidget {
   }
 }
 
-class _TimedTile extends StatelessWidget {
-  const _TimedTile({required this.event, required this.onToggle});
+class _TimedTile extends StatefulWidget {
+  const _TimedTile({required this.event, required this.onToggle, super.key});
 
   final CalendarEvent event;
   final void Function(String item, bool checked) onToggle;
 
+  @override
+  State<_TimedTile> createState() => _TimedTileState();
+}
+
+class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
+  bool _expanded = false;
+
   String _fmt(DateTime t) => DateFormat('h:mm a').format(t);
 
-  bool _sameMonth(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month;
+  bool _sameMonth(DateTime a, DateTime b) => a.year == b.year && a.month == b.month;
+
+  Future<void> _editEvent(BuildContext context) async {
+    final edited = await Navigator.of(context).push<CalendarEvent>(
+      MaterialPageRoute(
+        builder: (_) => EventEditorScreen(
+          initialDate: widget.event.start,
+          existingEvent: widget.event,
+        ),
+      ),
+    );
+
+    if (edited == null) return;
+
+    final ec = Get.find<EventController>();
+
+    await ec.updateEventFromUi(widget.event.id, edited);
+    await ec.loadMonth(widget.event.start);
+
+    if (!_sameMonth(widget.event.start, edited.start)) {
+      await ec.loadMonth(edited.start);
+    }
+
+    await ec.ensureTodosLoadedForDay(_dOnly(edited.start));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final hasChecklist = event.checklist.isNotEmpty;
+    final e = widget.event;
+    final hasChecklist = e.checklist.isNotEmpty;
+
+    // ✅ This indent aligns checklist under the title area (NOT under time)
+    // left bar(4) + gap(3) + timeBox(56) + divider(1) + gap(4) = 68
+    const double checklistIndentFromContentLeft = 68;
 
     return _BaseEventCard(
       marginTop: 6,
@@ -1178,10 +1224,11 @@ class _TimedTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ======= TOP ROW =======
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // left color bar (keep UI)
+              // left color bar
               Container(
                 width: 4,
                 height: 20,
@@ -1192,195 +1239,188 @@ class _TimedTile extends StatelessWidget {
               ),
               const SizedBox(width: 3),
 
+              // time column
               SizedBox(
                 width: 56,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _fmt(event.start),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
-                        height: 1.0,
-                      ),
-                    ),
-                    if (event.end != null)
+                child: InkWell(
+                  onTap: () => _editEvent(context),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        _fmt(event.end!),
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(.45),
-                          fontSize: 11,
+                        _fmt(e.start),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
                           height: 1.0,
                         ),
                       ),
-                  ],
+                      if (e.end != null)
+                        Text(
+                          _fmt(e.end!),
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(.45),
+                            fontSize: 11,
+                            height: 1.0,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
 
+              // title + location
               Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 1,
-                      height: 16,
-                      color: const Color(0xFFE0E0E0),
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            event.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                              height: 1.0,
-                            ),
-                          ),
-                          if (event.location != null)
+                child: InkWell(
+                  onTap: () => _editEvent(context),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(width: 1, height: 16, color: const Color(0xFFE0E0E0)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              event.location!,
+                              e.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
                                 height: 1.0,
-                                color: Colors.black54,
                               ),
                             ),
-                        ],
+                            if (e.location != null)
+                              Text(
+                                e.location!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  height: 1.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
               const SizedBox(width: 6),
 
-              // ✅ NO UI change: keep same icons/stack/arrow
-              GestureDetector(
-                onTap: () async {
-                  // ✅ open editor with existing event data
-                  final edited = await Navigator.of(context)
-                      .push<CalendarEvent>(
-                        MaterialPageRoute(
-                          builder: (_) => EventEditorScreen(
-                            initialDate: event.start,
-                            existingEvent: event,
-                          ),
+              // ======= RIGHT ICONS + ARROW (FIXED POSITION) =======
+              Row(
+                children: [
+                  // bell
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(Icons.notifications_none_rounded, size: 18, color: Colors.black45),
+                      if (hasChecklist)
+                        const Positioned(
+                          right: -6,
+                          top: -6,
+                          child: _Badge(number: 2),
                         ),
-                      );
+                    ],
+                  ),
+                  const SizedBox(width: 8),
 
-                  if (edited == null) return;
-
-                  final ec = Get.find<EventController>();
-
-                  // ✅ update backend/store using same id
-                  await ec.updateEventFromUi(event.id, edited);
-
-                  // ✅ refresh old month (remove from old day/month)
-                  await ec.loadMonth(event.start);
-
-                  // ✅ refresh new month if moved to different month
-                  if (!_sameMonth(event.start, edited.start)) {
-                    await ec.loadMonth(edited.start);
-                  }
-
-                  // ✅ ensure todos loaded for the new selected day
-                  await ec.ensureTodosLoadedForDay(_dOnly(edited.start));
-                },
-                child: Row(
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Icon(
-                          Icons.notifications_none_rounded,
-                          size: 18,
-                          color: Colors.black45,
-                        ),
-                        if (hasChecklist)
-                          const Positioned(
-                            right: -6,
-                            top: -6,
-                            child: _Badge(number: 2),
-                          ),
-                      ],
-                    ),
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Icon(
-                          CupertinoIcons.list_bullet,
-                          size: 18,
-                          color: Colors.black45,
-                        ),
+                  // list + red badge (same as you had)
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(CupertinoIcons.list_bullet, size: 18, color: Colors.black45),
+                      if (hasChecklist)
                         Positioned(
                           right: -6,
                           top: -12,
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
-                            ),
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                             child: const Text(
                               '2',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                              ),
+                              style: TextStyle(color: Colors.white, fontSize: 10),
                               textAlign: TextAlign.center,
                             ),
                           ),
                         ),
-                      ],
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+
+                  // ✅ arrow button (tap to expand/collapse) — matches red-mark area
+                  InkWell(
+                    borderRadius: BorderRadius.circular(6),
+                    onTap: hasChecklist
+                        ? () => setState(() => _expanded = !_expanded)
+                        : null,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFFE5E6EB)),
+                      ),
+                      child: Icon(
+                        _expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                        size: 18,
+                        color: Colors.black45,
+                      ),
                     ),
-                    const SizedBox(width: 6),
-                    const Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      size: 18,
-                      color: Colors.black45,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
 
-          if (hasChecklist) ...[
-            const SizedBox(height: 8),
-            Column(
-              children: [
-                for (final raw in event.checklist) ...[
-                  _ChecklistRow(
-                    raw: raw,
-                    onTap: (checked) => onToggle(raw, checked),
-                  ),
-                  const SizedBox(height: 4),
-                ],
-                const SizedBox(height: 4),
-                Text(
-                  'New todo',
-                  style: TextStyle(
-                    color: Colors.black.withOpacity(.25),
-                    fontSize: 12,
-                  ),
+          // ======= CHECKLIST (FIXED POSITION UNDER TITLE) =======
+          if (hasChecklist)
+            AnimatedSize(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeInOut,
+              child: _expanded
+                  ? Padding(
+                padding: const EdgeInsets.only(
+                  left: checklistIndentFromContentLeft,
+                  top: 10,
+                  right: 4,
+                  bottom: 2,
                 ),
-              ],
+                child: Column(
+                  children: [
+                    for (final raw in e.checklist) ...[
+                      _ChecklistRow(
+                        raw: raw,
+                        onTap: (checked) => widget.onToggle(raw, checked),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
+                    const SizedBox(height: 2),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'New todo',
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(.25),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                  : const SizedBox.shrink(),
             ),
-          ],
         ],
       ),
     );
@@ -1388,7 +1428,7 @@ class _TimedTile extends StatelessWidget {
 }
 
 class _ChecklistRow extends StatelessWidget {
-  const _ChecklistRow({required this.raw, required this.onTap});
+  const _ChecklistRow({required this.raw, required this.onTap, super.key});
 
   final String raw;
   final void Function(bool checked) onTap;
@@ -1399,40 +1439,53 @@ class _ChecklistRow extends StatelessWidget {
     final label = raw.replaceFirst(RegExp(r'^\[( |x)\]\s?'), '');
 
     return InkWell(
+      borderRadius: BorderRadius.circular(10),
       onTap: () => onTap(!checked),
       child: Row(
         children: [
           Container(
-            width: 20,
-            height: 20,
+            width: 18,
+            height: 18,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: checked ? const Color(0xFF18A957) : Colors.black26,
-                width: 1.6,
+                color: checked ? const Color(0xFF18A957) : const Color(0xFFD0D0D0),
+                width: 1.4,
               ),
               color: checked ? const Color(0xFFE6F6EC) : Colors.transparent,
             ),
             child: checked
                 ? Center(
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF18A957),
-                      ),
-                    ),
-                  )
+              child: Container(
+                width: 9,
+                height: 9,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF18A957),
+                ),
+              ),
+            )
                 : null,
           ),
           const SizedBox(width: 10),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF3A3A3A),
+                height: 1.1,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
+
 
 class _LabelWithBar extends StatelessWidget {
   const _LabelWithBar({
