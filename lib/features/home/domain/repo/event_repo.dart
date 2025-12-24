@@ -25,4 +25,12 @@ abstract class EventRepo {
   Future<Either<NetworkFailure, NetworkSuccess<void>>> createTodo({
     required Map<String, dynamic> body,
   });
+
+
+  // Future<Either<NetworkFailure, NetworkSuccess<List<CalendarEvent>>>> listEvents({
+  //   String? filter, // "past" only supported by backend
+  // });
+
+
+
 }
