@@ -411,11 +411,20 @@ class _TopBar extends StatelessWidget {
           const Text(
             'Events',
             style: TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.5,
+              fontFamily: 'Dongle',
+              // same font
+              fontSize: 50,
+              // 64px
+              fontWeight: FontWeight.w300,
+              // weight 300 (Light)
+              height: 22 / 64,
+              // line height 22px
+              letterSpacing: 0,
+              // 0px
+              color: Color(0xFF363538), // #363538
             ),
           ),
+
           const Spacer(),
           IconButton(
             onPressed: () {
@@ -557,7 +566,11 @@ class _Segment extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  const _Segment({required this.text, this.selected = false, this.onTap});
+  const _Segment({
+    required this.text,
+    this.selected = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -568,34 +581,19 @@ class _Segment extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: selected ? Colors.black : inactiveText,
-              ),
-            ),
-            const SizedBox(height: 6),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOut,
-              height: 3,
-              width: selected ? 26 : 0,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ],
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: selected ? Colors.black : inactiveText,
+          ),
         ),
       ),
     );
   }
 }
+
 
 class _IconRounded extends StatelessWidget {
   final IconData icon;
@@ -617,13 +615,11 @@ class _IconRounded extends StatelessWidget {
 }
 
 /// ───────────────────────── CARD (your design) ───────────────────────────────
-/// ───────────────────────── CARD (your design) ───────────────────────────────
-///
-/// ───────────────────────── CARD (your design) ───────────────────────────────
 class _EventCard extends StatelessWidget {
   final VoidCallback? onTap;
 
-  final Color accentColor; // not used for bar color anymore, but kept so API doesn't break
+  final Color
+  accentColor; // not used for bar color anymore, but kept so API doesn't break
   final String title;
   final String dateText;
   final String timeText;
@@ -657,18 +653,12 @@ class _EventCard extends StatelessWidget {
     final parts = dateText.split(' - ');
     final bool isRange = parts.length == 2;
 
-    // ── choose bar color ─────────────────────────────────────────────────────
-    // all-day  -> stroke (grey)
-    // range    -> red
-    // single   -> green
     final Color barColor;
     if (isAllDay) {
       barColor = const Color(0xFF34C759); // green for single timed event
     } else if (isRange) {
       barColor = const Color(0xFFFFCC00); // red for streak / range
     } else {
-
-
       barColor = const Color(0xFFFFCC00);
     }
 
@@ -719,8 +709,6 @@ class _EventCard extends StatelessWidget {
                           ),
                         ),
                       ),
-
-
                     ],
                   ),
 
@@ -729,8 +717,11 @@ class _EventCard extends StatelessWidget {
                   // ───────── DATE + LOCATION ROW ─────────
                   Row(
                     children: [
-                      const Icon(Icons.calendar_month_outlined,
-                          size: 16, color: muteIcon),
+                      const Icon(
+                        Icons.calendar_month_outlined,
+                        size: 16,
+                        color: muteIcon,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         dateText,
@@ -741,8 +732,11 @@ class _EventCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 70),
-                      const Icon(Icons.place_outlined,
-                          size: 16, color: muteIcon),
+                      const Icon(
+                        Icons.place_outlined,
+                        size: 16,
+                        color: muteIcon,
+                      ),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -764,8 +758,7 @@ class _EventCard extends StatelessWidget {
                   // ───────── TIME + SMALL ICONS ROW ─────────
                   Row(
                     children: [
-                      const Icon(Icons.access_time,
-                          size: 16, color: muteIcon),
+                      const Icon(Icons.access_time, size: 16, color: muteIcon),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -787,24 +780,29 @@ class _EventCard extends StatelessWidget {
                               _CircleIconOutline(icon: Icons.comment),
                               _CircleIconOutline(icon: Icons.refresh),
                               _CircleIconOutline(
-                                  icon: Icons.notifications_none_rounded),
+                                icon: Icons.notifications_none_rounded,
+                              ),
                             ],
                             Stack(
                               clipBehavior: Clip.none,
                               children: [
                                 const _CircleIconOutline(
-                                    icon: CupertinoIcons.list_bullet),
+                                  icon: CupertinoIcons.list_bullet,
+                                ),
                                 if (hasBadge)
                                   Positioned(
                                     right: -2,
                                     top: -8,
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 5, vertical: 2),
+                                        horizontal: 5,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFEF4444),
-                                        borderRadius:
-                                        BorderRadius.circular(999),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
                                       ),
                                       child: const Text(
                                         '2',
@@ -842,8 +840,6 @@ class _EventCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class _CircleIconOutline extends StatelessWidget {
   final IconData icon;
