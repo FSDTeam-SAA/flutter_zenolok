@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import '../../../home/data/models/calendar_event.dart';
 import '../../../home/presentation/controller/event_controller.dart';
 import '../../../home/presentation/controller/brick_controller.dart';
@@ -408,20 +408,13 @@ class _TopBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
       child: Row(
         children: [
-          const Text(
+          Text(
             'Events',
-            style: TextStyle(
-              fontFamily: 'Dongle',
-              // same font
-              fontSize: 50,
-              // 64px
-              fontWeight: FontWeight.w300,
-              // weight 300 (Light)
-              height: 22 / 64,
-              // line height 22px
-              letterSpacing: 0,
-              // 0px
-              color: Color(0xFF363538), // #363538
+            style: GoogleFonts.dongle(
+              fontSize: 64,
+              fontWeight: FontWeight.w300, // Light
+              height: 22 / 50,
+              color: const Color(0xFF363538),
             ),
           ),
 
@@ -566,15 +559,11 @@ class _Segment extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  const _Segment({
-    required this.text,
-    this.selected = false,
-    this.onTap,
-  });
+  const _Segment({required this.text, this.selected = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    const inactiveText = Color(0xFF6B7280);
+    const inactiveText = Color(0xFF9CA3AF); // keep your old inactive color
 
     return InkWell(
       onTap: onTap,
@@ -583,17 +572,19 @@ class _Segment extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Text(
           text,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: selected ? Colors.black : inactiveText,
+          style: GoogleFonts.dongle(
+            fontSize: 24, // Size 24px
+            fontWeight: FontWeight.w400, // Regular
+            height: 16 / 24, // lineHeight 16px
+            color: selected
+                ? const Color(0xFF4D4D4D) // #4D4D4D for active tab
+                : inactiveText, // grey for inactive tabs
           ),
         ),
       ),
     );
   }
 }
-
 
 class _IconRounded extends StatelessWidget {
   final IconData icon;
@@ -687,12 +678,23 @@ class _EventCard extends StatelessWidget {
                     children: [
                       // ✅ vertical color bar just before text
                       Container(
-                        width: 4,
-                        height: 18,
+                        width: 6, // 👈 6px like Figma
+                        height: 18, // 👈 18px height
                         margin: const EdgeInsets.only(right: 6),
                         decoration: BoxDecoration(
-                          color: barColor, // ← dynamic color
-                          borderRadius: BorderRadius.circular(999),
+                          color: barColor,
+                          // your dynamic color (all day / streak / time)
+                          borderRadius: BorderRadius.circular(2),
+                          // 👈 radius 2px
+                          boxShadow: [
+                            BoxShadow(
+                              offset: const Offset(0, 4), // Y = 4
+                              blurRadius: 4, // Blur = 4
+                              color: Colors.black.withOpacity(
+                                0.08,
+                              ), // subtle shadow
+                            ),
+                          ],
                         ),
                       ),
 
@@ -702,10 +704,17 @@ class _EventCard extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: mainText,
+                          style: GoogleFonts.dongle(
+                            fontSize: 24,
+                            // Size 24px
+                            fontWeight: FontWeight.w400,
+                            // Regular (400)
+                            height: 16 / 24,
+                            // line height 16px
+                            letterSpacing: 0,
+                            color: const Color(
+                              0xFF656565,
+                            ), // Darkgray2 (#656565)
                           ),
                         ),
                       ),
@@ -717,39 +726,69 @@ class _EventCard extends StatelessWidget {
                   // ───────── DATE + LOCATION ROW ─────────
                   Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_month_outlined,
-                        size: 16,
-                        color: muteIcon,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        dateText,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: subText,
+
+                      Container(
+                        width: 17,
+                        height: 17,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),           // light bg like card
+                          borderRadius: BorderRadius.circular(4),   // 2px–4px radius in Figma
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.calendar_month_outlined,
+                            size: 11,                               // smaller glyph inside
+                            color: Color(0xFFB6B5B5),               // gray4 like design
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 70),
-                      const Icon(
-                        Icons.place_outlined,
-                        size: 16,
-                        color: muteIcon,
+
+                      const SizedBox(width: 1),
+
+                      // date takes remaining space on the left
+                      Expanded(
+                        child: Text(
+                          dateText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.nunito(
+                            fontSize: 10,                     // 10px
+                            fontWeight: FontWeight.w500,      // Medium
+                            height: 16 / 10,                  // line-height 16px
+                            letterSpacing: 0,                 // 0%
+                            color: const Color(0xFF656565),   // Darkgray2 from Figma
+                          ),
+                        ),
                       ),
+
+
+                      // pushes location section all the way to the right, same X for every card
+                      const SizedBox(width: 8),
+                      const SizedBox(
+                        width: 17,
+                        height: 17,           // 👈 17 x 17 like Figma
+                        child: Icon(
+                          Icons.place_outlined,
+                          size: 17,           // icon glyph size
+                          color: Color(0xFF656565), // or whatever hex your Figma shows
+                        ),
+                      ),
+
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
                           locationText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: GoogleFonts.nunito(
                             fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: subText,
+                            fontWeight: FontWeight.w500,
+                            height: 16 / 10,
+                            color: const Color(0xFF656565),
                           ),
                         ),
                       ),
+
                     ],
                   ),
 
@@ -758,18 +797,35 @@ class _EventCard extends StatelessWidget {
                   // ───────── TIME + SMALL ICONS ROW ─────────
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 16, color: muteIcon),
+                      SizedBox(
+                        width: 17,
+                        height: 17,
+                        child: Center(
+                          child: Icon(
+                            Icons.access_time,
+                            size: 16,        // inner icon visual size
+                            color: muteIcon,
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           timeText,
-                          style: const TextStyle(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.nunito(
                             fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: subText,
+                            fontWeight: FontWeight.w500,      // Medium 500
+                            height: 16 / 10,                  // line-height 16px
+                            color: const Color(0xFF656565),   // Darkgray2
                           ),
                         ),
                       ),
+
+                      //i need to fix 29 december
+
                       Container(
                         height: 28,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -777,7 +833,7 @@ class _EventCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (showTinyIconsRow) ...const [
-                              _CircleIconOutline(icon: Icons.comment),
+                              _CircleIconOutline(icon: Icons.chat_bubble_outline),
                               _CircleIconOutline(icon: Icons.refresh),
                               _CircleIconOutline(
                                 icon: Icons.notifications_none_rounded,
@@ -870,11 +926,12 @@ class _TimelinePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Color(0xFF9AA3AF),
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            height: 1.0,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.nunito(
+            fontSize: 9, // size 9px
+            fontWeight: FontWeight.w400, // Regular
+            height: 16 / 9, // line height 16px
+            color: const Color(0xFF9D9D9D), // gray5
           ),
         ),
       ),

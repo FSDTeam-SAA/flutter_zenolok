@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/searchScreen.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/setting_screen.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -147,16 +148,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     );
   }
 
-  // Future<void> _addEvent(CalendarEvent e) async {
-  //   await Get.find<EventController>().createEventFromUi(e);
-  //   // await Get.find<EventController>().loadMonth(_focused.value);
-  //
-  //   setState(() {
-  //     _selected = _dOnly(e.start);
-  //     _focused.value = _dOnly(e.start);
-  //   });
-  // }
-
   Future<void> _addEvent(CalendarEvent e) async {
     await Get.find<EventController>().createEventFromUi(e);
 
@@ -204,16 +195,10 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   Widget build(BuildContext context) {
     final selected = _selected ?? _dOnly(DateTime.now());
 
-    // final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
-    // final dowHeight = (50.0 * _scale).clamp(20.0, 36.0);
-
     final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
 
     /// make the weekday header much thinner
     final dowHeight = (22.0 * _scale).clamp(16.0, 24.0);
-
-
-
 
     final dateAreaHeight = rowHeight * 0.14;
     final dateDia = rowHeight * 0.58;
@@ -246,37 +231,34 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                               'MMM',
                             ).format(_focused.value).toUpperCase(),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Dongle',
-                              fontWeight: FontWeight.w400,
-                              // 300 Light
-                              fontSize: 50,
+                            style: GoogleFonts.dongle(
+                              fontWeight: FontWeight.w300,
+                              // Light (300)
+                              fontSize: 70,
+                              // Figma size
                               height: 22 / 70,
-                              // lineHeight 22px
+                              // line-height 22px
                               letterSpacing: 0,
-                              color: Color(0xFF363538),
+                              color: const Color(0xFF363538), // #363538
                             ),
                           ),
 
                           const SizedBox(width: 8),
 
                           Transform.translate(
-                            offset: const Offset(0, -10), // 👈 move up a few pixels (tune this)
+                            offset: const Offset(0, -10), // adjust vertical position if needed
                             child: Text(
                               DateFormat('yyyy').format(_focused.value),
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontFamily: 'Dongle',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 20,
-                                height: 22 / 36,
+                              style: GoogleFonts.dongle(
+                                fontWeight: FontWeight.w400,     // Regular (400)
+                                fontSize: 36,                    // Figma size
+                                height: 22 / 36,                 // line-height 22px
                                 letterSpacing: 0,
-                                color: Color(0xFFB6B5B5), // Gray4
+                                color: const Color(0xFFB6B5B5),  // Gray4 #B6B5B5
                               ),
                             ),
                           ),
-
-
                         ],
                       ),
                     ),
@@ -414,11 +396,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
 
-
               const SizedBox(height: 6),
 
               //for category
-
               SizedBox(
                 height: 28.5, // ✅ fixed height like Figma
                 child: Align(
@@ -532,7 +512,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             ),
                             calendarBuilders: CalendarBuilders(
                               dowBuilder: (context, day) {
-                                final text = DateFormat('E').format(day).substring(0, 1).toUpperCase();
+                                final text = DateFormat(
+                                  'E',
+                                ).format(day).substring(0, 1).toUpperCase();
                                 final isSunday = day.weekday == DateTime.sunday;
 
                                 return Center(
@@ -546,8 +528,12 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                                       // height: 16 / 14, // ✅ line height 16px
                                       letterSpacing: 0,
                                       color: isSunday
-                                          ? const Color(0xFFFF3B30) // ✅ Sunday red
-                                          : const Color(0xFFB6B5B5), // ✅ weekday grey (change if you want)
+                                          ? const Color(
+                                              0xFFFF3B30,
+                                            ) // ✅ Sunday red
+                                          : const Color(
+                                              0xFFB6B5B5,
+                                            ), // ✅ weekday grey (change if you want)
                                     ),
                                   ),
                                 );
@@ -654,14 +640,14 @@ class _StreakBar extends StatelessWidget {
 
     // is this day start / end of streak
     final isStart = d.isAtSameMomentAs(s);
-    final isEnd   = d.isAtSameMomentAs(e);
+    final isEnd = d.isAtSameMomentAs(e);
 
     // show label only on start day
     final showLabel = isStart;
 
     final radius = BorderRadius.horizontal(
       left: isStart ? const Radius.circular(10) : Radius.zero,
-      right: isEnd   ? const Radius.circular(10) : Radius.zero,
+      right: isEnd ? const Radius.circular(10) : Radius.zero,
     );
 
     return Container(
@@ -673,86 +659,37 @@ class _StreakBar extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: showLabel
           ? Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 👉 vertical bar you want
-          Container(
-            width: 3,
-            height: 12,
-            decoration: BoxDecoration(
-              color: color,                 // same color as streak
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(width: 2),
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 👉 vertical bar you want
+                Container(
+                  width: 3,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color, // same color as streak
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(width: 2),
 
-          Expanded(
-            child: Text(
-              event.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-            ),
-          ),
-        ],
-      )
+                Expanded(
+                  child: Text(
+                    event.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            )
           : const SizedBox.shrink(),
     );
   }
 }
-
-
-
-// class _StreakBar extends StatelessWidget {
-//   const _StreakBar({required this.event, required this.day});
-//
-//   final CalendarEvent event;
-//   final DateTime day;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final controller = Get.find<BrickController>();
-//     final color = _eventColor(controller.bricks, event);
-//
-//     final d = _dOnly(day);
-//     final s = _dOnly(event.start);
-//     final e = _dOnly(event.end!);
-//
-//     // ✅ UI: yellow line with rounded ends (like screenshots)
-//     final isStart = d.isAtSameMomentAs(s);
-//     final isEnd = d.isAtSameMomentAs(e);
-//
-//     // ✅ UI: show title only at start day (no repeating)
-//     final showLabel = isStart;
-//
-//     final radius = BorderRadius.horizontal(
-//       left: isStart ? const Radius.circular(10) : Radius.zero,
-//       right: isEnd ? const Radius.circular(10) : Radius.zero,
-//     );
-//
-//     return Container(
-//       decoration: BoxDecoration(color: const Color(0xFFFFF5D6)),
-//       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-//       alignment: Alignment.centerLeft,
-//       child: showLabel
-//           ? Text(
-//               event.title,
-//               maxLines: 1,
-//               overflow: TextOverflow.ellipsis,
-//               style: TextStyle(
-//                 fontSize: 10,
-//                 fontWeight: FontWeight.w700,
-//                 color: color,
-//               ),
-//             )
-//           : const SizedBox.shrink(),
-//     );
-//   }
-// }
 
 class _DayCell extends StatelessWidget {
   const _DayCell({
@@ -810,8 +747,6 @@ class _DayCell extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-
-
               // DATE AREA
               SizedBox(
                 height: dateAreaHeight,
@@ -850,7 +785,6 @@ class _DayCell extends StatelessWidget {
                         color: numberColor,
                       ),
                     ),
-
                   ),
                 ),
               ),
@@ -1223,7 +1157,6 @@ class _AllDayTile extends StatelessWidget {
 
           const SizedBox(width: 10),
 
-
           // ===== RIGHT ICON (no extra gap, hugs card’s right) =====
           IconButton(
             padding: EdgeInsets.zero,
@@ -1269,7 +1202,6 @@ class _AllDayTile extends StatelessWidget {
   }
 }
 
-
 class _TimedTile extends StatefulWidget {
   const _TimedTile({required this.event, required this.onToggle, super.key});
 
@@ -1285,7 +1217,8 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
 
   String _fmt(DateTime t) => DateFormat('h:mm a').format(t);
 
-  bool _sameMonth(DateTime a, DateTime b) => a.year == b.year && a.month == b.month;
+  bool _sameMonth(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month;
 
   Future<void> _editEvent(BuildContext context) async {
     final edited = await Navigator.of(context).push<CalendarEvent>(
@@ -1380,7 +1313,11 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(width: 1, height: 16, color: const Color(0xFFE0E0E0)),
+                      Container(
+                        width: 1,
+                        height: 16,
+                        color: const Color(0xFFE0E0E0),
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Column(
@@ -1425,7 +1362,11 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      const Icon(Icons.notifications_none_rounded, size: 18, color: Colors.black45),
+                      const Icon(
+                        Icons.notifications_none_rounded,
+                        size: 18,
+                        color: Colors.black45,
+                      ),
                       if (hasChecklist)
                         const Positioned(
                           right: -6,
@@ -1440,18 +1381,31 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      const Icon(CupertinoIcons.list_bullet, size: 18, color: Colors.black45),
+                      const Icon(
+                        CupertinoIcons.list_bullet,
+                        size: 18,
+                        color: Colors.black45,
+                      ),
                       if (hasChecklist)
                         Positioned(
                           right: -6,
                           top: -12,
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
                             child: const Text(
                               '2',
-                              style: TextStyle(color: Colors.white, fontSize: 10),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -1476,8 +1430,7 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                  )
-
+                  ),
                 ],
               ),
             ],
@@ -1490,35 +1443,35 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
               curve: Curves.easeInOut,
               child: _expanded
                   ? Padding(
-                padding: const EdgeInsets.only(
-                  left: checklistIndentFromContentLeft,
-                  top: 10,
-                  right: 4,
-                  bottom: 2,
-                ),
-                child: Column(
-                  children: [
-                    for (final raw in e.checklist) ...[
-                      _ChecklistRow(
-                        raw: raw,
-                        onTap: (checked) => widget.onToggle(raw, checked),
+                      padding: const EdgeInsets.only(
+                        left: checklistIndentFromContentLeft,
+                        top: 10,
+                        right: 4,
+                        bottom: 2,
                       ),
-                      const SizedBox(height: 6),
-                    ],
-                    const SizedBox(height: 2),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'New todo',
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(.25),
-                          fontSize: 12,
-                        ),
+                      child: Column(
+                        children: [
+                          for (final raw in e.checklist) ...[
+                            _ChecklistRow(
+                              raw: raw,
+                              onTap: (checked) => widget.onToggle(raw, checked),
+                            ),
+                            const SizedBox(height: 6),
+                          ],
+                          const SizedBox(height: 2),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'New todo',
+                              style: TextStyle(
+                                color: Colors.black.withOpacity(.25),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              )
+                    )
                   : const SizedBox.shrink(),
             ),
         ],
@@ -1549,22 +1502,24 @@ class _ChecklistRow extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: checked ? const Color(0xFF18A957) : const Color(0xFFD0D0D0),
+                color: checked
+                    ? const Color(0xFF18A957)
+                    : const Color(0xFFD0D0D0),
                 width: 1.4,
               ),
               color: checked ? const Color(0xFFE6F6EC) : Colors.transparent,
             ),
             child: checked
                 ? Center(
-              child: Container(
-                width: 9,
-                height: 9,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF18A957),
-                ),
-              ),
-            )
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF18A957),
+                      ),
+                    ),
+                  )
                 : null,
           ),
           const SizedBox(width: 10),
@@ -1585,7 +1540,6 @@ class _ChecklistRow extends StatelessWidget {
     );
   }
 }
-
 
 class _LabelWithBar extends StatelessWidget {
   const _LabelWithBar({
@@ -1975,10 +1929,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
         title: const SizedBox.shrink(),
         actions: [
           IconButton(
-            icon: const Icon(
-              CupertinoIcons.delete,
-              color: Color(0xFFFF4B5C),
-            ),
+            icon: const Icon(CupertinoIcons.delete, color: Color(0xFFFF4B5C)),
             onPressed: () => Navigator.pop(context),
           ),
           IconButton(
