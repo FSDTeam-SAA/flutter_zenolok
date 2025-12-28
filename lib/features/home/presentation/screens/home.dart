@@ -843,7 +843,7 @@ class _DayCell extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Dongle',
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         fontSize: 12,
                         height: 16 / 20,
                         letterSpacing: 0,

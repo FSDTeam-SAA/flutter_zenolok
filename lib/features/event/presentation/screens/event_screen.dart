@@ -103,9 +103,14 @@ class _EventsScreenState extends State<EventsScreen> {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
           const curve = Curves.easeInOut;
-          final tween =
-          Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          return SlideTransition(position: animation.drive(tween), child: child);
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
         },
       ),
     );
@@ -150,7 +155,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
                       if (newSet.length > _editorFilters.length) {
                         selectedId = newSet.firstWhere(
-                              (id) => !_editorFilters.contains(id),
+                          (id) => !_editorFilters.contains(id),
                           orElse: () => newSet.last,
                         );
                       } else {
@@ -206,11 +211,11 @@ class _EventsScreenState extends State<EventsScreen> {
                   child: controller.loading.value
                       ? const Center(child: CircularProgressIndicator())
                       : _buildSection(
-                    uiEvents,
-                    // ✅ Pass the ORIGINAL apiEvents so we can open editor with CalendarEvent
-                    apiEvents: apiEvents,
-                    onTapApiEvent: _openEdit,
-                  ),
+                          uiEvents,
+                          // ✅ Pass the ORIGINAL apiEvents so we can open editor with CalendarEvent
+                          apiEvents: apiEvents,
+                          onTapApiEvent: _openEdit,
+                        ),
                 ),
               ],
             );
@@ -282,20 +287,18 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Color _hexToColorSafe(String hex) {
     final cleaned = hex.replaceAll('#', '');
-    final value = int.tryParse(
-      cleaned.length == 6 ? 'FF$cleaned' : cleaned,
-      radix: 16,
-    ) ??
+    final value =
+        int.tryParse(cleaned.length == 6 ? 'FF$cleaned' : cleaned, radix: 16) ??
         0xFF9CA3AF;
     return Color(value);
   }
 
   /// Common builder (timeline pill + card on SAME ROW)
   Widget _buildSection(
-      List<Event> events, {
-        required List<CalendarEvent> apiEvents,
-        required Future<void> Function(CalendarEvent e) onTapApiEvent,
-      }) {
+    List<Event> events, {
+    required List<CalendarEvent> apiEvents,
+    required Future<void> Function(CalendarEvent e) onTapApiEvent,
+  }) {
     String labelFor(DateTime t) {
       final days = t.difference(_anchor).inDays;
       if (days == 0) return 'Now';
@@ -304,10 +307,7 @@ class _EventsScreenState extends State<EventsScreen> {
       return past == 1 ? '1 day ago' : '$past days ago';
     }
 
-    Widget row({
-      required String label,
-      required Widget card,
-    }) {
+    Widget row({required String label, required Widget card}) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -342,7 +342,8 @@ class _EventsScreenState extends State<EventsScreen> {
     final timeText = e.allDay ? 'All day' : _formatTimeRange(e.start, e.end);
 
     return _EventCard(
-      onTap: onTap, // ✅ clickable
+      onTap: onTap,
+      // ✅ clickable
       accentColor: e.color,
       title: e.title,
       dateText: dateText,
@@ -367,7 +368,7 @@ class _EventsScreenState extends State<EventsScreen> {
     'SEP',
     'OCT',
     'NOV',
-    'DEC'
+    'DEC',
   ];
 
   String _fmt12(DateTime t) {
@@ -421,19 +422,21 @@ class _TopBar extends StatelessWidget {
               Navigator.of(context).push(
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                  const MinimalSearchScreen(),
+                      const MinimalSearchScreen(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOut;
-                    final tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
                 ),
               );
             },
@@ -446,19 +449,21 @@ class _TopBar extends StatelessWidget {
                   Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
-                      const NotificationScreen(),
+                          const NotificationScreen(),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        final tween = Tween(begin: begin, end: end)
-                            .chain(CurveTween(curve: curve));
-                        return SlideTransition(
-                          position: animation.drive(tween),
-                          child: child,
-                        );
-                      },
+                            const begin = Offset(1.0, 0.0);
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            final tween = Tween(
+                              begin: begin,
+                              end: end,
+                            ).chain(CurveTween(curve: curve));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
                     ),
                   );
                 },
@@ -483,19 +488,21 @@ class _TopBar extends StatelessWidget {
               Navigator.of(context).push(
                 PageRouteBuilder(
                   pageBuilder: (context, animation, secondaryAnimation) =>
-                  const SettingsScreen(),
+                      const SettingsScreen(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOut;
-                    final tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        final tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
                 ),
               );
             },
@@ -511,6 +518,7 @@ class _TopBar extends StatelessWidget {
 class _TabsRow extends StatelessWidget {
   final TabKind selected;
   final ValueChanged<TabKind> onSelect;
+
   const _TabsRow({required this.selected, required this.onSelect});
 
   @override
@@ -549,11 +557,7 @@ class _Segment extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  const _Segment({
-    required this.text,
-    this.selected = false,
-    this.onTap,
-  });
+  const _Segment({required this.text, this.selected = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -595,6 +599,7 @@ class _Segment extends StatelessWidget {
 
 class _IconRounded extends StatelessWidget {
   final IconData icon;
+
   const _IconRounded({required this.icon});
 
   @override
@@ -612,10 +617,13 @@ class _IconRounded extends StatelessWidget {
 }
 
 /// ───────────────────────── CARD (your design) ───────────────────────────────
+/// ───────────────────────── CARD (your design) ───────────────────────────────
+///
+/// ───────────────────────── CARD (your design) ───────────────────────────────
 class _EventCard extends StatelessWidget {
   final VoidCallback? onTap;
 
-  final Color accentColor;
+  final Color accentColor; // not used for bar color anymore, but kept so API doesn't break
   final String title;
   final String dateText;
   final String timeText;
@@ -645,138 +653,178 @@ class _EventCard extends StatelessWidget {
     const subText = Color(0xFF6B7280);
     const muteIcon = Color(0xFF9AA3AF);
 
+    // ── detect range vs single date from text ────────────────────────────────
+    final parts = dateText.split(' - ');
+    final bool isRange = parts.length == 2;
+
+    // ── choose bar color ─────────────────────────────────────────────────────
+    // all-day  -> stroke (grey)
+    // range    -> red
+    // single   -> green
+    final Color barColor;
+    if (isAllDay) {
+      barColor = const Color(0xFF34C759); // green for single timed event
+    } else if (isRange) {
+      barColor = const Color(0xFFFFCC00); // red for streak / range
+    } else {
+
+
+      barColor = const Color(0xFFFFCC00);
+    }
+
     final card = Container(
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: stroke),
       ),
-      child: IntrinsicHeight(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 4,
-              height: 20,
-              margin: const EdgeInsets.only(left: 10, right: 2, top: 4),
-              decoration: BoxDecoration(
-                color: accentColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+            // small left padding so the bar is inside the rounded card
+            const SizedBox(width: 4),
+
+            // everything else (bar + text + icons)
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: mainText,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ───────── TITLE ROW: BAR + TITLE + HANDLE ─────────
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // ✅ vertical color bar just before text
+                      Container(
+                        width: 4,
+                        height: 18,
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: barColor, // ← dynamic color
+                          borderRadius: BorderRadius.circular(999),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_month_outlined,
-                            size: 16, color: muteIcon),
-                        const SizedBox(width: 8),
-                        Text(
-                          dateText,
+
+                      // title text
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: mainText,
+                          ),
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // ───────── DATE + LOCATION ROW ─────────
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_month_outlined,
+                          size: 16, color: muteIcon),
+                      const SizedBox(width: 8),
+                      Text(
+                        dateText,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: subText,
+                        ),
+                      ),
+                      const SizedBox(width: 70),
+                      const Icon(Icons.place_outlined,
+                          size: 16, color: muteIcon),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          locationText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: subText,
                           ),
                         ),
-                        const SizedBox(width: 70),
-                        const Icon(Icons.place_outlined,
-                            size: 16, color: muteIcon),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            locationText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: subText,
-                            ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // ───────── TIME + SMALL ICONS ROW ─────────
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time,
+                          size: 16, color: muteIcon),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          timeText,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: subText,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time,
-                            size: 16, color: muteIcon),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            timeText,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: subText,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          height: 28,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (showTinyIconsRow) ...const [
-                                _CircleIconOutline(icon: Icons.comment),
-                                _CircleIconOutline(icon: Icons.refresh),
-                                _CircleIconOutline(
-                                    icon: Icons.notifications_none_rounded),
-                              ],
-                              Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  const _CircleIconOutline(
-                                      icon: CupertinoIcons.list_bullet),
-                                  if (hasBadge)
-                                    Positioned(
-                                      right: -2,
-                                      top: -8,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 5, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFEF4444),
-                                          borderRadius:
-                                          BorderRadius.circular(999),
-                                        ),
-                                        child: const Text(
-                                          '2',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w800,
-                                            height: 1.0,
-                                          ),
+                      ),
+                      Container(
+                        height: 28,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (showTinyIconsRow) ...const [
+                              _CircleIconOutline(icon: Icons.comment),
+                              _CircleIconOutline(icon: Icons.refresh),
+                              _CircleIconOutline(
+                                  icon: Icons.notifications_none_rounded),
+                            ],
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                const _CircleIconOutline(
+                                    icon: CupertinoIcons.list_bullet),
+                                if (hasBadge)
+                                  Positioned(
+                                    right: -2,
+                                    top: -8,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEF4444),
+                                        borderRadius:
+                                        BorderRadius.circular(999),
+                                      ),
+                                      child: const Text(
+                                        '2',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          height: 1.0,
                                         ),
                                       ),
                                     ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -795,8 +843,11 @@ class _EventCard extends StatelessWidget {
   }
 }
 
+
+
 class _CircleIconOutline extends StatelessWidget {
   final IconData icon;
+
   const _CircleIconOutline({required this.icon});
 
   @override
@@ -812,6 +863,7 @@ class _CircleIconOutline extends StatelessWidget {
 
 class _TimelinePill extends StatelessWidget {
   final String text;
+
   const _TimelinePill({required this.text});
 
   @override
