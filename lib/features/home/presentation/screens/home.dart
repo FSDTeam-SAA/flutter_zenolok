@@ -661,12 +661,12 @@ class _StreakBar extends StatelessWidget {
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // 👉 vertical bar you want
+                // 👇 THIS is the small yellow vertical bar (3 × 10 in Figma)
                 Container(
                   width: 3,
-                  height: 12,
+                  height: 12,                 // change to 10 if you want 3×10
                   decoration: BoxDecoration(
-                    color: color, // same color as streak
+                    color: color,             // streak color (e.g. #FFCC00)
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -677,13 +677,16 @@ class _StreakBar extends StatelessWidget {
                     event.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: color,
+                    style: GoogleFonts.nunito(
+                      fontSize: 8,                     // 8px
+                      fontWeight: FontWeight.w700,     // 700 Bold
+                      height: 16 / 8,                  // line-height 16px
+                      letterSpacing: -0.2,             // ≈ -4%
+                      color: const Color(0xFF7B6200),  // #7B6200
                     ),
                   ),
                 ),
+
               ],
             )
           : const SizedBox.shrink(),
@@ -905,16 +908,17 @@ class _EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fs = min(12.0, max(9.0, height * 0.9));
-    final barHeight = fs;
+    // Figma: 8px text, bar 10px high
+    const double fs = 8.0;
+    const double barHeight = 10.0;
 
     return SizedBox(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 👇 move ONLY the bar horizontally
+          // left vertical color bar (inside day cell)
           Transform.translate(
-            offset: const Offset(-4, 0), // +X = right, -X = left
+            offset: const Offset(-4, 2), // shift bar a bit left
             child: Container(
               width: 2,
               height: barHeight,
@@ -925,17 +929,20 @@ class _EventRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 0.1),
+
+          // text: "Family dinne"
           Expanded(
             child: Text(
               e.title,
               maxLines: 1,
               softWrap: false,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: fs,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF3A3A3A),
-                height: 1.0,
+              style: GoogleFonts.nunito(
+                fontSize: fs,                       // 8px
+                fontWeight: FontWeight.w700,        // Bold 700
+                height: 16 / 8,                     // line-height 16px
+                letterSpacing: -0.2,                // ~ -4%
+                color: const Color(0xFF154E68),     // #154E68
               ),
             ),
           ),
@@ -944,6 +951,7 @@ class _EventRow extends StatelessWidget {
     );
   }
 }
+
 
 /// ---------------------------------------------------------------------------
 /// EVENT LIST PANE
