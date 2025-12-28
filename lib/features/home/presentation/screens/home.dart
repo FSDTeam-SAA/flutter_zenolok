@@ -221,7 +221,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     final cellGapV = max(8.0, rowHeight * 0.3);
 
     // ✅ UI FIX (streak yellow line looks continuous like your screenshots)
-    final cellGapH = 3.0;
+    final cellGapH = 5.0;
 
     final calHeight = dowHeight + rowHeight * 6;
 
@@ -1814,7 +1814,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   }
 
   String _dateTextSingleLine() {
-    final fmt = DateFormat('EEE, MMM d, yyyy');
+    final fmt = DateFormat('MMM d');
     if (_multiDay) {
       return '${fmt.format(_startDate)} — ${fmt.format(_endDate)}';
     }
