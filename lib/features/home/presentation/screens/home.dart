@@ -841,13 +841,13 @@ class _DayCell extends StatelessWidget {
                     child: Text(
                       '${day.day}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Dongle',
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                         height: 16 / 20,
                         letterSpacing: 0,
-                        color: Color(0xFF212121),
+                        color: numberColor,
                       ),
                     ),
 

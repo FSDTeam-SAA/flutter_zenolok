@@ -5,8 +5,32 @@ import '../../data/models/brick_model.dart';
 import '../../data/models/category_design.dart';
 import '../controller/brick_controller.dart';
 
-class CategoryEditorScreen extends StatelessWidget {
+class CategoryEditorScreen extends StatefulWidget {
   const CategoryEditorScreen({super.key});
+
+  @override
+  State<CategoryEditorScreen> createState() => _CategoryEditorScreenState();
+}
+
+class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
+  final _nameCtrl = TextEditingController();
+  final _nameFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // 👉 this focus node is unused but kept (no behavior change)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _nameFocus.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _nameFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +41,6 @@ class CategoryEditorScreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Obx(() {
-
           final CategoryDesign initial = controller.design.value;
           final bool isSaving = controller.isLoading.value;
           final String? errorText = controller.errorMessage.value;
@@ -41,8 +64,6 @@ class CategoryEditorScreen extends StatelessWidget {
               ),
             ),
           );
-
-
         }),
       ),
     );
@@ -247,6 +268,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
   late _IconOpt _selectedIcon;
 
   late final TextEditingController _nameController;
+  late final FocusNode _nameFocus; // 👉 NEW: focus node for blinking cursor
   String _name = '';
 
   bool get _hasColor => _selectedColor != null;
@@ -265,11 +287,20 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
     _name = init.name;
     _nameController = TextEditingController(text: _name);
+    _nameFocus = FocusNode();
+
+    // 👉 NEW: focus name field when screen opens (if color already chosen)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_hasColor) {
+        _nameFocus.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _nameFocus.dispose(); // 👉 NEW: dispose focus node
     super.dispose();
   }
 
@@ -286,9 +317,11 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final pillColor = _hasColor ? _selectedColor! : const Color(0xFFF1F1F1);
-    final pillText =
-    _nameController.text.trim().isEmpty ? 'Bricks' : _nameController.text.trim();
+    final pillColor =
+    _hasColor ? _selectedColor! : const Color(0xFFF1F1F1);
+    final pillText = _nameController.text.trim().isEmpty
+        ? 'Bricks'
+        : _nameController.text.trim();
 
     final enabledBackColor =
     _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
@@ -355,10 +388,9 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 80),
           child: Column(
             children: [
-
-
               TextField(
                 controller: _nameController,
+                focusNode: _nameFocus, // 👉 NEW: attach focus node here
                 readOnly: !_hasColor,
                 textAlign: TextAlign.center,
                 decoration: const InputDecoration(
@@ -373,8 +405,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 },
               ),
 
-
-              if (widget.errorText != null && widget.errorText!.trim().isNotEmpty)
+              if (widget.errorText != null &&
+                  widget.errorText!.trim().isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
@@ -401,7 +433,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _colors.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 10,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
@@ -409,12 +442,16 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
               itemBuilder: (context, index) {
                 final c = _colors[index];
                 final isSelected = _selectedColor == c;
-                final isWhite = c.value == const Color(0xFFFFFFFF).value;
+                final isWhite =
+                    c.value == const Color(0xFFFFFFFF).value;
 
                 return GestureDetector(
                   onTap: () {
                     setState(() => _selectedColor = c);
                     _notify();
+
+                    // 👉 NEW: as soon as user picks a color, show blinking cursor
+                    _nameFocus.requestFocus();
                   },
                   child: Container(
                     decoration: const BoxDecoration(
@@ -437,7 +474,9 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                             color: c,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isWhite ? const Color(0xFFE5E5EA) : Colors.transparent,
+                              color: isWhite
+                                  ? const Color(0xFFE5E5EA)
+                                  : Colors.transparent,
                               width: 1,
                             ),
                           ),
@@ -448,7 +487,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                             height: 26,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
+                              border: Border.all(
+                                  color: Colors.white, width: 3),
                             ),
                           ),
                         if (isSelected)
@@ -457,7 +497,9 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                             height: 28,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0x22000000), width: 1),
+                              border: Border.all(
+                                  color: const Color(0x22000000),
+                                  width: 1),
                             ),
                           ),
                       ],
@@ -481,18 +523,22 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _icons.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 8, // ✅ like screenshot
                   mainAxisSpacing: 14,
                   crossAxisSpacing: 14,
                 ),
                 itemBuilder: (context, index) {
                   final opt = _icons[index];
-                  final isSelected = opt.key == _selectedIcon.key;
+                  final isSelected =
+                      opt.key == _selectedIcon.key;
 
                   final iconColor = !_hasColor
                       ? const Color(0xFFD0D0D0)
-                      : (isSelected ? const Color(0xFF4A4A4A) : const Color(0xFFB0B0B0));
+                      : (isSelected
+                      ? const Color(0xFF4A4A4A)
+                      : const Color(0xFFB0B0B0));
 
                   return GestureDetector(
                     onTap: _hasColor
@@ -502,7 +548,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                     }
                         : null,
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 120),
+                      duration:
+                      const Duration(milliseconds: 120),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: (isSelected && _hasColor)
@@ -510,7 +557,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                             : Colors.transparent,
                       ),
                       child: Center(
-                        child: Icon(opt.icon, size: 20, color: iconColor),
+                        child: Icon(opt.icon,
+                            size: 20, color: iconColor),
                       ),
                     ),
                   );
@@ -547,7 +595,8 @@ class _CategoryHeaderPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final fg = enabled ? Colors.white : const Color(0xFFBDBDBD);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(999),
@@ -582,7 +631,10 @@ class _RoundedPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF2F3F5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE7E7EA), width: 1),
+        border: Border.all(
+          color: const Color(0xFFE7E7EA),
+          width: 1,
+        ),
       ),
       child: child,
     );
