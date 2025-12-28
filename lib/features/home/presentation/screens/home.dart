@@ -15,8 +15,6 @@ import '../controller/event_controller.dart';
 import '../widgets/category_filter_bar.dart';
 import '../widgets/cateogry_widget.dart';
 import '../widgets/date_time_widget.dart';
-import 'allday_screen.dart';
-import 'chat_screen.dart';
 import 'notification_screen.dart';
 
 /// colors for the left indicators inside day cells (per-row)
@@ -206,10 +204,18 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   Widget build(BuildContext context) {
     final selected = _selected ?? _dOnly(DateTime.now());
 
-    final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
-    final dowHeight = (50.0 * _scale).clamp(20.0, 36.0);
+    // final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
+    // final dowHeight = (50.0 * _scale).clamp(20.0, 36.0);
 
-    final dateAreaHeight = rowHeight * 0.25;
+    final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
+
+    /// make the weekday header much thinner
+    final dowHeight = (22.0 * _scale).clamp(16.0, 24.0);
+
+
+
+
+    final dateAreaHeight = rowHeight * 0.14;
     final dateDia = rowHeight * 0.58;
 
     final cellGapV = max(8.0, rowHeight * 0.3);
@@ -217,7 +223,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     // ✅ UI FIX (streak yellow line looks continuous like your screenshots)
     final cellGapH = 3.0;
 
-    final calHeight = dowHeight + rowHeight * 5;
+    final calHeight = dowHeight + rowHeight * 6;
 
     return Scaffold(
       body: SafeArea(
@@ -242,9 +248,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontFamily: 'Dongle',
-                              fontWeight: FontWeight.w300,
+                              fontWeight: FontWeight.w400,
                               // 300 Light
-                              fontSize: 70,
+                              fontSize: 50,
                               height: 22 / 70,
                               // lineHeight 22px
                               letterSpacing: 0,
@@ -253,25 +259,30 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           ),
 
                           const SizedBox(width: 8),
-                          Text(
-                            DateFormat('yyyy').format(_focused.value),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Dongle',
-                              fontWeight: FontWeight.w400,
-                              // 400 Regular
-                              fontSize: 36,
-                              height: 22 / 36,
-                              // lineHeight 22px
-                              letterSpacing: 0,
-                              color: Color(0xFFB6B5B5), // Gray4
+
+                          Transform.translate(
+                            offset: const Offset(0, -10), // 👈 move up a few pixels (tune this)
+                            child: Text(
+                              DateFormat('yyyy').format(_focused.value),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Dongle',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                                height: 22 / 36,
+                                letterSpacing: 0,
+                                color: Color(0xFFB6B5B5), // Gray4
+                              ),
                             ),
                           ),
+
+
                         ],
                       ),
                     ),
                     const Spacer(),
                     IconButton(
+                      iconSize: 28,
                       onPressed: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(
@@ -316,6 +327,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     Stack(
                       children: [
                         IconButton(
+                          iconSize: 28,
                           onPressed: () {
                             Navigator.of(context).push(
                               PageRouteBuilder(
@@ -364,6 +376,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                       ],
                     ),
                     IconButton(
+                      iconSize: 28,
                       onPressed: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(
@@ -394,24 +407,25 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                       },
                       icon: const Icon(
                         Icons.settings_outlined,
-                        color: Colors.black,
+                        color: Colors.black54,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Filter chips row
-              // ✅ Figma: Sorting_bar = 309w × 30h (horizontal overflow, scroll with parent)
-              // Replace your Padding block with this:
+
               const SizedBox(height: 6),
 
+              //for category
+
               SizedBox(
-                height: 30, // ✅ fixed height like Figma
+                height: 28.5, // ✅ fixed height like Figma
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.topCenter,
                   child: SizedBox(
-                    width: 309,
+                    height: 30,
+                    // width: 309,
                     // ✅ fixed width like Figma (remove if you want full width)
                     child: CategoryFilterBar(
                       activeIds: _filters,
@@ -446,8 +460,8 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         child: SizedBox(
                           height: calHeight,
                           child: TableCalendar<CalendarEvent>(
-                            firstDay: DateTime.utc(2015, 1, 1),
-                            lastDay: DateTime.utc(2035, 12, 31),
+                            firstDay: DateTime.utc(0001, 1, 1),
+                            lastDay: DateTime.utc(3000, 12, 31),
                             focusedDay: _focused.value,
                             onPageChanged: (d) async {
                               setState(() => _focused.value = d);
@@ -527,9 +541,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily: 'Dongle',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 14,
-                                      height: 16 / 14, // ✅ line height 16px
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 10,
+                                      // height: 16 / 14, // ✅ line height 16px
                                       letterSpacing: 0,
                                       color: isSunday
                                           ? const Color(0xFFFF3B30) // ✅ Sunday red
@@ -638,24 +652,42 @@ class _StreakBar extends StatelessWidget {
     final s = _dOnly(event.start);
     final e = _dOnly(event.end!);
 
-    // ✅ UI: yellow line with rounded ends (like screenshots)
+    // is this day start / end of streak
     final isStart = d.isAtSameMomentAs(s);
-    final isEnd = d.isAtSameMomentAs(e);
+    final isEnd   = d.isAtSameMomentAs(e);
 
-    // ✅ UI: show title only at start day (no repeating)
+    // show label only on start day
     final showLabel = isStart;
 
     final radius = BorderRadius.horizontal(
       left: isStart ? const Radius.circular(10) : Radius.zero,
-      right: isEnd ? const Radius.circular(10) : Radius.zero,
+      right: isEnd   ? const Radius.circular(10) : Radius.zero,
     );
 
     return Container(
-      decoration: BoxDecoration(color: const Color(0xFFFFF5D6)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF5D6),
+        borderRadius: radius,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
       alignment: Alignment.centerLeft,
       child: showLabel
-          ? Text(
+          ? Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 👉 vertical bar you want
+          Container(
+            width: 3,
+            height: 12,
+            decoration: BoxDecoration(
+              color: color,                 // same color as streak
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(width: 2),
+
+          Expanded(
+            child: Text(
               event.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -664,11 +696,63 @@ class _StreakBar extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
-            )
+            ),
+          ),
+        ],
+      )
           : const SizedBox.shrink(),
     );
   }
 }
+
+
+
+// class _StreakBar extends StatelessWidget {
+//   const _StreakBar({required this.event, required this.day});
+//
+//   final CalendarEvent event;
+//   final DateTime day;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final controller = Get.find<BrickController>();
+//     final color = _eventColor(controller.bricks, event);
+//
+//     final d = _dOnly(day);
+//     final s = _dOnly(event.start);
+//     final e = _dOnly(event.end!);
+//
+//     // ✅ UI: yellow line with rounded ends (like screenshots)
+//     final isStart = d.isAtSameMomentAs(s);
+//     final isEnd = d.isAtSameMomentAs(e);
+//
+//     // ✅ UI: show title only at start day (no repeating)
+//     final showLabel = isStart;
+//
+//     final radius = BorderRadius.horizontal(
+//       left: isStart ? const Radius.circular(10) : Radius.zero,
+//       right: isEnd ? const Radius.circular(10) : Radius.zero,
+//     );
+//
+//     return Container(
+//       decoration: BoxDecoration(color: const Color(0xFFFFF5D6)),
+//       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+//       alignment: Alignment.centerLeft,
+//       child: showLabel
+//           ? Text(
+//               event.title,
+//               maxLines: 1,
+//               overflow: TextOverflow.ellipsis,
+//               style: TextStyle(
+//                 fontSize: 10,
+//                 fontWeight: FontWeight.w700,
+//                 color: color,
+//               ),
+//             )
+//           : const SizedBox.shrink(),
+//     );
+//   }
+// }
 
 class _DayCell extends StatelessWidget {
   const _DayCell({
@@ -720,12 +804,14 @@ class _DayCell extends StatelessWidget {
           decoration: hasGreyCard
               ? BoxDecoration(
                   color: const Color(0xFFE0E1E3),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(8),
                 )
               : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
+
               // DATE AREA
               SizedBox(
                 height: dateAreaHeight,
@@ -757,8 +843,8 @@ class _DayCell extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontFamily: 'Dongle',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
                         height: 16 / 20,
                         letterSpacing: 0,
                         color: Color(0xFF212121),
@@ -888,17 +974,21 @@ class _EventRow extends StatelessWidget {
 
     return SizedBox(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 2,
-            height: barHeight,
-            decoration: BoxDecoration(
-              color: indicatorColor ?? const Color(0xFF3AA1FF),
-              borderRadius: BorderRadius.circular(3),
+          // 👇 move ONLY the bar horizontally
+          Transform.translate(
+            offset: const Offset(-4, 0), // +X = right, -X = left
+            child: Container(
+              width: 2,
+              height: barHeight,
+              decoration: BoxDecoration(
+                color: indicatorColor ?? const Color(0xFF3AA1FF),
+                borderRadius: BorderRadius.circular(3),
+              ),
             ),
           ),
-          const SizedBox(width: 2.5),
+          const SizedBox(width: 0.1),
           Expanded(
             child: Text(
               e.title,
@@ -1075,7 +1165,7 @@ class _StreakTile extends StatelessWidget {
               clipBehavior: Clip.none,
               children: const [
                 Icon(
-                  Icons.chat_bubble_outline,
+                  CupertinoIcons.chat_bubble_text,
                   size: 18,
                   color: Colors.black45,
                 ),
@@ -1104,25 +1194,37 @@ class _AllDayTile extends StatelessWidget {
       verticalPadding: 8,
       child: Row(
         children: [
-          _LabelWithBar(
-            barColor: const Color(0xFF3AA1FF),
-            text: 'All day',
-            textColor: const Color(0xFF3AA1FF),
-          ),
-          const SizedBox(width: 10),
-          Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
-          const SizedBox(width: 10),
+          // ===== LEFT SIDE (label + divider + title) =====
           Expanded(
-            child: Text(
-              event.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+            child: Row(
+              children: [
+                _LabelWithBar(
+                  barColor: const Color(0xFF3AA1FF),
+                  text: 'All day',
+                  textColor: const Color(0xFF3AA1FF),
+                ),
+                const SizedBox(width: 10),
+                Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    event.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
 
-          // ✅ NO UI change: keep same icon + size
+          const SizedBox(width: 10),
+
+
+          // ===== RIGHT ICON (no extra gap, hugs card’s right) =====
           IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -1132,7 +1234,7 @@ class _AllDayTile extends StatelessWidget {
               color: Colors.black26,
             ),
             onPressed: () async {
-              // ✅ open editor with existing event data
+              // open editor with existing event data
               final edited = await Navigator.of(context).push<CalendarEvent>(
                 MaterialPageRoute(
                   builder: (_) => EventEditorScreen(
@@ -1146,18 +1248,18 @@ class _AllDayTile extends StatelessWidget {
 
               final ec = Get.find<EventController>();
 
-              // ✅ update backend/store using same id
+              // update backend/store using same id
               await ec.updateEventFromUi(event.id, edited);
 
-              // ✅ refresh old month (remove from old date)
+              // refresh old month (remove from old date)
               await ec.loadMonth(event.start);
 
-              // ✅ refresh new month if moved to different month
+              // refresh new month if moved to different month
               if (!_sameMonth(event.start, edited.start)) {
                 await ec.loadMonth(edited.start);
               }
 
-              // (optional, safe) ensure todos loaded for the new day
+              // ensure todos loaded for the new day
               await ec.ensureTodosLoadedForDay(_dOnly(edited.start));
             },
           ),
@@ -1166,6 +1268,7 @@ class _AllDayTile extends StatelessWidget {
     );
   }
 }
+
 
 class _TimedTile extends StatefulWidget {
   const _TimedTile({required this.event, required this.onToggle, super.key});
@@ -1360,24 +1463,21 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                   // ✅ arrow button (tap to expand/collapse) — matches red-mark area
                   InkWell(
                     borderRadius: BorderRadius.circular(6),
-                    onTap: hasChecklist
-                        ? () => setState(() => _expanded = !_expanded)
-                        : null,
-                    child: Container(
+                    onTap: () => setState(() => _expanded = !_expanded),
+                    child: SizedBox(
                       width: 24,
                       height: 24,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: const Color(0xFFE5E6EB)),
-                      ),
-                      child: Icon(
-                        _expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                        size: 18,
-                        color: Colors.black45,
+                      child: Transform.rotate(
+                        angle: _expanded ? 3.1416 : 0, // 180°
+                        child: Icon(
+                          Icons.expand_more,
+                          size: 20,
+                          color: Colors.black45,
+                        ),
                       ),
                     ),
-                  ),
+                  )
+
                 ],
               ),
             ],
@@ -1436,7 +1536,7 @@ class _ChecklistRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final checked = raw.startsWith('[x]');
-    final label = raw.replaceFirst(RegExp(r'^\[( |x)\]\s?'), '');
+    final label = raw.replaceFirst(RegExp(r'^\[([ x])\]\s?'), '');
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
@@ -1876,7 +1976,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.delete_outline_rounded,
+              CupertinoIcons.delete,
               color: Color(0xFFFF4B5C),
             ),
             onPressed: () => Navigator.pop(context),
@@ -2013,6 +2113,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               ),
               onTap: _openDateRangePicker,
             ),
+
             const Divider(color: dividerColor, height: 16),
 
             // TIME ROW
@@ -2080,6 +2181,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               trailing: _AllDayPill(value: _allDay, onChanged: _setAllDay),
               onTap: !_allDay ? _openTimeRangePicker : null,
             ),
+
             const Divider(color: dividerColor, height: 16),
 
             _EditorRow(
@@ -2290,7 +2392,7 @@ class _TodoBubble extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      todos[i].replaceFirst(RegExp(r'^\[( |x)\]\s?'), ''),
+                      todos[i].replaceFirst(RegExp(r'^\[([ x])\]\s?'), ''),
                       style: const TextStyle(fontSize: 12),
                     ),
                   ),

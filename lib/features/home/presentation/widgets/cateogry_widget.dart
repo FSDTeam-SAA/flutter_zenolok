@@ -17,6 +17,7 @@ class CategoryEditorScreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Obx(() {
+
           final CategoryDesign initial = controller.design.value;
           final bool isSaving = controller.isLoading.value;
           final String? errorText = controller.errorMessage.value;
@@ -40,6 +41,8 @@ class CategoryEditorScreen extends StatelessWidget {
               ),
             ),
           );
+
+
         }),
       ),
     );
@@ -352,6 +355,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 80),
           child: Column(
             children: [
+
+
               TextField(
                 controller: _nameController,
                 readOnly: !_hasColor,
@@ -367,6 +372,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                   _notify();
                 },
               ),
+
+
               if (widget.errorText != null && widget.errorText!.trim().isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
