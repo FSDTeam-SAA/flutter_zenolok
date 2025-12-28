@@ -725,7 +725,9 @@ class _DayCell extends StatelessWidget {
         streak != null && _dOnly(day).isAtSameMomentAs(_dOnly(streak.start));
     final bool hasGreyCard = dayEvents.isNotEmpty || isStreakStart;
 
-    final numberColor = isSunday ? const Color(0xFFFF5757) : Colors.black;
+    final numberColor = isSunday
+        ? const Color(0xFFFF5757)      // Sunday red
+        : const Color(0xFF212121);
 
     const double cardInsetV = 1.0;
     const double cardInsetH = 0.6;
@@ -776,15 +778,15 @@ class _DayCell extends StatelessWidget {
                     child: Text(
                       '${day.day}',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Dongle',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                        height: 16 / 20,
+                      style: GoogleFonts.dongle(
+                        fontWeight: FontWeight.w400,     // Regular (400)
+                        fontSize: 20,                    // 20px
+                        height: 16 / 20,                 // line-height 16px
                         letterSpacing: 0,
-                        color: numberColor,
+                        color: numberColor,              // will be red for Sunday, normal otherwise
                       ),
                     ),
+
                   ),
                 ),
               ),
