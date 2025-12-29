@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'event/presentation/screens/event_screen.dart';
 import 'event_todos/presentation/screens/event_todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
@@ -90,7 +91,16 @@ class _BottomItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? Colors.black : Colors.black45;
+    const borderInactive = Color(0xFFE0E0E0);
+    const borderActive = Color(0xFF4C9BFF);
+    const iconInactive = Color(0xFFB8B8B8);
+    const iconActive = Color(0xFF4C9BFF);
+
+    // Figma text colors
+    const activeTextColor = Color(0xFF363538);  // Dark gray
+    const inactiveTextColor = Color(0xFFBDBDBD);
+
+    final textColor = isActive ? activeTextColor : inactiveTextColor;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -100,14 +110,35 @@ class _BottomItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: color),
+            // 24×24 framed icon (as before)
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                // border: Border.all(
+                //   color: isActive ? borderActive : borderInactive,
+                //   width: 1.5,
+                // ),
+              ),
+              child: Icon(
+                icon,
+                size: 14,
+                color: isActive ? iconActive : iconInactive,
+              ),
+            ),
             const SizedBox(height: 4),
+
+            // 🔹 Figma typography for label
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                color: color,
+              style: GoogleFonts.poppins(
+                fontSize: 12,                 // Size 12px
+                fontWeight: FontWeight.w500,  // Medium 500
+                height: 16 / 12,              // Line-height 16px
+                letterSpacing: 0,             // 0%
+                color: textColor,
               ),
             ),
           ],
@@ -117,21 +148,5 @@ class _BottomItem extends StatelessWidget {
   }
 }
 
-// simple placeholders for second / third tab
-class _EventsPlaceholder extends StatelessWidget {
-  const _EventsPlaceholder();
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Events'));
-  }
-}
 
-class _TodosPlaceholder extends StatelessWidget {
-  const _TodosPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Todos'));
-  }
-}
