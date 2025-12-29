@@ -585,7 +585,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             const Spacer(),
                             _GhostPill(
                               label: 'TODAY',
-                              icon: Icons.refresh_rounded,
+                              icon: CupertinoIcons.arrow_uturn_left,
 
                               onTap: () => setState(() {
                                 _focused.value = DateTime.now();
@@ -674,7 +674,9 @@ class _StreakBar extends StatelessWidget {
 
                 Expanded(
                   child: Text(
-                    event.title,
+                    event.title.isNotEmpty
+                        ? event.title[0].toUpperCase() + event.title.substring(1)
+                        : event.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.nunito(
@@ -866,20 +868,24 @@ class _DayCell extends StatelessWidget {
                                 children.add(const SizedBox(height: rowGap));
                               }
                               children.add(
-                                SizedBox(
-                                  height: rowH,
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      '3+',
-                                      style: TextStyle(
-                                        fontSize: min(12.0, rowH * 0.9),
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.black87,
+                                  SizedBox(
+                                    height: rowH,
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '+3',                                   // Figma content
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.nunito(
+                                          fontSize: 8,                          // Size: 8px
+                                          fontWeight: FontWeight.w700,          // Weight: 700 Bold
+                                          height: 16 / 8,                       // Line height: 16px
+                                          letterSpacing: -0.32,                 // -4% of 8px
+                                          color: const Color(0xFF4D4D4D),       // Darkgray3 #4D4D4D
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+
                               );
                             }
 
@@ -933,7 +939,9 @@ class _EventRow extends StatelessWidget {
           // text: "Family dinne"
           Expanded(
             child: Text(
-              e.title,
+              e.title.isNotEmpty
+                  ? e.title[0].toUpperCase() + e.title.substring(1)
+                  : e.title,
               maxLines: 1,
               softWrap: false,
               overflow: TextOverflow.ellipsis,
@@ -1627,31 +1635,43 @@ class _GhostPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const borderColor = Color(0xFFB6B5B5);
+    const borderColor = Color(0xFFB6B5B5); // Gray4
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         height: 28,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: borderColor, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, size: 14, color: borderColor),
-            const SizedBox(width: 4),
+            // arrow icon, slightly nudged up to align with TODAY text
+            Transform.translate(
+              offset: const Offset(0, -1.5), // tweak -1 .. -2 if needed
+              child: Icon(
+                icon,
+                size: 14,
+                color: borderColor,
+              ),
+            ),
+            const SizedBox(width: 6),
+
             Text(
               label.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: borderColor,
-                letterSpacing: 0.5,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.dongle(
+                fontWeight: FontWeight.w400,   // Regular 400
+                fontSize: 22,                  // 22px
+                height: 22 / 22,               // line-height 22px
+                letterSpacing: 0,              // 0px
+                color: borderColor,            // #B6B5B5
               ),
             ),
           ],
@@ -1660,6 +1680,7 @@ class _GhostPill extends StatelessWidget {
     );
   }
 }
+
 
 /// ---------------------------------------------------------------------------
 /// FULL-SCREEN EDITOR + CUSTOM DATE/TIME PICKERS
@@ -2472,7 +2493,10 @@ class _FlatPlusButton extends StatelessWidget {
 }
 
 class _PlusPainter extends CustomPainter {
-  _PlusPainter({required this.color, required this.strokeWidth});
+  _PlusPainter({
+    required this.color,
+    required this.strokeWidth,
+  });
 
   final Color color;
   final double strokeWidth;
@@ -2481,18 +2505,24 @@ class _PlusPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = strokeWidth
+      ..strokeWidth = strokeWidth // thickness of the plus stroke
       ..strokeCap = StrokeCap.round;
 
+    // center of the 24×24 box
     final center = size.center(Offset.zero);
+
+    // length of each arm of the plus
+    // 0.35 gives you a nice compact icon; change to 0.30 / 0.40 if needed
     final halfLen = size.shortestSide * 0.35;
 
+    // horizontal line
     canvas.drawLine(
       Offset(center.dx - halfLen, center.dy),
       Offset(center.dx + halfLen, center.dy),
       paint,
     );
 
+    // vertical line
     canvas.drawLine(
       Offset(center.dx, center.dy - halfLen),
       Offset(center.dx, center.dy + halfLen),
@@ -2503,3 +2533,5 @@ class _PlusPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+
