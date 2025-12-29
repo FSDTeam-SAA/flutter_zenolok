@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_zenolok/features/auth/presentation/screens/login_screen.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 import 'core/bindings/initial_binding.dart';
 import 'core/init/app_initializer.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/splash_screen.dart';
-import 'features/home/presentation/screens/home.dart';
+
 
 void main() async {
   await AppInitializer.initializeApp();
