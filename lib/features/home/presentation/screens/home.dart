@@ -1074,16 +1074,41 @@ class _StreakTile extends StatelessWidget {
             textColor: Color(0xFFDA9A00),
           ),
           const SizedBox(width: 10),
-          Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
+          Container(
+            width: 1,                     // 1px
+            height: 20,                   // 20px
+            decoration: BoxDecoration(
+              color: const Color(0xFFD5D5D5),   // light gray2 #D5D5D5
+              borderRadius: BorderRadius.circular(5), // radius 5px
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04), // 0%–4% opacity
+                  offset: const Offset(0, 4),            // X:0 Y:4
+                  blurRadius: 4,                         // Blur 4
+                  spreadRadius: 0,
+                )
+              ],
+            ),
+          ),
+
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              event.title,
+              event.title.isNotEmpty
+                  ? event.title[0].toUpperCase() + event.title.substring(1)
+                  : event.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+              style: GoogleFonts.dongle(
+                fontWeight: FontWeight.w400,          // Regular 400
+                fontSize: 24,                         // 24px
+                height: 16 / 24,                      // line-height 16px
+                letterSpacing: 0,                     // 0%
+                color: const Color(0xFF656565),       // Darkgray2 #656565
+              ),
             ),
           ),
+
           const SizedBox(width: 8),
 
           // ✅ NO UI CHANGE: same icon, only behavior fixed
@@ -1121,7 +1146,7 @@ class _StreakTile extends StatelessWidget {
                   size: 18,
                   color: Colors.black45,
                 ),
-                Positioned(right: -6, top: -6, child: _Badge(number: 2)),
+                Positioned(right: -8, top: -8, child: _Badge(number: 2)),
               ],
             ),
           ),
@@ -1156,16 +1181,36 @@ class _AllDayTile extends StatelessWidget {
                   textColor: const Color(0xFF3AA1FF),
                 ),
                 const SizedBox(width: 10),
-                Container(width: 1, height: 18, color: const Color(0xFFE0E0E0)),
+                Container(
+                  width: 1,                     // 1px
+                  height: 20,                   // 20px
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD5D5D5),   // light gray2 #D5D5D5
+                    borderRadius: BorderRadius.circular(5), // radius 5px
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04), // 0%–4% opacity
+                        offset: const Offset(0, 4),            // X:0 Y:4
+                        blurRadius: 4,                         // Blur 4
+                        spreadRadius: 0,
+                      )
+                    ],
+                  ),
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    event.title,
+                    event.title.isNotEmpty
+                        ? event.title[0].toUpperCase() + event.title.substring(1)
+                        : event.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
+                    style: GoogleFonts.dongle(
+                      fontWeight: FontWeight.w400,          // Regular 400
+                      fontSize: 24,                         // 24px
+                      height: 16 / 24,                      // line-height 16px
+                      letterSpacing: 0,                     // 0%
+                      color: const Color(0xFF656565),       // Darkgray2 #656565
                     ),
                   ),
                 ),
@@ -1173,7 +1218,8 @@ class _AllDayTile extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 10),
+          // const SizedBox(width: 10),
+          const Spacer(),
 
           // ===== RIGHT ICON (no extra gap, hugs card’s right) =====
           IconButton(
@@ -1284,16 +1330,27 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
             children: [
               // left color bar
               Container(
-                width: 4,
-                height: 20,
+                width: 6,     // Figma: 6px
+                height: 26,   // Figma: 26px
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
-                  borderRadius: BorderRadius.circular(4),
+                  color: const Color(0xFF34C759),          // Apple green #34C759
+                  borderRadius: BorderRadius.circular(11), // Radius 11px
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08), // Drop shadow 0,4, blur 4
+                      offset: const Offset(0, 4),
+                      blurRadius: 4,
+                      spreadRadius: 0,
+                    ),
+                  ],
                 ),
               ),
+
               const SizedBox(width: 3),
 
               // time column
+              // inside Row( children:[ ... time column ... ] )
+
               SizedBox(
                 width: 56,
                 child: InkWell(
@@ -1302,27 +1359,65 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _fmt(e.start),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                          height: 1.0,
-                        ),
-                      ),
-                      if (e.end != null)
-                        Text(
-                          _fmt(e.end!),
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(.45),
-                            fontSize: 11,
-                            height: 1.0,
+                      // ---------- START TIME : "8:00 AM" ----------
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            DateFormat('h:mm').format(e.start),   // 8:00
+                            style: GoogleFonts.dongle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 24,                       // 24px
+                              height: 16 / 24,
+                              color: const Color(0xFF656565),     // Darkgray2
+                            ),
                           ),
+                          const SizedBox(width: 2),
+                          Text(
+                            DateFormat('a').format(e.start),      // AM / PM
+                            style: GoogleFonts.dongle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 11,                       // 11px
+                              height: 16 / 11,
+                              color: const Color(0xFF9D9D9D),     // Gray5
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // ---------- END TIME : "9:00 AM" ----------
+                      if (e.end != null) ...[
+                        const SizedBox(height: 0), // tiny gap like Figma
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              DateFormat('h:mm').format(e.end!),  // 9:00
+                              style: GoogleFonts.dongle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 19,                     // 19px
+                                height: 16 / 19,
+                                color: const Color(0xFF9D9D9D),   // Gray5, lighter
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              DateFormat('a').format(e.end!),      // AM / PM
+                              style: GoogleFonts.dongle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 11,
+                                height: 16 / 11,
+                                color: const Color(0xFF9D9D9D),
+                              ),
+                            ),
+                          ],
                         ),
+                      ],
                     ],
                   ),
                 ),
               ),
+
 
               // title + location
               Expanded(
@@ -1331,12 +1426,26 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+
                       Container(
-                        width: 1,
-                        height: 16,
-                        color: const Color(0xFFE0E0E0),
+                        width: 1,                     // 1px
+                        height: 20,                   // 20px
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD5D5D5),   // light gray2 #D5D5D5
+                          borderRadius: BorderRadius.circular(5), // radius 5px
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04), // 0%–4% opacity
+                              offset: const Offset(0, 4),            // X:0 Y:4
+                              blurRadius: 4,                         // Blur 4
+                              spreadRadius: 0,
+                            )
+                          ],
+                        ),
                       ),
+
                       const SizedBox(width: 4),
+
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -1346,10 +1455,12 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                               e.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 13,
-                                height: 1.0,
+                              style: GoogleFonts.dongle(
+                                fontWeight: FontWeight.w400,      // Regular 400
+                                fontSize: 24,                     // 24px
+                                height: 16 / 24,                  // line-height 16px
+                                letterSpacing: 0,
+                                color: const Color(0xFF656565),   // Darkgray2
                               ),
                             ),
                             if (e.location != null)
@@ -1357,15 +1468,19 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                                 e.location!,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  height: 1.0,
-                                  color: Colors.black54,
+                                style: GoogleFonts.dongle(
+                                  fontWeight: FontWeight.w400,        // Regular
+                                  fontSize: 13,                       // 13px
+                                  height: 16 / 13,                    // line-height 16px
+                                  letterSpacing: 0,
+                                  color: const Color(0xFF9D9D9D),     // gray5 #9D9D9D
                                 ),
                               ),
+
                           ],
                         ),
-                      ),
+                      )
+
                     ],
                   ),
                 ),
@@ -1546,13 +1661,16 @@ class _ChecklistRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF3A3A3A),
-                height: 1.1,
+              style: GoogleFonts.nunito(
+                fontWeight: FontWeight.w400,        // Regular
+                fontSize: 14,                       // 14px
+                height: 16 / 14,                    // line-height 16px
+                letterSpacing: 0,                   // 0%
+                color: const Color(0xFF4D4D4D),     // Darkgray3 #4D4D4D
               ),
             ),
           ),
+
         ],
       ),
     );
@@ -1575,22 +1693,34 @@ class _LabelWithBar extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 4,
-          height: 22,
+          width: 6,   // Figma: 6px
+          height: 26, // Figma: 26px
           decoration: BoxDecoration(
             color: barColor,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(11), // Figma radius 11px
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04), // Figma: #000000, 0%–4% opacity
+                offset: const Offset(0, 4),            // X: 0, Y: 4
+                blurRadius: 4,                         // Blur: 4
+                spreadRadius: 0,                       // Spread: 0
+              ),
+            ],
           ),
         ),
+
         const SizedBox(width: 6),
         Text(
           text,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: textColor ?? Colors.black87,
+          style: GoogleFonts.dongle(
+            fontWeight: FontWeight.w400,                 // Regular 400
+            fontSize: 22,                                // 22px
+            height: 16 / 22,                             // line-height 16px
+            letterSpacing: 0,                            // 0px
+            color: textColor ?? const Color(0xFF212121), // Darkgray #212121
           ),
         ),
+
       ],
     );
   }
@@ -1604,15 +1734,17 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      width: 15,                         // Figma: 17px
+      height: 15,                        // Figma: 17px
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFFFF3B30),
+        color: const Color(0xFFFF3B30),  // red
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         '$number',
         style: const TextStyle(
-          fontSize: 9,
+          fontSize: 10,                  // looks right in 17×17
           color: Colors.white,
           fontWeight: FontWeight.w700,
           height: 1,
@@ -1621,6 +1753,7 @@ class _Badge extends StatelessWidget {
     );
   }
 }
+
 
 class _GhostPill extends StatelessWidget {
   const _GhostPill({
@@ -2405,14 +2538,27 @@ class _TodoBubble extends StatelessWidget {
             onSubmitted: onSubmitTodo,
             maxLines: 1,
             minLines: 1,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isCollapsed: true,
               hintText: 'New todo',
               border: InputBorder.none,
-              hintStyle: TextStyle(fontSize: 12, color: hintColor),
+              hintStyle: GoogleFonts.nunito(
+                fontWeight: FontWeight.w400,          // Regular
+                fontSize: 14,                         // 14px
+                height: 16 / 14,                      // line-height 16px
+                letterSpacing: 0,
+                color: const Color(0xFFD5D5D5),       // light gray2 #D5D5D5
+              ),
             ),
-            style: const TextStyle(fontSize: 12),
+            style: GoogleFonts.nunito(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              height: 16 / 14,
+              letterSpacing: 0,
+              color: const Color(0xFF4D4D4D),         // body text color
+            ),
           ),
+
 
           const SizedBox(height: 10),
           const Divider(height: 1, color: Color(0xFFE5E5E5)),
