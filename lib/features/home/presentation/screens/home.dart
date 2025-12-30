@@ -195,13 +195,18 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   Widget build(BuildContext context) {
     final selected = _selected ?? _dOnly(DateTime.now());
 
-    final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
+    // final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
+    final rowHeight = (78.0 * _scale).clamp(52.0, 80.0);
+
 
     /// make the weekday header much thinner
     final dowHeight = (22.0 * _scale).clamp(16.0, 24.0);
 
     final dateAreaHeight = rowHeight * 0.14;
     final dateDia = rowHeight * 0.58;
+
+    // final dateAreaHeight = rowHeight * 0.12; // was 0.14
+    // final dateDia       = rowHeight * 0.52;  // was 0.58
 
     final cellGapV = max(8.0, rowHeight * 0.3);
 
@@ -512,6 +517,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             ),
                             calendarBuilders: CalendarBuilders(
                               dowBuilder: (context, day) {
+
                                 final text = DateFormat(
                                   'E',
                                 ).format(day).substring(0, 1).toUpperCase();
@@ -579,7 +585,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
                       // TODAY + +
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                         child: Row(
                           children: [
                             const Spacer(),
@@ -802,101 +808,93 @@ class _DayCell extends StatelessWidget {
                   child: _StreakBar(event: streak, day: day),
                 ),
 
-              // EVENTS
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
+                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 1),
                   child: dayEvents.isEmpty
                       ? const SizedBox.shrink()
                       : LayoutBuilder(
-                          builder: (context, evConstraints) {
-                            final available = max(0.0, evConstraints.maxHeight);
+                    builder: (context, evConstraints) {
+                      final available = max(0.0, evConstraints.maxHeight);
 
-                            const rowGap = 2.0;
-                            const maxVisibleRows = 3;
-                            const maxVisibleEventsWhenOverflow = 2;
+                      const double rowGap = 2.0;          // gap between rows
+                      const int maxVisibleRows = 3;       // total rows in cell
+                      const int maxEventRowsWhenOverflow = 2; // 2 events + 1 "+3"
 
-                            final totalEvents = dayEvents.length;
-                            final hasOverflow = totalEvents > maxVisibleRows;
+                      final int totalEvents = dayEvents.length;
+                      final bool hasOverflow = totalEvents > maxVisibleRows;
 
-                            final eventsToShow = hasOverflow
-                                ? maxVisibleEventsWhenOverflow
-                                : min(maxVisibleRows, totalEvents);
+                      // how many event rows we actually draw
+                      final int eventsToShow = hasOverflow
+                          ? maxEventRowsWhenOverflow
+                          : min(maxVisibleRows, totalEvents);
 
-                            final rows = hasOverflow
-                                ? maxVisibleRows
-                                : eventsToShow;
+                      if (eventsToShow == 0) {
+                        return const SizedBox.shrink();
+                      }
 
-                            if (rows == 0) return const SizedBox.shrink();
+                      // how many total ROWS (events + "+3" if overflow)
+                      final int rows = hasOverflow ? maxVisibleRows : eventsToShow;
 
-                            final rowH =
-                                max(
-                                  0.0,
-                                  (available - rowGap * max(0, rows - 1)) /
-                                      rows,
-                                ) *
-                                0.98;
+                      final double rowH = max(
+                        0.0,
+                        (available - rowGap * (rows - 1)) / rows,
+                      );
 
-                            final children = <Widget>[];
+                      final children = <Widget>[];
 
-                            if (!hasOverflow) {
-                              for (int i = 0; i < eventsToShow; i++) {
-                                children.add(
-                                  _EventRow(
-                                    e: dayEvents[i],
-                                    height: rowH,
-                                    indicatorColor:
-                                        _indicatorColors[i %
-                                            _indicatorColors.length],
-                                  ),
-                                );
-                                if (i != eventsToShow - 1) {
-                                  children.add(const SizedBox(height: rowGap));
-                                }
-                              }
-                            } else {
-                              for (int i = 0; i < eventsToShow; i++) {
-                                children.add(
-                                  _EventRow(
-                                    e: dayEvents[i],
-                                    height: rowH,
-                                    indicatorColor:
-                                        _indicatorColors[i %
-                                            _indicatorColors.length],
-                                  ),
-                                );
-                                children.add(const SizedBox(height: rowGap));
-                              }
-                              children.add(
-                                  SizedBox(
-                                    height: rowH,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '+3',                                   // Figma content
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.nunito(
-                                          fontSize: 8,                          // Size: 8px
-                                          fontWeight: FontWeight.w700,          // Weight: 700 Bold
-                                          height: 16 / 8,                       // Line height: 16px
-                                          letterSpacing: -0.32,                 // -4% of 8px
-                                          color: const Color(0xFF4D4D4D),       // Darkgray3 #4D4D4D
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                      // ----- event rows -----
+                      for (int i = 0; i < eventsToShow; i++) {
+                        children.add(
+                          _EventRow(
+                            e: dayEvents[i],
+                            height: rowH,
+                            indicatorColor:
+                            _indicatorColors[i % _indicatorColors.length],
+                          ),
+                        );
+                        if (i != eventsToShow - 1 || hasOverflow) {
+                          children.add(const SizedBox(height: rowGap));
+                        }
+                      }
 
-                              );
-                            }
+                      // ----- "+3" row when overflow -----
+                      if (hasOverflow) {
+                        // if you want dynamic count, use:
+                        // final extra = totalEvents - eventsToShow;
+                        // and show '+$extra' instead of '+3'.
+                        children.add(
+                          SizedBox(
+                            height: rowH,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '+3', // Figma text
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.nunito(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w700,
+                                  height: 16 / 8,
+                                  letterSpacing: -0.32,
+                                  color: const Color(0xFF4D4D4D),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: children,
-                            );
-                          },
-                        ),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: children,
+                      );
+                    },
+                  ),
                 ),
               ),
+
+
+
             ],
           ),
         );
@@ -906,7 +904,11 @@ class _DayCell extends StatelessWidget {
 }
 
 class _EventRow extends StatelessWidget {
-  const _EventRow({required this.e, required this.height, this.indicatorColor});
+  const _EventRow({
+    required this.e,
+    required this.height,
+    this.indicatorColor,
+  });
 
   final CalendarEvent e;
   final double height;
@@ -914,17 +916,17 @@ class _EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Figma: 8px text, bar 10px high
     const double fs = 8.0;
     const double barHeight = 10.0;
 
     return SizedBox(
+      height: height, // 👈 important: fixed height per row
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // left vertical color bar (inside day cell)
           Transform.translate(
-            offset: const Offset(-4, 2), // shift bar a bit left
+            offset: const Offset(-4, 2),
             child: Container(
               width: 2,
               height: barHeight,
@@ -936,7 +938,6 @@ class _EventRow extends StatelessWidget {
           ),
           const SizedBox(width: 0.1),
 
-          // text: "Family dinne"
           Expanded(
             child: Text(
               e.title.isNotEmpty
@@ -946,11 +947,11 @@ class _EventRow extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.nunito(
-                fontSize: fs,                       // 8px
-                fontWeight: FontWeight.w700,        // Bold 700
-                height: 16 / 8,                     // line-height 16px
-                letterSpacing: -0.2,                // ~ -4%
-                color: const Color(0xFF154E68),     // #154E68
+                fontSize: fs,
+                fontWeight: FontWeight.w700,
+                height: 16 / 8,
+                letterSpacing: -0.2,
+                color: const Color(0xFF154E68),
               ),
             ),
           ),
@@ -959,6 +960,8 @@ class _EventRow extends StatelessWidget {
     );
   }
 }
+
+
 
 
 /// ---------------------------------------------------------------------------
@@ -2114,26 +2117,31 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _title,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Title',
-                      hintStyle: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFFD1D3DA),
+                      hintStyle: GoogleFonts.dongle(
+                        fontWeight: FontWeight.w400,          // Regular 400
+                        fontSize: 33,                         // 33px
+                        height: 16 / 33,                      // line-height 16px
+                        letterSpacing: 0,                     // 0%
+                        color: const Color(0xFFD5D5D5),       // #D5D5D5 (Figma)
                       ),
                       border: InputBorder.none,
                       isCollapsed: true,
+                      contentPadding: EdgeInsets.zero,
                     ),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    style: GoogleFonts.dongle(
+                      fontWeight: FontWeight.w400,            // Regular 400
+                      fontSize: 33,                           // 33px
+                      height: 16 / 33,                        // line-height 16px
+                      letterSpacing: 0,
+                      color: Colors.black,                    // actual text color
                     ),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Enter a title'
-                        : null,
+                    validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
                   ),
                 ),
+
                 const SizedBox(width: 8),
                 IconButton(
                   padding: EdgeInsets.zero,
@@ -2211,10 +2219,12 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   _dateTextSingleLine(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                  style: GoogleFonts.dongle(
+                    fontWeight: FontWeight.w400,   // Regular
+                    fontSize: 16,                  // 16px
+                    height: 16 / 16,               // line-height 16px
+                    letterSpacing: 0,              // 0%
+                    color: Colors.black,           // text color from Figma
                   ),
                 ),
               ),
@@ -2229,102 +2239,122 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               onTap: _openDateRangePicker,
             ),
 
+
             const Divider(color: dividerColor, height: 16),
 
             // TIME ROW
-            _EditorRow(
-              icon: Icons.access_time_rounded,
-              label: 'Time',
-              labelColor: Colors.black,
-              expandMiddle: true,
-              middleChild: _allDay
-                  ? Text(
-                      'All day',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black.withOpacity(.55),
+          _EditorRow(
+            icon: Icons.access_time_rounded,
+            label: 'Time',
+            labelColor: Colors.black,
+            expandMiddle: true,
+            middleChild: _allDay
+                ? Text(
+              'All day',
+              style: GoogleFonts.dongle(
+                fontWeight: FontWeight.w400,
+                fontSize: 20,        // 20px
+                height: 16 / 20,     // line-height 16px
+                letterSpacing: 0,
+                color: Colors.black.withOpacity(.55),
+              ),
+            )
+                : Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                // start time
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      DateFormat('hh : mm a')
+                          .format(_combine(_startDate, _startTime)),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.dongle(
+                        fontWeight: FontWeight.w400,          // Regular
+                        fontSize: 20,                         // 20px
+                        height: 16 / 20,                      // line-height 16px
+                        letterSpacing: 0,
+                        color: const Color(0xFFB6B5B5),       // Gray4 #B6B5B5
                       ),
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              DateFormat(
-                                'hh : mm a',
-                              ).format(_combine(_startDate, _startTime)),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          '—',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              DateFormat(
-                                'hh : mm a',
-                              ).format(_combine(_startDate, _endTime)),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-              trailing: _AllDayPill(value: _allDay, onChanged: _setAllDay),
-              onTap: !_allDay ? _openTimeRangePicker : null,
+                  ),
+                ),
+                const SizedBox(width: 6),
+
+                // dash
+                Text(
+                  '—',
+                  style: GoogleFonts.dongle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 20,
+                    height: 16 / 20,
+                    letterSpacing: 0,
+                    color: const Color(0xFFB6B5B5),
+                  ),
+                ),
+                const SizedBox(width: 6),
+
+                // end time
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      DateFormat('hh : mm a')
+                          .format(_combine(_startDate, _endTime)),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.dongle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                        height: 16 / 20,
+                        letterSpacing: 0,
+                        color: const Color(0xFFB6B5B5),       // Gray4
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+            trailing: _AllDayPill(value: _allDay, onChanged: _setAllDay),
+            onTap: !_allDay ? _openTimeRangePicker : null,
+          ),
+
 
             const Divider(color: dividerColor, height: 16),
 
-            _EditorRow(
-              icon: Icons.place_outlined,
-              label: 'Location',
-              labelColor: labelColor,
-              expandMiddle: true,
-              middleChild: TextField(
-                controller: _location,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  contentPadding: EdgeInsets.zero,
-                  hintText: 'Location',
-                  hintStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: labelColor,
-                  ),
-                  border: InputBorder.none,
+          _EditorRow(
+            icon: Icons.place_outlined,
+            label: 'Location',
+            labelColor: labelColor,
+            expandMiddle: true,
+            middleChild: TextField(
+              controller: _location,
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                isCollapsed: true,
+                contentPadding: EdgeInsets.zero,
+                hintText: 'Location',
+                hintStyle: GoogleFonts.dongle(
+                  fontWeight: FontWeight.w400,        // Regular
+                  fontSize: 16,                       // close to Figma
+                  height: 16 / 16,                    // line-height 16px
+                  letterSpacing: 0,
+                  color: const Color(0xFFD5D5D5),     // light gray
                 ),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
+                border: InputBorder.none,
+              ),
+              style: GoogleFonts.dongle(
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+                height: 16 / 16,
+                letterSpacing: 0,
+                color: Colors.black,                  // typed text
               ),
             ),
+          ),
+
             const SizedBox(height: 24),
 
             _TodoBubble(
@@ -2450,24 +2480,32 @@ class _AllDayPill extends StatelessWidget {
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        height: 21, // Figma height (approx – Flutter will scale)
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: value ? const Color(0xFFEDF5FF) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE1E3EC)),
+          borderRadius: BorderRadius.circular(10),                  // radius 10
+          border: Border.all(color: const Color(0xFFDFDFDF), width: 1), // #DFDFDF
         ),
+        alignment: Alignment.center,
         child: Text(
           'All day',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: value ? const Color(0xFF4A87FF) : const Color(0xFFB8BBC5),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.dongle(
+            fontWeight: FontWeight.w400,
+            fontSize: 16,                         // 16px
+            height: 16 / 16,                      // line-height 16px
+            letterSpacing: 0,
+            color: value
+                ? const Color(0xFF4A87FF)        // active blue (optional)
+                : const Color(0xFFB6B5B5),       // Gray4 when off
           ),
         ),
       ),
     );
   }
 }
+
 
 class _TodoBubble extends StatelessWidget {
   const _TodoBubble({
