@@ -405,32 +405,36 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: 2),
 
               //for category
-              SizedBox(
-                height: 28.5, // ✅ fixed height like Figma
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    height: 30,
-                    // width: 309,
-                    // ✅ fixed width like Figma (remove if you want full width)
-                    child: CategoryFilterBar(
-                      activeIds: _filters,
-                      onChange: (newSet) => setState(() {
-                        _filters
-                          ..clear()
-                          ..addAll(newSet);
-                      }),
-                      onAddPressed: () async {
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const CategoryEditorScreen(),
-                          ),
-                        );
-                        Get.find<BrickController>().loadBricks();
-                      },
+              Container(
+                height: 28.5,
+                child: SizedBox(
+                  // height: 28.5, // ✅ fixed height like Figma
+
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      height: 30,
+                      // width: 309,
+                      // ✅ fixed width like Figma (remove if you want full width)
+                      child: CategoryFilterBar(
+                        activeIds: _filters,
+                        onChange: (newSet) => setState(() {
+                          _filters
+                            ..clear()
+                            ..addAll(newSet);
+                        }),
+                        onAddPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const CategoryEditorScreen(),
+                            ),
+                          );
+                          Get.find<BrickController>().loadBricks();
+                        },
+                      ),
                     ),
                   ),
                 ),
