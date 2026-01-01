@@ -11,6 +11,9 @@ class AppImages {
   static const String repeat = 'assets/icons/repeat.png';
   static const String notification2 = 'assets/icons/notification 2.png';
 
+  // Todos Icons
+  static const String collaboration = 'assets/icons/collaboration.png';
+
 
 
   /// images
