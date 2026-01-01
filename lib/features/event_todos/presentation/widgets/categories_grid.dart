@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/core/common/constants/app_images.dart';
-import 'category_dialog.dart';
+import 'category_details_dialog.dart';
 
 class CategoriesGrid extends StatefulWidget {
   const CategoriesGrid({super.key});
@@ -42,7 +42,7 @@ class _CategoriesGridState extends State<CategoriesGrid> {
     final cat = _categories[index];
     showDialog(
       context: context,
-      builder: (context) => CategoryDialog(
+      builder: (context) => CategoryDetailsDialog(
         categoryTitle: cat['title'],
         categoryColor: cat['color'],
         initialTodos: List<String>.from(cat['todos']),
@@ -458,7 +458,11 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
                   children: [
                     Row(
                       children: [
-                      Image.asset(AppImages.collaboration, width: 16, height: 16,),
+                        Image.asset(
+                          AppImages.collaboration,
+                          width: 16,
+                          height: 16,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'Collaboration',
