@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 
 class ScheduledDialog extends StatefulWidget {
   const ScheduledDialog({super.key});
@@ -104,227 +107,256 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
         horizontal: screenWidth * 0.05,
-        vertical: screenHeight * 0.1,
+        vertical: screenHeight * 0.15,
+        
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F7),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header with title and close button
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Blurred dark background
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(color: Colors.white.withOpacity(0.0),
+               ),
+                
               ),
+            ),
+          ),
+          // Header positioned ABOVE the dialog
+          Positioned(
+            left: 0,
+            top: -30,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 30),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.calendar_today_outlined,
-                    size: 20,
+                  Image.asset(
+                    AppImages.iconschedule,
+                    width: 17,
+                    height: 17,
                     color: Colors.black87,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 3),
                   const Text(
                     'Scheduled',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
                       color: Colors.black87,
                     ),
                   ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(
-                      Icons.close,
-                      size: 24,
-                      color: Colors.grey,
+                ],
+              ),
+            ),
+          ),
+          // Main dialog container
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F7),
+              borderRadius: BorderRadius.circular(35),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // White container for tabs and category chips with rounded top corners
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(35),
+                      topRight: Radius.circular(35),
                     ),
                   ),
-                ],
-              ),
-            ),
-
-            // Tabs section
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Row(
-                children: [
-                  _buildTab('Unfinished'),
-                  const SizedBox(width: 24),
-                  _buildTab('Finished'),
-                  const SizedBox(width: 24),
-                  _buildTab('All'),
-                  const Spacer(),
-                  const Icon(
-                    Icons.filter_list,
-                    size: 22,
-                    color: Colors.black87,
-                  ),
-                ],
-              ),
-            ),
-
-            // Category chips
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.only(left: 20, bottom: 16),
-              child: SizedBox(
-                height: 36,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    final isSelected = _selectedCategory == category['name'];
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedCategory = category['name'];
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? category['color']
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: isSelected
-                                  ? category['color']
-                                  : Colors.grey.shade300,
-                              width: 1.5,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Tabs section
+                      Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            _buildTab('Unfinished'),
+                            const SizedBox(width: 24),
+                            _buildTab('Finished'),
+                            const SizedBox(width: 24),
+                            _buildTab('All'),
+                            const Spacer(),
+                            const Icon(
+                              Icons.filter_list,
+                              size: 22,
+                              color: Colors.black87,
                             ),
-                          ),
-                          child: Text(
-                            category['name'],
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: isSelected ? Colors.white : Colors.black87,
-                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Category chips (smaller, responsive)
+                      Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.only(left: 16, bottom: 12),
+                        child: SizedBox(
+                          height: 32,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _categories.length,
+                            itemBuilder: (context, index) {
+                              final category = _categories[index];
+                              final isSelected =
+                                  _selectedCategory == category['name'];
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedCategory = category['name'];
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? category['color']
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? category['color']
+                                            : Colors.grey.shade300,
+                                        width: isSelected ? 1.4 : 1.0,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      category['name'],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
-              ),
-            ),
 
-            // Todo list
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                itemCount: _todos.length,
-                itemBuilder: (context, index) {
-                  final todo = _todos[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Time label
-                        SizedBox(
-                          width: 60,
-                          child: Text(
-                            todo['time'],
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: todo['isOverdue']
-                                  ? Colors.red
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Checkbox circle
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _todos[index]['checked'] =
-                                  !_todos[index]['checked'];
-                            });
-                          },
-                          child: Container(
-                            width: 22,
-                            height: 22,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: todo['color'],
-                                width: 2.5,
-                              ),
-                              color: todo['checked']
-                                  ? todo['color']
-                                  : Colors.transparent,
-                            ),
-                            child: todo['checked']
-                                ? const Icon(
-                                    Icons.check,
-                                    size: 14,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Todo title
-                        Expanded(
-                          child: Text(
-                            todo['title'],
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                              color: todo['checked']
-                                  ? Colors.grey
-                                  : Colors.black87,
-                              decoration: todo['checked']
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        // Icons on the right
-                        Icon(
-                          Icons.notifications_none,
-                          size: 20,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(width: 12),
-                        Icon(
-                          Icons.drag_indicator,
-                          size: 20,
-                          color: Colors.grey.shade400,
-                        ),
-                      ],
+                // Todo list with gray background
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
                     ),
-                  );
-                },
-              ),
+                    itemCount: _todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = _todos[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Time label
+                            SizedBox(
+                              width: 60,
+                              child: Text(
+                                todo['time'],
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: todo['isOverdue']
+                                      ? Colors.red
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Checkbox circle
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _todos[index]['checked'] =
+                                      !_todos[index]['checked'];
+                                });
+                              },
+                              child: Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: todo['color'],
+                                    width: 2.5,
+                                  ),
+                                  color: todo['checked']
+                                      ? todo['color']
+                                      : Colors.transparent,
+                                ),
+                                child: todo['checked']
+                                    ? const Icon(
+                                        Icons.check,
+                                        size: 14,
+                                        color: Colors.white,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Todo title
+                            Expanded(
+                              child: Text(
+                                todo['title'],
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: todo['checked']
+                                      ? Colors.grey
+                                      : Colors.black87,
+                                  decoration: todo['checked']
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                            ),
+                            // Icons on the right
+                            Icon(
+                              Icons.notifications_none,
+                              size: 20,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.drag_indicator,
+                              size: 20,
+                              color: Colors.grey.shade400,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
