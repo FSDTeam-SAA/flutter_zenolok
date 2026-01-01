@@ -128,7 +128,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
       k,
     );
 
-    // ✅ ONLY multi-day all-day streaks should span across dates
+    //  ONLY multi-day all-day streaks should span across dates
     final spanning = _allEventsFromController().where(
       (e) => _isMultiDayAllDay(e) && _betweenIncl(day, e.start, e.end!),
     );
@@ -303,10 +303,16 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        CupertinoIcons.search,
+                      icon: Image.asset(
+                        AppImages.search_icon,
+                        width: 28.67,
+                        height: 28.67,
+                        fit: BoxFit.contain,
                         color: Colors.black,
+                        colorBlendMode: BlendMode.srcIn,
                       ),
+
+
                     ),
 
                     // ✅ loading bar in header
@@ -348,10 +354,17 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                               ),
                             );
                           },
-                          icon: const Icon(
-                            CupertinoIcons.bell,
-                            color: Colors.black,
+                          icon: Image.asset(
+                            AppImages.vector_icon,
+                            width: 28.67,
+                            height: 28.67,
+                            fit: BoxFit.contain,
+                            color: Colors.black87,
+                            // colorBlendMode: BlendMode.srcIn,
+                            filterQuality: FilterQuality.none, // ✅ makes edges sharper
+                            isAntiAlias: false,
                           ),
+
                         ),
                         Positioned(
                           right: 10,
@@ -397,9 +410,13 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.settings_outlined,
-                        color: Colors.black54,
+                      icon: Image.asset(
+                        AppImages.setting_icon,
+                        width: 28.67,
+                        height: 28.67,
+                        fit: BoxFit.contain,
+                        color: Colors.black,
+                        // colorBlendMode: BlendMode.srcIn,
                       ),
                     ),
                   ],
@@ -410,13 +427,14 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
               //for category
               Container(
-                height: 28.5,
+                height: 26,
+                // width: 68,
                 child: SizedBox(
                   // height: 28.5, // ✅ fixed height like Figma
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: SizedBox(
-                      height: 30,
+                      // height: 21,
                       // width: 309,
                       // ✅ fixed width like Figma (remove if you want full width)
                       child: CategoryFilterBar(

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../data/models/brick_model.dart';
 import '../controller/brick_controller.dart';
-import 'cateogry_widget.dart'; // for EventCategory + extension
 
 typedef CategoryFilterChanged = void Function(Set<String> activeIds);
 
@@ -87,7 +84,7 @@ class CategoryFilterBar extends StatelessWidget {
         final List<BrickModel> bricks = controller.bricks;
 
         return SizedBox(
-          height: 30, // closer to design
+          height: 37, // closer to design
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -97,10 +94,11 @@ class CategoryFilterBar extends StatelessWidget {
               _FilterChip(
                 icon: Icons.manage_search,
                 label: 'All',
-                color: const Color(0xFF9CA3AF),
+                color: const Color(0xFFB6B5B5), // ✅ CHANGE HERE (was 0xFF9CA3AF)
                 filled: activeIds.isEmpty,
                 onTap: () => onChange(<String>{}),
               ),
+
               const SizedBox(width: 8),
 
               // Category chips from bricks
@@ -116,25 +114,17 @@ class CategoryFilterBar extends StatelessWidget {
                     label: b.name,
                     color: chipColor,
                     filled: filled,
+
+
                     onTap: () {
-                      final updated = Set<String>.from(activeIds);
-
-                      // If "All" is active (empty), start with this one
-                      if (updated.isEmpty) {
-                        updated.add(b.id);
-                        onChange(updated);
-                        return;
-                      }
-
-                      if (updated.contains(b.id)) {
-                        updated.remove(b.id);
+                      if (activeIds.contains(b.id)) {
+                        onChange(<String>{});      // back to "All"
                       } else {
-                        updated.add(b.id);
+                        onChange(<String>{b.id});  // select ONLY this one
                       }
-
-                      // If none selected => back to "All"
-                      onChange(updated.isEmpty ? <String>{} : updated);
                     },
+
+
                   ),
                 );
               }),
@@ -154,7 +144,7 @@ class _FilterChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  final bool filled;
+  final bool filled; // <-- this means SELECTED (active)
   final VoidCallback onTap;
 
   const _FilterChip({
@@ -167,15 +157,17 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = filled ? color : Colors.white;
-    final borderColor = filled ? color : color.withOpacity(0.35);
-    final contentColor = filled ? Colors.white : color;
+    // ✅ SELECTED => outline (like screenshot)
+    // ✅ NOT selected => filled color + white text
+    final bgColor = filled ? Colors.white : color;
+    final borderColor = color; // keep border always same color
+    final contentColor = filled ? color : Colors.white;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
@@ -183,25 +175,33 @@ class _FilterChip extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          // crossAxisAlignment: CrossAxisAlignment.baseline, // ✅
+          textBaseline: TextBaseline.alphabetic,           // ✅ required
           children: [
-            Icon(icon, size: 16, color: contentColor),
-            const SizedBox(width: 6),
+            Transform.translate(
+              offset: const Offset(0, 0), // ✅ change to 0.5 if needed
+              child: Icon(icon, size: 15, color: contentColor),
+            ),
+            const SizedBox(width: 4),
             Text(
               label,
               style: GoogleFonts.dongle(
-                fontWeight: FontWeight.w400, // Regular / Light feel
+                fontWeight: FontWeight.w400,
                 fontSize: 22,
-                height: 22 / 22,
+                height: 18/22,
                 letterSpacing: 0,
                 color: contentColor,
               ),
             ),
           ],
-        ),
+        )
+
       ),
     );
   }
 }
+
+
 
 /// "+" button (same row, end)
 class _AddCircleButton extends StatelessWidget {
