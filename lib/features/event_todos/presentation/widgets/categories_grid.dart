@@ -210,7 +210,7 @@ class _AddCategoryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20), // title nai, tai thora gap
-        const SizedBox(height: 118, child: _DashedAddBox()),
+        const SizedBox(height: 140, child: _DashedAddBox()),
       ],
     );
   }
@@ -222,13 +222,63 @@ class _DashedAddBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-      ),
-      child: const Center(child: Icon(Icons.add, size: 28, color: Colors.grey)),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return CustomPaint(
+          painter: _DashedBorderPainter(
+            color: const Color(0xFFE0E0E0),
+            strokeWidth: 1.5,
+            radius: 30,
+            dashLength: 8,
+            dashGap: 6,
+          ),
+          child: const Center(child: Icon(Icons.add, size: 28, color: Colors.grey)),
+        );
+      },
     );
   }
+}
+
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double radius;
+  final double dashLength;
+  final double dashGap;
+
+  const _DashedBorderPainter({
+    required this.color,
+    this.strokeWidth = 1.5,
+    this.radius = 22,
+    this.dashLength = 8,
+    this.dashGap = 6,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect.deflate(strokeWidth / 2), Radius.circular(radius));
+    final path = Path()..addRRect(rrect);
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final metrics = path.computeMetrics();
+    for (final metric in metrics) {
+      double distance = 0.0;
+      while (distance < metric.length) {
+        final double start = distance;
+        final double end = (distance + dashLength).clamp(0, metric.length);
+        final dashPath = metric.extractPath(start, end);
+        canvas.drawPath(dashPath, paint);
+        distance += dashLength + dashGap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
