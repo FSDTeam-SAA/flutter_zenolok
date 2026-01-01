@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 import 'category_dialog.dart';
 
 class CategoriesGrid extends StatefulWidget {
@@ -13,27 +14,27 @@ class _CategoriesGridState extends State<CategoriesGrid> {
     {
       'title': 'Routine',
       'color': Colors.orange,
-      'todos': ['Mop floor', 'Clean the bathr...']
+      'todos': ['Mop floor', 'Clean the bathr...'],
     },
     {
       'title': 'Groceries',
       'color': Colors.deepOrange,
-      'todos': ['Yogurt', 'Ice cream', 'Turkey', 'Bread']
+      'todos': ['Yogurt', 'Ice cream', 'Turkey', 'Bread'],
     },
     {
       'title': 'Gym',
       'color': Colors.purple,
-      'todos': ['10 push ups', '20 sit ups']
+      'todos': ['10 push ups', '20 sit ups'],
     },
     {
       'title': 'Homework',
       'color': const Color(0xFFF4A300),
-      'todos': ['History assignm...', 'Fill a form']
+      'todos': ['History assignm...', 'Fill a form'],
     },
     {
       'title': 'Bills',
       'color': Colors.lightBlue,
-      'todos': ['Pay rent', 'Water bill']
+      'todos': ['Pay rent', 'Water bill'],
     },
   ];
 
@@ -108,13 +109,15 @@ class _CategoriesGridState extends State<CategoriesGrid> {
         rightChild = const SizedBox.shrink();
       }
 
-      rows.add(Row(
-        children: [
-          Expanded(child: leftChild),
-          const SizedBox(width: 12),
-          Expanded(child: rightChild),
-        ],
-      ));
+      rows.add(
+        Row(
+          children: [
+            Expanded(child: leftChild),
+            const SizedBox(width: 12),
+            Expanded(child: rightChild),
+          ],
+        ),
+      );
 
       rows.add(const SizedBox(height: 12));
     }
@@ -156,7 +159,6 @@ class _CategoryCard extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 6),
 
         /// Actual card
         Container(
@@ -173,7 +175,7 @@ class _CategoryCard extends StatelessWidget {
               children: [
                 ...todos.map(
                   (t) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
+                    padding: const EdgeInsets.only(bottom: 2.0),
                     child: Row(
                       children: [
                         const _TodoCircle(),
@@ -273,113 +275,228 @@ class NewCategoryDialog extends StatefulWidget {
 class _NewCategoryDialogState extends State<NewCategoryDialog> {
   final TextEditingController _nameController = TextEditingController();
   Color? _selectedColor;
+  bool _isEditingName = true;
+  final FocusNode _focusNode = FocusNode();
 
   final List<Color> _palette = const [
-    Color(0xFFEF4444),
-    Color(0xFFF97316),
-    Color(0xFFF59E0B),
-    Color(0xFF10B981),
-    Color(0xFF06B6D4),
-    Color(0xFF3B82F6),
-    Color(0xFF7C3AED),
-    Color(0xFFDB2777),
-    Color(0xFFA78BFA),
-    Color(0xFFB91C1C),
-    Color(0xFF111827),
-    Color(0xFF8B5CF6),
-    Color(0xFFEC4899),
-    Color(0xFF0EA5A4),
-    Color(0xFF34D399),
+    // Row 1 - Bright colors
+    Color(0xFFFF383C), Color(0xFFFF8D28), Color(0xFFFFCC00), Color(0xFF34C759),
+    Color(0xFF00C0E8), Color(0xFF0088FF), Color(0xFF6155F5), Color(0xFFCB30E0),
+    Color(0xFFFF2D55), Color(0xFFAC7F5E),
+    // Row 2 - Light/Pastel colors
+    Color(0xFFFFC2BD), Color(0xFFFFD4AE), Color(0xFFFFF4C6), Color(0xFFE4F3E8),
+    Color(0xFFCAEBF2), Color(0xFFE0EBF3), Color(0xFFEAE9F4), Color(0xFFF4E5F6),
+    Color(0xFFFFE8EC), Color(0xFFEEE4DC),
+    // Row 3 - Medium/Muted colors
+    Color(0xFFC36062), Color(0xFFE6D6C8), Color(0xFFDFD5AD), Color(0xFFCCDED0),
+    Color(0xFFABC3C8), Color(0xFFB3C1CD), Color(0xFFB3C1CD), Color(0xFFB8B6CA),
+    Color(0xFFC8939D), Color(0xFFA69588),
+    // Row 4 - Dark colors
+    Color(0xFF9C2426), Color(0xFFBD7434), Color(0xFF72611E), Color(0xFF3F694A),
+    Color(0xFF1E6372), Color(0xFF26537A), Color(0xFF514E73), Color(0xFF674B6B),
+    Color(0xFF732D3A), Color(0xFF5B4230),
   ];
 
   @override
   void dispose() {
     _nameController.dispose();
+    _focusNode.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.addListener(() => setState(() {}));
   }
 
   void _onAdd() {
     if (_nameController.text.trim().isEmpty || _selectedColor == null) return;
-    Navigator.of(context).pop({'title': _nameController.text.trim(), 'color': _selectedColor});
+    Navigator.of(
+      context,
+    ).pop({'title': _nameController.text.trim(), 'color': _selectedColor});
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final dialogWidth = (screenWidth * 0.85).clamp(260.0, 420.0);
+    final dialogHeight = (screenHeight * 0.40).clamp(320.0, 640.0);
+
+    const horizontalPadding = 12.0;
+    const circleSpacing = 0.0;
+    const cols = 10;
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F7),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            const Text(
-              'New Category',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: _palette
-                  .map((c) => GestureDetector(
-                        onTap: () => setState(() => _selectedColor = c),
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: c,
-                            shape: BoxShape.circle,
-                            border: _selectedColor == c ? Border.all(color: Colors.black26, width: 2) : null,
-                          ),
-                        ),
-                      ))
-                  .toList(),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Category name',
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_nameController.text.trim().isNotEmpty && _selectedColor != null) ...[
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: _onAdd,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: _selectedColor,
-                      borderRadius: BorderRadius.circular(8),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: (screenWidth - dialogWidth) / 2,
+        vertical: (screenHeight - dialogHeight) / 2,
+      ),
+      child: Center(
+        child: Container(
+          width: dialogWidth,
+          height: dialogHeight,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF6F6F6),
+            borderRadius: BorderRadius.circular(35),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(
+                        Icons.chevron_left,
+                        color: Colors.grey,
+                        size: 22,
+                      ),
                     ),
-                    child: const Text(
-                      'Add',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                    Expanded(
+                      child: Center(
+                        child: _isEditingName
+                            ? SizedBox(
+                                width: dialogWidth * 0.6,
+                                child: TextField(
+                                  controller: _nameController,
+                                  focusNode: _focusNode,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: _selectedColor ?? Colors.grey,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'New Category',
+                                    hintStyle: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                    isDense: true,
+                                  ),
+                                  onSubmitted: (_) =>
+                                      setState(() => _isEditingName = false),
+                                ),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  setState(() => _isEditingName = true);
+                                  _focusNode.requestFocus();
+                                },
+                                child: Text(
+                                  _nameController.text.isEmpty
+                                      ? 'New Category'
+                                      : _nameController.text,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        _selectedColor ?? Colors.grey.shade400,
+                                  ),
+                                ),
+                              ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 22),
+                  ],
                 ),
               ),
-            ] else ...[
-              const SizedBox.shrink(),
+
+              // Palette grid
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 2,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final availableWidth = constraints.maxWidth;
+                    final cellSize =
+                        (availableWidth - (cols - 1) * circleSpacing) / cols;
+                    final circleSize = cellSize * 0.78;
+
+                    return GridView.count(
+                      crossAxisCount: cols,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: circleSpacing,
+                      crossAxisSpacing: circleSpacing,
+                      children: _palette.map((c) {
+                        final isSelected = _selectedColor == c;
+                        return GestureDetector(
+                          onTap: () => setState(() => _selectedColor = c),
+                          child: Center(
+                            child: Container(
+                              width: circleSize,
+                              height: circleSize,
+                              decoration: BoxDecoration(
+                                color: c,
+                                shape: BoxShape.circle,
+                                border: isSelected
+                                    ? Border.all(color: Colors.white, width: 3)
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+              ),
+
+              // Collaboration + Add
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                      Image.asset(AppImages.collaboration, width: 16, height: 16,),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Collaboration',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_nameController.text.trim().isNotEmpty &&
+                        _selectedColor != null)
+                      GestureDetector(
+                        onTap: _onAdd,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Add',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.chevron_right,
+                              color: Colors.grey.shade400,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -402,7 +519,9 @@ class _DashedAddBox extends StatelessWidget {
             dashLength: 8,
             dashGap: 6,
           ),
-          child: const Center(child: Icon(Icons.add, size: 28, color: Colors.grey)),
+          child: const Center(
+            child: Icon(Icons.add, size: 28, color: Colors.grey),
+          ),
         );
       },
     );
@@ -427,7 +546,10 @@ class _DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(rect.deflate(strokeWidth / 2), Radius.circular(radius));
+    final rrect = RRect.fromRectAndRadius(
+      rect.deflate(strokeWidth / 2),
+      Radius.circular(radius),
+    );
     final path = Path()..addRRect(rrect);
 
     final paint = Paint()
