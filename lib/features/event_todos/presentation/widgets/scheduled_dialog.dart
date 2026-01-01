@@ -119,7 +119,7 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
               onTap: () => Navigator.pop(context),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(color: Colors.white.withOpacity(0.0),
+                child: Container(color: Colors.black.withOpacity(0.0),
                ),
                 
               ),
@@ -176,12 +176,13 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
                     children: [
                       // Tabs section
                       Container(
-                        color: Colors.transparent,
+                        color: const Color(0xFFF5F5F7),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
+                          horizontal: 38 ,
                           vertical: 12,
                         ),
                         child: Row(
+                          
                           children: [
                             _buildTab('Unfinished'),
                             const SizedBox(width: 24),
@@ -189,10 +190,10 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
                             const SizedBox(width: 24),
                             _buildTab('All'),
                             const Spacer(),
-                            const Icon(
-                              Icons.filter_list,
-                              size: 22,
-                              color: Colors.black87,
+                            Image.asset(  
+                              AppImages.schedulefilter,
+                              width: 16,
+                              height: 16,
                             ),
                           ],
                         ),
@@ -200,10 +201,10 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
 
                       // Category chips (smaller, responsive)
                       Container(
-                        color: Colors.transparent,
+                        color: const Color(0xFFF5F5F7),
                         padding: const EdgeInsets.only(left: 16, bottom: 12),
                         child: SizedBox(
-                          height: 32,
+                          height: 25,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: _categories.length,
@@ -222,7 +223,7 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 12,
-                                      vertical: 6,
+                                      vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
                                       color: isSelected
@@ -336,15 +337,26 @@ class _ScheduledDialogState extends State<ScheduledDialog> {
                               ),
                             ),
                             // Icons on the right
-                            Icon(
-                              Icons.notifications_none,
-                              size: 20,
+                           
+                            
+                           Image.asset(  
+                              AppImages.notification2,
+                              width: 20,
+                              height: 20,
                               color: Colors.grey.shade400,
                             ),
-                            const SizedBox(width: 12),
-                            Icon(
-                              Icons.drag_indicator,
-                              size: 20,
+                            const SizedBox(width: 10),
+                             Image.asset(  
+                              AppImages.repeat,
+                              width: 20,
+                              height: 20,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(width: 10),
+                          Image.asset(  
+                              AppImages.sliders,
+                              width: 20,
+                              height: 20,
                               color: Colors.grey.shade400,
                             ),
                           ],
