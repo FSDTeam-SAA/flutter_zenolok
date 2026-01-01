@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/searchScreen.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/setting_screen.dart';
 import 'package:get/get.dart';
@@ -412,7 +413,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 height: 28.5,
                 child: SizedBox(
                   // height: 28.5, // ✅ fixed height like Figma
-
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: SizedBox(
@@ -598,13 +598,13 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             const Spacer(),
                             _GhostPill(
                               label: 'TODAY',
-                              icon: CupertinoIcons.arrow_uturn_left,
-
+                              iconPath: AppImages.today_back_icon,
                               onTap: () => setState(() {
                                 _focused.value = DateTime.now();
                                 _selected = _dOnly(DateTime.now());
                               }),
                             ),
+
                             const SizedBox(width: 10),
                             _FlatPlusButton(
                               initialDate: _selected ?? DateTime.now(),
@@ -1803,12 +1803,12 @@ class _Badge extends StatelessWidget {
 
 class _GhostPill extends StatelessWidget {
   const _GhostPill({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.onTap,
   });
 
-  final IconData icon;
+  final String iconPath; // ✅ asset path
   final String label;
   final VoidCallback onTap;
 
@@ -1831,26 +1831,29 @@ class _GhostPill extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // arrow icon, slightly nudged up to align with TODAY text
             Transform.translate(
-              offset: const Offset(0, -1.5), // tweak -1 .. -2 if needed
-              child: Icon(icon, size: 14, color: borderColor),
+              offset: const Offset(0, -1.5),
+              child: SizedBox(
+                width: 8.75,
+                height: 9.38,
+                child: Image.asset(
+                  iconPath,
+                  fit: BoxFit.contain,
+                  color: borderColor,
+                  colorBlendMode: BlendMode.srcIn,
+                ),
+              ),
             ),
-            const SizedBox(width: 6),
 
+            const SizedBox(width: 6),
             Text(
               label.toUpperCase(),
-              textAlign: TextAlign.center,
               style: GoogleFonts.dongle(
                 fontWeight: FontWeight.w400,
-                // Regular 400
                 fontSize: 22,
-                // 22px
-                height: 22 / 22,
-                // line-height 22px
+                height: 1,
                 letterSpacing: 0,
-                // 0px
-                color: borderColor, // #B6B5B5
+                color: borderColor,
               ),
             ),
           ],
@@ -2462,9 +2465,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 },
               ),
             ),
-
-
-
           ],
         ),
       ),
@@ -2824,7 +2824,6 @@ class _PlusPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-
 class LetsJamRow extends StatelessWidget {
   const LetsJamRow({super.key, this.onTap});
 
@@ -2854,24 +2853,26 @@ class LetsJamRow extends StatelessWidget {
             Text(
               "Let’s JAM",
               style: GoogleFonts.dongle(
-                fontWeight: FontWeight.w400,        // Regular
-                fontSize: 20,                       // 20px
-                height: 22 / 20,                    // line-height 22px
-                letterSpacing: 0,                   // 0px
-                color: const Color(0xFFD5D5D5),     // #D5D5D5
+                fontWeight: FontWeight.w400,
+                // Regular
+                fontSize: 20,
+                // 20px
+                height: 22 / 20,
+                // line-height 22px
+                letterSpacing: 0,
+                // 0px
+                color: const Color(0xFFD5D5D5), // #D5D5D5
               ),
             ),
-
 
             const SizedBox(width: 4),
 
             // Down arrow
             Icon(
               Icons.keyboard_arrow_down_rounded,
-              size: 19,          // match Figma 19px
+              size: 19, // match Figma 19px
               color: ghostColor, // your #D5D5D5 color
             ),
-
           ],
         ),
       ),
@@ -2881,6 +2882,7 @@ class LetsJamRow extends StatelessWidget {
 
 class _GhostPainter extends CustomPainter {
   _GhostPainter({required this.color});
+
   final Color color;
 
   @override
@@ -2921,8 +2923,7 @@ class _GhostPainter extends CustomPainter {
     );
 
     // Wavy bottom
-    final bottomPath = Path()
-      ..moveTo(bodyRect.left, bodyRect.bottom);
+    final bottomPath = Path()..moveTo(bodyRect.left, bodyRect.bottom);
     final step = bodyRect.width / 3;
     bottomPath.quadraticBezierTo(
       bodyRect.left + step * 0.5,
@@ -2950,16 +2951,8 @@ class _GhostPainter extends CustomPainter {
       ..color = color;
     final eyeY = center.dy - 2;
     final eyeOffsetX = bodyRect.width * 0.15;
-    canvas.drawCircle(
-      Offset(center.dx - eyeOffsetX, eyeY),
-      1.1,
-      eyePaint,
-    );
-    canvas.drawCircle(
-      Offset(center.dx + eyeOffsetX, eyeY),
-      1.1,
-      eyePaint,
-    );
+    canvas.drawCircle(Offset(center.dx - eyeOffsetX, eyeY), 1.1, eyePaint);
+    canvas.drawCircle(Offset(center.dx + eyeOffsetX, eyeY), 1.1, eyePaint);
 
     // Small mouth
     final mouthPath = Path()

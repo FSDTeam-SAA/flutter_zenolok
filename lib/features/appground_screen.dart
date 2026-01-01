@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/common/constants/app_images.dart';
 import 'event/presentation/screens/event_screen.dart';
 import 'event_todos/presentation/screens/event_todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
@@ -52,19 +53,33 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _BottomItem(
-              icon: Icons.calendar_month_rounded,
+              image: Image.asset(
+                AppImages.calender_icon2,
+                width: 18,
+                height: 18,
+              ),
               label: 'Home',
               isActive: _currentIndex == 0,
               onTap: () => setState(() => _currentIndex = 0),
             ),
             _BottomItem(
-              icon: CupertinoIcons.square_grid_2x2,
+              image: Image.asset(
+                AppImages.event_icon,
+                width: 18,
+                height: 18,
+              ),
               label: 'Events',
               isActive: _currentIndex == 1,
               onTap: () => setState(() => _currentIndex = 1),
             ),
             _BottomItem(
-              icon: CupertinoIcons.list_bullet,
+              image: Image.asset(
+                AppImages.bar3_icon,
+                width: 18,
+                height: 18,
+                fit: BoxFit.contain,
+
+              ),
               label: 'Todos',
               isActive: _currentIndex == 2,
               onTap: () => setState(() => _currentIndex = 2),
@@ -78,29 +93,21 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
 
 class _BottomItem extends StatelessWidget {
   const _BottomItem({
-    required this.icon,
+    required this.image,
     required this.label,
     required this.isActive,
     required this.onTap,
   });
 
-  final IconData icon;
+  final Image image;      // Image.asset(...)
   final String label;
   final bool isActive;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    const borderInactive = Color(0xFFE0E0E0);
-    const borderActive = Color(0xFF4C9BFF);
-    const iconInactive = Color(0xFFB8B8B8);
-    const iconActive = Color(0xFF4C9BFF);
-
-    // Figma text colors
-    const activeTextColor = Color(0xFF363538);  // Dark gray
-    const inactiveTextColor = Color(0xFFBDBDBD);
-
-    final textColor = isActive ? activeTextColor : inactiveTextColor;
+    const activeTextColor   = Color(0xFF363538); // Dark gray from Figma
+    const inactiveTextColor = Color(0xFFBDBDBD); // light gray
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -110,35 +117,26 @@ class _BottomItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 24×24 framed icon (as before)
             Container(
               width: 24,
               height: 24,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(6),
-                // border: Border.all(
-                //   color: isActive ? borderActive : borderInactive,
-                //   width: 1.5,
-                // ),
               ),
-              child: Icon(
-                icon,
-                size: 14,
-                color: isActive ? iconActive : iconInactive,
-              ),
+              child: Center(child: image),
             ),
             const SizedBox(height: 4),
-
-            // 🔹 Figma typography for label
             Text(
               label,
               style: GoogleFonts.poppins(
-                fontSize: 12,                 // Size 12px
-                fontWeight: FontWeight.w500,  // Medium 500
-                height: 16 / 12,              // Line-height 16px
+                fontSize: 12,                 // 👈 Size 12px
+                fontWeight: FontWeight.w500,  // 👈 Medium
+                height: 16 / 12,              // 👈 Line height 16px
                 letterSpacing: 0,             // 0%
-                color: textColor,
+                color: isActive
+                    ? activeTextColor
+                    : inactiveTextColor,
               ),
             ),
           ],
@@ -147,6 +145,8 @@ class _BottomItem extends StatelessWidget {
     );
   }
 }
+
+
 
 
 
