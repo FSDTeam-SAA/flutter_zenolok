@@ -1174,13 +1174,16 @@ class _StreakTile extends StatelessWidget {
             },
             child: Stack(
               clipBehavior: Clip.none,
-              children: const [
-                Icon(
-                  CupertinoIcons.chat_bubble_text,
-                  size: 18,
+              children: [
+                Image.asset(
+                  AppImages.message_icon,
+                  width: 18,
+                  height: 18,
+                  fit: BoxFit.contain,
                   color: Colors.black45,
+                  colorBlendMode: BlendMode.srcIn,
                 ),
-                Positioned(right: -8, top: -8, child: _Badge(number: 2)),
+                const Positioned(right: -8, top: -8, child: _Badge(number: 2)),
               ],
             ),
           ),
@@ -1264,10 +1267,13 @@ class _AllDayTile extends StatelessWidget {
           IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            icon: const Icon(
-              Icons.autorenew_rounded,
-              size: 18,
-              color: Colors.black26,
+            icon: Image.asset(
+              AppImages.fresh_icon,
+              width: 18,
+              height: 18,
+              fit: BoxFit.contain,
+              color: Colors.black45,
+              colorBlendMode: BlendMode.srcIn,
             ),
             onPressed: () async {
               // open editor with existing event data
