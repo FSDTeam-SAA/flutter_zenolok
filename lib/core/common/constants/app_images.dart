@@ -13,6 +13,7 @@ class AppImages {
 
   // Todos Icons
   static const String collaboration = 'assets/icons/collaboration.png';
+  static const String schedulefilter = 'assets/icons/scheduled_filter.png';
 
 
 
