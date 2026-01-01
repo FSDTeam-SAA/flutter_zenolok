@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
+import 'todo_details_dialog.dart';
+
 class CategoryDetailsDialog extends StatefulWidget {
   final String categoryTitle;
   final Color categoryColor;
@@ -97,7 +100,7 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+                  color: widget.categoryColor,
                 ),
               ),
             ),
@@ -249,22 +252,35 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
                               ),
                             ),
                             // Icons on the right
-                            Icon(
-                              Icons.notifications_none,
-                              size: 20,
+                            Image.asset(
+                              AppImages.iconschedule,
+                              width: 16,
+                              height: 16,
                               color: Colors.grey.shade400,
                             ),
-                            const SizedBox(width: 12),
-                            Icon(
-                              Icons.schedule,
-                              size: 20,
-                              color: Colors.grey.shade400,
+                            const SizedBox(width: 2),
+                            Image.asset(
+                              AppImages.repeat,
+                              width: 20,
+                              height: 20,
                             ),
-                            const SizedBox(width: 12),
-                            Icon(
-                              Icons.drag_indicator,
-                              size: 20,
-                              color: Colors.grey.shade400,
+                            const SizedBox(width: 2),
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => TodoDetailsDialog(
+                                    todoTitle: todo['title'],
+                                    categoryTitle: widget.categoryTitle,
+                                    categoryColor: widget.categoryColor,
+                                  ),
+                                );
+                              },
+                              child: Image.asset(
+                                AppImages.sliders,
+                                width: 16,
+                                height: 16,
+                              ),
                             ),
                           ],
                         ),
