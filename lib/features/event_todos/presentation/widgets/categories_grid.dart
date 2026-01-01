@@ -1,86 +1,128 @@
 import 'package:flutter/material.dart';
 import 'category_dialog.dart';
 
-class CategoriesGrid extends StatelessWidget {
+class CategoriesGrid extends StatefulWidget {
   const CategoriesGrid({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Row 1
-        Row(
-          children: [
-            Expanded(
-              child: _CategoryCard(
-                title: 'Routine',
-                titleColor: Colors.orange,
-                todos: ['Mop floor', 'Clean the bathr...'],
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => CategoryDialog(
-                      categoryTitle: 'Groceries',
-                      categoryColor: Colors.deepOrange,
-                      initialTodos: ['Yogurt', 'Ice cream', 'Turkey', 'Bread'],
-                    ),
-                  );
-                },
-                child: _CategoryCard(
-                  title: 'Groceries',
-                  titleColor: Colors.deepOrange,
-                  todos: ['Yogurt', 'Ice cream', 'Turkey'],
-                  showMoreCount: '+1',
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
+  State<CategoriesGrid> createState() => _CategoriesGridState();
+}
 
-        // Row 2
-        Row(
-          children: [
-            Expanded(
-              child: _CategoryCard(
-                title: 'Gym',
-                titleColor: Colors.purple,
-                todos: ['10 push ups', '20 sit ups'],
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _CategoryCard(
-                title: 'Homework',
-                titleColor: Color(0xFFF4A300),
-                todos: ['History assignm...', 'Fill a form'],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
+class _CategoriesGridState extends State<CategoriesGrid> {
+  final List<Map<String, dynamic>> _categories = [
+    {
+      'title': 'Routine',
+      'color': Colors.orange,
+      'todos': ['Mop floor', 'Clean the bathr...']
+    },
+    {
+      'title': 'Groceries',
+      'color': Colors.deepOrange,
+      'todos': ['Yogurt', 'Ice cream', 'Turkey', 'Bread']
+    },
+    {
+      'title': 'Gym',
+      'color': Colors.purple,
+      'todos': ['10 push ups', '20 sit ups']
+    },
+    {
+      'title': 'Homework',
+      'color': const Color(0xFFF4A300),
+      'todos': ['History assignm...', 'Fill a form']
+    },
+    {
+      'title': 'Bills',
+      'color': Colors.lightBlue,
+      'todos': ['Pay rent', 'Water bill']
+    },
+  ];
 
-        // Row 3
-        Row(
-          children: [
-            Expanded(
-              child: _CategoryCard(
-                title: 'Bills',
-                titleColor: Colors.lightBlue,
-                todos: ['Pay rent', 'Water bill'],
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(child: _AddCategoryCard()),
-          ],
-        ),
-      ],
+  void _openCategory(int index) {
+    final cat = _categories[index];
+    showDialog(
+      context: context,
+      builder: (context) => CategoryDialog(
+        categoryTitle: cat['title'],
+        categoryColor: cat['color'],
+        initialTodos: List<String>.from(cat['todos']),
+      ),
     );
+  }
+
+  Future<void> _openNewCategoryDialog() async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => const NewCategoryDialog(),
+    );
+
+    if (result != null && result['title'] != null && result['color'] != null) {
+      setState(() {
+        _categories.add({
+          'title': result['title'],
+          'color': result['color'],
+          'todos': <String>[],
+        });
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Build rows of two cards each, final slot is add button
+    final List<Widget> rows = [];
+    final totalSlots = _categories.length + 1; // +1 for add card
+    for (int i = 0; i < totalSlots; i += 2) {
+      final leftIndex = i;
+      final rightIndex = i + 1;
+
+      Widget leftChild;
+      if (leftIndex < _categories.length) {
+        final c = _categories[leftIndex];
+        leftChild = GestureDetector(
+          onTap: () => _openCategory(leftIndex),
+          child: _CategoryCard(
+            title: c['title'],
+            titleColor: c['color'],
+            todos: List<String>.from(c['todos']),
+            showMoreCount: null,
+          ),
+        );
+      } else {
+        leftChild = _AddCategoryCard(onTap: _openNewCategoryDialog);
+      }
+
+      Widget rightChild;
+      if (rightIndex < _categories.length) {
+        final c = _categories[rightIndex];
+        rightChild = GestureDetector(
+          onTap: () => _openCategory(rightIndex),
+          child: _CategoryCard(
+            title: c['title'],
+            titleColor: c['color'],
+            todos: List<String>.from(c['todos']),
+          ),
+        );
+      } else if (rightIndex == _categories.length) {
+        rightChild = _AddCategoryCard(onTap: _openNewCategoryDialog);
+      } else {
+        rightChild = const SizedBox.shrink();
+      }
+
+      rows.add(Row(
+        children: [
+          Expanded(child: leftChild),
+          const SizedBox(width: 12),
+          Expanded(child: rightChild),
+        ],
+      ));
+
+      rows.add(const SizedBox(height: 12));
+    }
+
+    // Remove the trailing SizedBox
+    if (rows.isNotEmpty) rows.removeLast();
+
+    return Column(children: rows);
   }
 }
 
@@ -202,16 +244,144 @@ class _TodoCircle extends StatelessWidget {
 }
 
 class _AddCategoryCard extends StatelessWidget {
-  const _AddCategoryCard();
+  final VoidCallback? onTap;
+
+  const _AddCategoryCard({this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20), // title nai, tai thora gap
-        const SizedBox(height: 140, child: _DashedAddBox()),
-      ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20), // title gap
+          const SizedBox(height: 140, child: _DashedAddBox()),
+        ],
+      ),
+    );
+  }
+}
+
+class NewCategoryDialog extends StatefulWidget {
+  const NewCategoryDialog({super.key});
+
+  @override
+  State<NewCategoryDialog> createState() => _NewCategoryDialogState();
+}
+
+class _NewCategoryDialogState extends State<NewCategoryDialog> {
+  final TextEditingController _nameController = TextEditingController();
+  Color? _selectedColor;
+
+  final List<Color> _palette = const [
+    Color(0xFFEF4444),
+    Color(0xFFF97316),
+    Color(0xFFF59E0B),
+    Color(0xFF10B981),
+    Color(0xFF06B6D4),
+    Color(0xFF3B82F6),
+    Color(0xFF7C3AED),
+    Color(0xFFDB2777),
+    Color(0xFFA78BFA),
+    Color(0xFFB91C1C),
+    Color(0xFF111827),
+    Color(0xFF8B5CF6),
+    Color(0xFFEC4899),
+    Color(0xFF0EA5A4),
+    Color(0xFF34D399),
+  ];
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(() => setState(() {}));
+  }
+
+  void _onAdd() {
+    if (_nameController.text.trim().isEmpty || _selectedColor == null) return;
+    Navigator.of(context).pop({'title': _nameController.text.trim(), 'color': _selectedColor});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F7),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            const Text(
+              'New Category',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: _palette
+                  .map((c) => GestureDetector(
+                        onTap: () => setState(() => _selectedColor = c),
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: c,
+                            shape: BoxShape.circle,
+                            border: _selectedColor == c ? Border.all(color: Colors.black26, width: 2) : null,
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                hintText: 'Category name',
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_nameController.text.trim().isNotEmpty && _selectedColor != null) ...[
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: _onAdd,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _selectedColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Add',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+            ] else ...[
+              const SizedBox.shrink(),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
