@@ -411,7 +411,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         return Center(
                           child: Text(
 
-                            
+
                             text,
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
@@ -422,6 +422,8 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           ),
                         );
                       },
+
+
                       markerBuilder: (context, day, events) =>
                       const SizedBox.shrink(),
                       defaultBuilder: (context, day, _) => _DayCell(
