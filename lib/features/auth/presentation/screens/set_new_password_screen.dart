@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/core/theme/input_decoration_extensions.dart';
 import 'package:flutx_core/core/theme/gap.dart';
-import 'package:flutx_core/core/validation/validators.dart';
 import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controller/auth_controller.dart';
-import 'login_screen.dart';
 
 class SetNewPasswordScreen extends StatefulWidget {
   const SetNewPasswordScreen({super.key, required this.email, required this.otp});
