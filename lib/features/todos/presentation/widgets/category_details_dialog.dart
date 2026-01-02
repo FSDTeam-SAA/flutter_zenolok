@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:ui';
 
 import 'package:flutter_zenolok/core/common/constants/app_images.dart';
+import 'package:get/get.dart';
+import '../controllers/event_totos_controller.dart';
 import 'todo_details_dialog.dart';
 
 class CategoryDetailsDialog extends StatefulWidget {
+  final String categoryId;
   final String categoryTitle;
   final Color categoryColor;
   final List<String> initialTodos;
+  final VoidCallback? onTodoAdded;
 
   const CategoryDetailsDialog({
     super.key,
+    required this.categoryId,
     required this.categoryTitle,
     required this.categoryColor,
     required this.initialTodos,
+    this.onTodoAdded,
   });
 
   @override
@@ -25,25 +32,58 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
   final TextEditingController _newTodoController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isTyping = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _todos = widget.initialTodos
-        .map<Map<String, dynamic>>(
-          (title) => <String, dynamic>{'title': title, 'checked': false},
-        )
-        .toList();
-
+    _todos = [];
+    if (kDebugMode) {
+      print('╔════════════════════════════════════════════════════════════════╗');
+      print('║ CategoryDetailsDialog INIT STATE                               ║');
+      print('║ Category ID: ${widget.categoryId}                              ║');
+      print('║ Category Title: ${widget.categoryTitle}                          ║');
+      print('╚════════════════════════════════════════════════════════════════╝');
+    }
     _newTodoController.addListener(_onTextChanged);
+    _fetchTodos();
+  }
+
+  void _fetchTodos() async {
+    if (kDebugMode) {
+      print('📱 Dialog: Fetching todos for category: ${widget.categoryId}');
+    }
+
+    final controller = Get.find<EventTodosController>();
+    final todos = await controller.fetchTodoItemsByCategory(
+      categoryId: widget.categoryId,
+    );
+    
+    if (kDebugMode) {
+      print('📱 Dialog: Received ${todos.length} todos');
+      for (int i = 0; i < todos.length; i++) {
+        print('   ${i + 1}. ${todos[i]['title']}');
+      }
+    }
+
+    setState(() {
+      _todos = todos;
+      _isLoading = false;
+    });
+
+    if (kDebugMode) {
+      print('📱 Dialog: setState done, _todos.length = ${_todos.length}');
+    }
   }
 
   void _onTextChanged() {
     final hasText = _newTodoController.text.isNotEmpty;
     if (_isTyping != hasText) {
-      setState(() {
-        _isTyping = hasText;
-      });
+      if (mounted) {
+        setState(() {
+          _isTyping = hasText;
+        });
+      }
     }
   }
 
@@ -55,13 +95,101 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
     super.dispose();
   }
 
-  void _addNewTodo() {
-    if (_newTodoController.text.trim().isNotEmpty) {
-      final todoText = _newTodoController.text.trim();
-      setState(() {
-        _todos.add(<String, dynamic>{'title': todoText, 'checked': false});
-      });
+  void _addNewTodo() async {
+    if (_newTodoController.text.trim().isEmpty) {
+      return;
+    }
+
+    final todoText = _newTodoController.text.trim();
+    
+    if (kDebugMode) {
+      print('➕ Dialog: Adding new todo: $todoText');
+    }
+
+    // Immediately clear the form
+    setState(() {
       _newTodoController.clear();
+      _isTyping = false;
+    });
+
+    // Call the API to create todo item
+    final controller = Get.find<EventTodosController>();
+    final success = await controller.createTodoItem(
+      categoryId: widget.categoryId,
+      text: todoText,
+    );
+
+    if (success) {
+      if (kDebugMode) {
+        print('✅ Dialog: Todo added successfully');
+      }
+
+      // Refresh the todo list from API to get the latest data
+      if (mounted) {
+        _fetchTodos();
+      }
+
+      // Trigger instant grid update
+      if (widget.onTodoAdded != null) {
+        if (kDebugMode) {
+          print('🔄 Dialog: Refreshing category card...');
+        }
+        widget.onTodoAdded!();
+      }
+
+      if (mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Todo "$todoText" added successfully!'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } else {
+      if (kDebugMode) {
+        print('❌ Dialog: Failed to add todo');
+      }
+
+      if (mounted) {
+        // Show error message
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Failed to add todo: ${controller.errorMessage.value}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -115,47 +243,57 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Todo list with gray background
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(
+                // Loading state or Todo list
+                if (_isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 40,
                       horizontal: 20,
-                      vertical: 16,
                     ),
-                    itemCount: _todos.length + 1,
-                    itemBuilder: (context, index) {
-                      // Add new todo input at the end
-                      if (index == _todos.length) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  // Placeholder checkbox
-                                },
-                                child: Container(
-                                  width: 22,
-                                  height: 22,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                      width: 2.5,
+                    child: CircularProgressIndicator(),
+                  )
+                else
+                  // Todo list with gray background
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      itemCount: _todos.length + 1,
+                      itemBuilder: (context, index) {
+                        // Add new todo input at the end
+                        if (index == _todos.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    // Placeholder checkbox
+                                  },
+                                  child: Container(
+                                    width: 22,
+                                    height: 22,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                        width: 2.5,
+                                      ),
+                                      color: Colors.transparent,
                                     ),
-                                    color: Colors.transparent,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextField(
-                                  controller: _newTodoController,
-                                  focusNode: _focusNode,
-                                  decoration: const InputDecoration(
-                                    hintText: 'New todo',
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _newTodoController,
+                                    focusNode: _focusNode,
+                                    decoration: const InputDecoration(
+                                      hintText: 'New todo',
                                     border: InputBorder.none,
                                     hintStyle: TextStyle(
                                       fontSize: 15,
@@ -287,7 +425,7 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
                       );
                     },
                   ),
-                ),
+                  ),
               ],
             ),
           ),
