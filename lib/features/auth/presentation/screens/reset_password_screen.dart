@@ -7,10 +7,8 @@ import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../../core/theme/app_buttoms.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../controller/auth_controller.dart';
 import 'login_screen.dart';
-import 'otp_verification_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
