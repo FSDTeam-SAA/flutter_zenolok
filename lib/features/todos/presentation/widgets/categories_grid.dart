@@ -1,230 +1,432 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/core/common/constants/app_images.dart';
+import 'package:get/get.dart';
+import '../controllers/event_totos_controller.dart';
 import 'category_details_dialog.dart';
 
-class CategoriesGrid extends StatefulWidget {
-  const CategoriesGrid({super.key});
+class CategoriesGrid extends GetView<EventTodosController> {
+  CategoriesGrid({super.key});
 
-  @override
-  State<CategoriesGrid> createState() => _CategoriesGridState();
-}
+  final Map<String, GlobalKey<_CategoryCardState>> _cardKeys = {};
 
-class _CategoriesGridState extends State<CategoriesGrid> {
-  final List<Map<String, dynamic>> _categories = [
-    {
-      'title': 'Routine',
-      'color': Colors.orange,
-      'todos': ['Mop floor', 'Clean the bathr...'],
-    },
-    {
-      'title': 'Groceries',
-      'color': Colors.deepOrange,
-      'todos': ['Yogurt', 'Ice cream', 'Turkey', 'Bread'],
-    },
-    {
-      'title': 'Gym',
-      'color': Colors.purple,
-      'todos': ['10 push ups', '20 sit ups'],
-    },
-    {
-      'title': 'Homework',
-      'color': const Color(0xFFF4A300),
-      'todos': ['History assignm...', 'Fill a form'],
-    },
-    {
-      'title': 'Bills',
-      'color': Colors.lightBlue,
-      'todos': ['Pay rent', 'Water bill'],
-    },
-  ];
-
-  void _openCategory(int index) {
-    final cat = _categories[index];
+  void _openCategory(BuildContext context, int index) {
+    final category = controller.categories[index];
+    if (kDebugMode) {
+      print('🎯 Grid: Opening category');
+      print('   Name: ${category.name}');
+      print('   ID: ${category.id}');
+      print('   Color: ${category.color}');
+    }
     showDialog(
       context: context,
       builder: (context) => CategoryDetailsDialog(
-        categoryTitle: cat['title'],
-        categoryColor: cat['color'],
-        initialTodos: List<String>.from(cat['todos']),
+        categoryId: category.id,
+        categoryTitle: category.name,
+        categoryColor: _hexToColor(category.color),
+        initialTodos: [],
+        onTodoAdded: () {
+          // Refresh the category card when a todo is added
+          final key = _cardKeys[category.id];
+          if (key?.currentState != null && key!.currentState!.mounted) {
+            if (kDebugMode) {
+              print('🎯 Grid: Refreshing category card ${category.id} instantly');
+            }
+            key.currentState!.refreshTodos();
+          }
+        },
       ),
-    );
+    ).then((_) {
+      // Refresh the specific category card when dialog closes
+      if (kDebugMode) {
+        print('🎯 Grid: Dialog closed, refreshing category card ${category.id}');
+      }
+      // Refresh the category card for the one we just added todos to
+      final key = _cardKeys[category.id];
+      if (key?.currentState != null && key!.currentState!.mounted) {
+        key.currentState!.refreshTodos();
+      }
+    });
   }
 
-  Future<void> _openNewCategoryDialog() async {
+  Future<void> _openNewCategoryDialog(BuildContext context) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) => const NewCategoryDialog(),
     );
 
     if (result != null && result['title'] != null && result['color'] != null) {
-      setState(() {
-        _categories.add({
-          'title': result['title'],
-          'color': result['color'],
-          'todos': <String>[],
-        });
-      });
+      if (context.mounted) {
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+
+        // Call controller to create category
+        final success = await controller.createCategory(
+          name: result['title'] as String,
+          color: result['color'] as String,
+        );
+
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading dialog
+
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Category "${result['title']}" created successfully! ✅'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to create category: ${controller.errorMessage.value}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
     }
+  }
+
+  Color _hexToColor(String hexColor) {
+    hexColor = hexColor.replaceAll('#', '');
+    if (hexColor.length == 6) {
+      hexColor = 'FF$hexColor';
+    }
+    return Color(int.parse('0x$hexColor'));
   }
 
   @override
   Widget build(BuildContext context) {
-    // Build rows of two cards each, final slot is add button
-    final List<Widget> rows = [];
-    final totalSlots = _categories.length + 1; // +1 for add card
-    for (int i = 0; i < totalSlots; i += 2) {
-      final leftIndex = i;
-      final rightIndex = i + 1;
-
-      Widget leftChild;
-      if (leftIndex < _categories.length) {
-        final c = _categories[leftIndex];
-        leftChild = GestureDetector(
-          onTap: () => _openCategory(leftIndex),
-          child: _CategoryCard(
-            title: c['title'],
-            titleColor: c['color'],
-            todos: List<String>.from(c['todos']),
-            showMoreCount: null,
-          ),
-        );
-      } else {
-        leftChild = _AddCategoryCard(onTap: _openNewCategoryDialog);
+    return Obx(() {
+      if (kDebugMode) {
+        print('🔍 CategoriesGrid rebuild triggered');
+        print('   isLoading: ${controller.isLoading.value}');
+        print('   categories count: ${controller.categories.length}');
+        print('   errorMessage: ${controller.errorMessage.value}');
       }
 
-      Widget rightChild;
-      if (rightIndex < _categories.length) {
-        final c = _categories[rightIndex];
-        rightChild = GestureDetector(
-          onTap: () => _openCategory(rightIndex),
-          child: _CategoryCard(
-            title: c['title'],
-            titleColor: c['color'],
-            todos: List<String>.from(c['todos']),
-          ),
+      if (controller.isLoading.value) {
+        return const Center(
+          child: CircularProgressIndicator(),
         );
-      } else if (rightIndex == _categories.length) {
-        rightChild = _AddCategoryCard(onTap: _openNewCategoryDialog);
-      } else {
-        rightChild = const SizedBox.shrink();
       }
 
-      rows.add(
-        Row(
+      if (controller.errorMessage.value.isNotEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Text('Error: ${controller.errorMessage.value}'),
+            ],
+          ),
+        );
+      }
+
+      final categories = controller.categories;
+      
+      if (kDebugMode) {
+        print('📊 Building grid with ${categories.length} categories');
+        for (int i = 0; i < categories.length; i++) {
+          print('   $i: ${categories[i].name} (${categories[i].color})');
+        }
+      }
+
+      // If no categories, show only add button
+      if (categories.isEmpty) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(child: leftChild),
-            const SizedBox(width: 12),
-            Expanded(child: rightChild),
+            Row(
+              children: [
+                Expanded(
+                  child: _AddCategoryCard(
+                    onTap: () => _openNewCategoryDialog(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(child: SizedBox.shrink()),
+              ],
+            ),
           ],
-        ),
-      );
+        );
+      }
 
-      rows.add(const SizedBox(height: 12));
-    }
+      // Build rows of two cards each, final slot is add button
+      final List<Widget> rows = [];
+      final totalSlots = categories.length + 1; // +1 for add card
 
-    // Remove the trailing SizedBox
-    if (rows.isNotEmpty) rows.removeLast();
+      for (int i = 0; i < totalSlots; i += 2) {
+        final leftIndex = i;
+        final rightIndex = i + 1;
 
-    return Column(children: rows);
+        Widget leftChild;
+        if (leftIndex < categories.length) {
+          final c = categories[leftIndex];
+          // Create or reuse GlobalKey for this category
+          if (!_cardKeys.containsKey(c.id)) {
+            _cardKeys[c.id] = GlobalKey<_CategoryCardState>();
+          }
+          leftChild = _CategoryCard(
+            key: _cardKeys[c.id],
+            categoryId: c.id,
+            title: c.name,
+            titleColor: _hexToColor(c.color),
+            onTap: () => _openCategory(context, leftIndex),
+          );
+        } else {
+          leftChild = _AddCategoryCard(
+            onTap: () => _openNewCategoryDialog(context),
+          );
+        }
+
+        Widget rightChild;
+        if (rightIndex < categories.length) {
+          final c = categories[rightIndex];
+          // Create or reuse GlobalKey for this category
+          if (!_cardKeys.containsKey(c.id)) {
+            _cardKeys[c.id] = GlobalKey<_CategoryCardState>();
+          }
+          rightChild = _CategoryCard(
+            key: _cardKeys[c.id],
+            categoryId: c.id,
+            title: c.name,
+            titleColor: _hexToColor(c.color),
+            onTap: () => _openCategory(context, rightIndex),
+          );
+        } else if (rightIndex == categories.length) {
+          rightChild = _AddCategoryCard(
+            onTap: () => _openNewCategoryDialog(context),
+          );
+        } else {
+          rightChild = const SizedBox.shrink();
+        }
+
+        rows.add(
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _openCategory(context, leftIndex),
+                  child: leftChild,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: rightIndex < categories.length
+                      ? () => _openCategory(context, rightIndex)
+                      : null,
+                  child: rightChild,
+                ),
+              ),
+            ],
+          ),
+        );
+
+        rows.add(const SizedBox(height: 12));
+      }
+
+      // Remove the trailing SizedBox
+      if (rows.isNotEmpty) rows.removeLast();
+
+      if (kDebugMode) {
+        print('✅ Grid built with ${rows.length} rows');
+      }
+
+      return Column(children: rows);
+    });
   }
 }
 
-class _CategoryCard extends StatelessWidget {
+class _CategoryCard extends StatefulWidget {
+  final String categoryId;
   final String title;
   final Color titleColor;
-  final List<String> todos;
-  final String? showMoreCount;
+  final VoidCallback onTap;
 
   const _CategoryCard({
+    required super.key,
+    required this.categoryId,
     required this.title,
     required this.titleColor,
-    required this.todos,
-    this.showMoreCount,
+    required this.onTap,
   });
 
   @override
+  State<_CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<_CategoryCard> {
+  List<String> _todos = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTodos();
+  }
+
+  // Public method to refresh todos
+  void refreshTodos() {
+    if (mounted) {
+      _fetchTodos();
+    }
+  }
+
+  Future<void> _fetchTodos() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    try {
+      final controller = Get.find<EventTodosController>();
+      final todos = await controller.fetchTodoItemsByCategory(
+        categoryId: widget.categoryId,
+      );
+
+      if (kDebugMode) {
+        print('🎨 CategoryCard: Fetched ${todos.length} todos for ${widget.title}');
+      }
+
+      if (mounted) {
+        setState(() {
+          // Show only first 3 todos in preview
+          _todos = todos
+              .take(3)
+              .map((todo) => todo['title'] as String)
+              .toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ CategoryCard: Error fetching todos - $e');
+      }
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// Title outside the card (top)
-        Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: titleColor,
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          /// Title outside the card (top) with padding
+          Padding(
+            padding: const EdgeInsets.only(left: 20, bottom: 8),
+            child: Text(
+              widget.title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: widget.titleColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-        ),
 
-        /// Actual card
-        Container(
-          height: 140, // Fixed height for all cards (adjust as needed)
-          decoration: BoxDecoration(
-            color: const Color(0xFFF7F7F8),
-            borderRadius: BorderRadius.circular(35),
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...todos.map(
-                  (t) => Padding(
-                    padding: const EdgeInsets.only(bottom: 2.0),
-                    child: Row(
-                      children: [
-                        const _TodoCircle(),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            t,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF4A4A4A),
-                              fontWeight: FontWeight.w400,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                if (showMoreCount != null) ...[
-                  const SizedBox(height: 2),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 30),
-                    child: Text(
-                      showMoreCount!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
+          /// Actual card
+          Container(
+            height: 140,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F7F8),
+              borderRadius: BorderRadius.circular(35),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_isLoading)
+                    const SizedBox(
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
                       ),
+                    )
+                  else if (_todos.isNotEmpty)
+                    ..._todos.map(
+                      (t) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          children: [
+                            const _TodoCircle(),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                t,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xFF4A4A4A),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    // Empty state - same layout as with items
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          const _TodoCircle(),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'No todos yet',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFFD0D0D0),
+                                fontWeight: FontWeight.w400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'New todo',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFFD0D0D0),
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
-
-                const SizedBox(height: 4),
-                const Text(
-                  'New todo',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFFD0D0D0),
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -306,9 +508,14 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
 
   void _onAdd() {
     if (_nameController.text.trim().isEmpty || _selectedColor == null) return;
-    Navigator.of(
-      context,
-    ).pop({'title': _nameController.text.trim(), 'color': _selectedColor});
+    
+    // Convert Color to hex string
+    final hexColor = '#${_selectedColor!.value.toRadixString(16).substring(2).toUpperCase()}';
+    
+    Navigator.of(context).pop({
+      'title': _nameController.text.trim(),
+      'color': hexColor,
+    });
   }
 
   @override
