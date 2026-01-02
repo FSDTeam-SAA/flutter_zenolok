@@ -13,23 +13,46 @@ class EventTodosScreen extends GetView<EventTodosController> {
 
   @override
   Widget build(BuildContext context) {
-    return const AppScaffold(
-
+    return AppScaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              EventTodosHeader(),
-              SizedBox(height: 24),
-              ScheduledSection(),
-              SizedBox(height: 24),
-              CategoriesGrid(),
-              SizedBox(height: 24),
-            ],
+        child: RefreshIndicator(
+          onRefresh: () => controller.refreshCategories(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const EventTodosHeader(),
+                  const SizedBox(height: 24),
+                  const ScheduledSection(),
+                  const SizedBox(height: 24),
+                  // Categories Grid with title
+                  Obx(
+                    () => controller.categories.isEmpty
+                        ? const SizedBox.shrink()
+                        : const Padding(
+                            padding: EdgeInsets.only(left: 4, bottom: 16),
+                            child: Text(
+                              'Categories',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                  ),
+                  CategoriesGrid(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 }
+
