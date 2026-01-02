@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../features/auth/presentation/controller/auth_controller.dart';
 import '../../features/auth/presentation/controller/splash_screen_controller.dart';
+import '../../features/todos/presentation/controllers/event_totos_controller.dart';
 
 void setupController() {
   // Auth Controller
@@ -8,4 +9,12 @@ void setupController() {
 
   // Splash Controller (lazy load - will be initialized when splash screen opens)
   Get.lazyPut<SplashController>(() => SplashController());
+
+  // Event Todos Controller
+  Get.lazyPut<EventTodosController>(
+    () => EventTodosController(
+      categoryRepository: Get.find(),
+      todoItemRepository: Get.find(),
+    ),
+  );
 }
