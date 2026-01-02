@@ -26,24 +26,10 @@ class EventTodosScreen extends GetView<EventTodosController> {
                 children: [
                   const EventTodosHeader(),
                   const SizedBox(height: 24),
+                  
                   const ScheduledSection(),
                   const SizedBox(height: 24),
-                  // Categories Grid with title
-                  Obx(
-                    () => controller.categories.isEmpty
-                        ? const SizedBox.shrink()
-                        : const Padding(
-                            padding: EdgeInsets.only(left: 4, bottom: 16),
-                            child: Text(
-                              'Categories',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                  ),
+                 
                   CategoriesGrid(),
                   const SizedBox(height: 24),
                 ],
