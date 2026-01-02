@@ -76,12 +76,29 @@ class CategoriesGrid extends GetView<EventTodosController> {
           Navigator.pop(context); // Close loading dialog
 
           if (success) {
+            if (kDebugMode) {
+              print('✅ Category created, forcing grid refresh');
+              print('   Total categories now: ${controller.categories.length}');
+            }
+            
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Category "${result['title']}" created successfully! ✅'),
                 backgroundColor: Colors.green,
+                duration: const Duration(milliseconds: 1500),
               ),
             );
+            
+            // Force refresh of the observable list to ensure grid rebuilds
+            // This explicitly notifies all listeners about the change
+            controller.categories.refresh();
+            
+            // Clear GlobalKeys to ensure new cards are properly initialized
+            _cardKeys.clear();
+            
+            if (kDebugMode) {
+              print('🔄 Grid refresh triggered, card keys cleared');
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
