@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/searchScreen.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/setting_screen.dart';
 import 'package:get/get.dart';
@@ -126,7 +128,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
       k,
     );
 
-    // ✅ ONLY multi-day all-day streaks should span across dates
+    //  ONLY multi-day all-day streaks should span across dates
     final spanning = _allEventsFromController().where(
       (e) => _isMultiDayAllDay(e) && _betweenIncl(day, e.start, e.end!),
     );
@@ -183,13 +185,17 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   Widget build(BuildContext context) {
     final selected = _selected ?? _dOnly(DateTime.now());
 
-    final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
+    // final rowHeight = (90.0 * _scale).clamp(58.0, 96.0);
+    final rowHeight = (78.0 * _scale).clamp(52.0, 80.0);
 
     /// make the weekday header much thinner
     final dowHeight = (22.0 * _scale).clamp(16.0, 24.0);
 
     final dateAreaHeight = rowHeight * 0.14;
     final dateDia = rowHeight * 0.58;
+
+    // final dateAreaHeight = rowHeight * 0.12; // was 0.14
+    // final dateDia       = rowHeight * 0.52;  // was 0.58
 
     final cellGapV = max(8.0, rowHeight * 0.3);
 
@@ -234,16 +240,20 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           const SizedBox(width: 8),
 
                           Transform.translate(
-                            offset: const Offset(0, -10), // adjust vertical position if needed
+                            offset: const Offset(0, -10),
+                            // adjust vertical position if needed
                             child: Text(
                               DateFormat('yyyy').format(_focused.value),
                               textAlign: TextAlign.center,
                               style: GoogleFonts.dongle(
-                                fontWeight: FontWeight.w400,     // Regular (400)
-                                fontSize: 36,                    // Figma size
-                                height: 22 / 36,                 // line-height 22px
+                                fontWeight: FontWeight.w400,
+                                // Regular (400)
+                                fontSize: 36,
+                                // Figma size
+                                height: 22 / 36,
+                                // line-height 22px
                                 letterSpacing: 0,
-                                color: const Color(0xFFB6B5B5),  // Gray4 #B6B5B5
+                                color: const Color(0xFFB6B5B5), // Gray4 #B6B5B5
                               ),
                             ),
                           ),
@@ -281,10 +291,16 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        CupertinoIcons.search,
+                      icon: Image.asset(
+                        AppImages.search_icon,
+                        width: 28.67,
+                        height: 28.67,
+                        fit: BoxFit.contain,
                         color: Colors.black,
+                        colorBlendMode: BlendMode.srcIn,
                       ),
+
+
                     ),
 
                     // ✅ loading bar in header
@@ -326,10 +342,17 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                               ),
                             );
                           },
-                          icon: const Icon(
-                            CupertinoIcons.bell,
-                            color: Colors.black,
+                          icon: Image.asset(
+                            AppImages.vector_icon,
+                            width: 28.67,
+                            height: 28.67,
+                            fit: BoxFit.contain,
+                            color: Colors.black87,
+                            // colorBlendMode: BlendMode.srcIn,
+                            filterQuality: FilterQuality.none, // ✅ makes edges sharper
+                            isAntiAlias: false,
                           ),
+
                         ),
                         Positioned(
                           right: 10,
@@ -375,41 +398,49 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.settings_outlined,
-                        color: Colors.black54,
+                      icon: Image.asset(
+                        AppImages.setting_icon,
+                        width: 28.67,
+                        height: 28.67,
+                        fit: BoxFit.contain,
+                        color: Colors.black,
+                        // colorBlendMode: BlendMode.srcIn,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: 2),
 
               //for category
-              SizedBox(
-                height: 28.5, // ✅ fixed height like Figma
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    height: 30,
-                    // width: 309,
-                    // ✅ fixed width like Figma (remove if you want full width)
-                    child: CategoryFilterBar(
-                      activeIds: _filters,
-                      onChange: (newSet) => setState(() {
-                        _filters
-                          ..clear()
-                          ..addAll(newSet);
-                      }),
-                      onAddPressed: () async {
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const CategoryEditorScreen(),
-                          ),
-                        );
-                        Get.find<BrickController>().loadBricks();
-                      },
+              Container(
+                height: 26,
+                // width: 68,
+                child: SizedBox(
+                  // height: 28.5, // ✅ fixed height like Figma
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      // height: 21,
+                      // width: 309,
+                      // ✅ fixed width like Figma (remove if you want full width)
+                      child: CategoryFilterBar(
+                        activeIds: _filters,
+                        onChange: (newSet) => setState(() {
+                          _filters
+                            ..clear()
+                            ..addAll(newSet);
+                        }),
+                        onAddPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const CategoryEditorScreen(),
+                            ),
+                          );
+                          Get.find<BrickController>().loadBricks();
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -567,19 +598,19 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
                       // TODAY + +
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                         child: Row(
                           children: [
                             const Spacer(),
                             _GhostPill(
                               label: 'TODAY',
-                              icon: CupertinoIcons.arrow_uturn_left,
-
+                              iconPath: AppImages.today_back_icon,
                               onTap: () => setState(() {
                                 _focused.value = DateTime.now();
                                 _selected = _dOnly(DateTime.now());
                               }),
                             ),
+
                             const SizedBox(width: 10),
                             _FlatPlusButton(
                               initialDate: _selected ?? DateTime.now(),
@@ -652,9 +683,9 @@ class _StreakBar extends StatelessWidget {
                 // 👇 THIS is the small yellow vertical bar (3 × 10 in Figma)
                 Container(
                   width: 3,
-                  height: 12,                 // change to 10 if you want 3×10
+                  height: 12, // change to 10 if you want 3×10
                   decoration: BoxDecoration(
-                    color: color,             // streak color (e.g. #FFCC00)
+                    color: color, // streak color (e.g. #FFCC00)
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -663,20 +694,24 @@ class _StreakBar extends StatelessWidget {
                 Expanded(
                   child: Text(
                     event.title.isNotEmpty
-                        ? event.title[0].toUpperCase() + event.title.substring(1)
+                        ? event.title[0].toUpperCase() +
+                              event.title.substring(1)
                         : event.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.nunito(
-                      fontSize: 8,                     // 8px
-                      fontWeight: FontWeight.w700,     // 700 Bold
-                      height: 16 / 8,                  // line-height 16px
-                      letterSpacing: -0.2,             // ≈ -4%
-                      color: const Color(0xFF7B6200),  // #7B6200
+                      fontSize: 8,
+                      // 8px
+                      fontWeight: FontWeight.w700,
+                      // 700 Bold
+                      height: 16 / 8,
+                      // line-height 16px
+                      letterSpacing: -0.2,
+                      // ≈ -4%
+                      color: const Color(0xFF7B6200), // #7B6200
                     ),
                   ),
                 ),
-
               ],
             )
           : const SizedBox.shrink(),
@@ -719,7 +754,7 @@ class _DayCell extends StatelessWidget {
     final bool hasGreyCard = dayEvents.isNotEmpty || isStreakStart;
 
     final numberColor = isSunday
-        ? const Color(0xFFFF5757)      // Sunday red
+        ? const Color(0xFFFF5757) // Sunday red
         : const Color(0xFF212121);
 
     const double cardInsetV = 1.0;
@@ -772,14 +807,17 @@ class _DayCell extends StatelessWidget {
                       '${day.day}',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.dongle(
-                        fontWeight: FontWeight.w400,     // Regular (400)
-                        fontSize: 20,                    // 20px
-                        height: 16 / 20,                 // line-height 16px
+                        fontWeight: FontWeight.w400,
+                        // Regular (400)
+                        fontSize: 20,
+                        // 20px
+                        height: 16 / 20,
+                        // line-height 16px
                         letterSpacing: 0,
-                        color: numberColor,              // will be red for Sunday, normal otherwise
+                        color:
+                            numberColor, // will be red for Sunday, normal otherwise
                       ),
                     ),
-
                   ),
                 ),
               ),
@@ -790,90 +828,84 @@ class _DayCell extends StatelessWidget {
                   child: _StreakBar(event: streak, day: day),
                 ),
 
-              // EVENTS
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
+                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 1),
                   child: dayEvents.isEmpty
                       ? const SizedBox.shrink()
                       : LayoutBuilder(
                           builder: (context, evConstraints) {
                             final available = max(0.0, evConstraints.maxHeight);
 
-                            const rowGap = 2.0;
-                            const maxVisibleRows = 3;
-                            const maxVisibleEventsWhenOverflow = 2;
+                            const double rowGap = 2.0; // gap between rows
+                            const int maxVisibleRows = 3; // total rows in cell
+                            const int maxEventRowsWhenOverflow =
+                                2; // 2 events + 1 "+3"
 
-                            final totalEvents = dayEvents.length;
-                            final hasOverflow = totalEvents > maxVisibleRows;
+                            final int totalEvents = dayEvents.length;
+                            final bool hasOverflow =
+                                totalEvents > maxVisibleRows;
 
-                            final eventsToShow = hasOverflow
-                                ? maxVisibleEventsWhenOverflow
+                            // how many event rows we actually draw
+                            final int eventsToShow = hasOverflow
+                                ? maxEventRowsWhenOverflow
                                 : min(maxVisibleRows, totalEvents);
 
-                            final rows = hasOverflow
+                            if (eventsToShow == 0) {
+                              return const SizedBox.shrink();
+                            }
+
+                            // how many total ROWS (events + "+3" if overflow)
+                            final int rows = hasOverflow
                                 ? maxVisibleRows
                                 : eventsToShow;
 
-                            if (rows == 0) return const SizedBox.shrink();
-
-                            final rowH =
-                                max(
-                                  0.0,
-                                  (available - rowGap * max(0, rows - 1)) /
-                                      rows,
-                                ) *
-                                0.98;
+                            final double rowH = max(
+                              0.0,
+                              (available - rowGap * (rows - 1)) / rows,
+                            );
 
                             final children = <Widget>[];
 
-                            if (!hasOverflow) {
-                              for (int i = 0; i < eventsToShow; i++) {
-                                children.add(
-                                  _EventRow(
-                                    e: dayEvents[i],
-                                    height: rowH,
-                                    indicatorColor:
-                                        _indicatorColors[i %
-                                            _indicatorColors.length],
-                                  ),
-                                );
-                                if (i != eventsToShow - 1) {
-                                  children.add(const SizedBox(height: rowGap));
-                                }
-                              }
-                            } else {
-                              for (int i = 0; i < eventsToShow; i++) {
-                                children.add(
-                                  _EventRow(
-                                    e: dayEvents[i],
-                                    height: rowH,
-                                    indicatorColor:
-                                        _indicatorColors[i %
-                                            _indicatorColors.length],
-                                  ),
-                                );
+                            // ----- event rows -----
+                            for (int i = 0; i < eventsToShow; i++) {
+                              children.add(
+                                _EventRow(
+                                  e: dayEvents[i],
+                                  height: rowH,
+                                  indicatorColor:
+                                      _indicatorColors[i %
+                                          _indicatorColors.length],
+                                ),
+                              );
+                              if (i != eventsToShow - 1 || hasOverflow) {
                                 children.add(const SizedBox(height: rowGap));
                               }
+                            }
+
+                            // ----- "+3" row when overflow -----
+                            if (hasOverflow) {
+                              // if you want dynamic count, use:
+                              // final extra = totalEvents - eventsToShow;
+                              // and show '+$extra' instead of '+3'.
                               children.add(
-                                  SizedBox(
-                                    height: rowH,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '+3',                                   // Figma content
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.nunito(
-                                          fontSize: 8,                          // Size: 8px
-                                          fontWeight: FontWeight.w700,          // Weight: 700 Bold
-                                          height: 16 / 8,                       // Line height: 16px
-                                          letterSpacing: -0.32,                 // -4% of 8px
-                                          color: const Color(0xFF4D4D4D),       // Darkgray3 #4D4D4D
-                                        ),
+                                SizedBox(
+                                  height: rowH,
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '+3', // Figma text
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.nunito(
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w700,
+                                        height: 16 / 8,
+                                        letterSpacing: -0.32,
+                                        color: const Color(0xFF4D4D4D),
                                       ),
                                     ),
                                   ),
-
+                                ),
                               );
                             }
 
@@ -902,17 +934,17 @@ class _EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Figma: 8px text, bar 10px high
     const double fs = 8.0;
     const double barHeight = 10.0;
 
     return SizedBox(
+      height: height, // 👈 important: fixed height per row
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // left vertical color bar (inside day cell)
           Transform.translate(
-            offset: const Offset(-4, 2), // shift bar a bit left
+            offset: const Offset(-4, 2),
             child: Container(
               width: 2,
               height: barHeight,
@@ -924,7 +956,6 @@ class _EventRow extends StatelessWidget {
           ),
           const SizedBox(width: 0.1),
 
-          // text: "Family dinne"
           Expanded(
             child: Text(
               e.title.isNotEmpty
@@ -934,11 +965,11 @@ class _EventRow extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.nunito(
-                fontSize: fs,                       // 8px
-                fontWeight: FontWeight.w700,        // Bold 700
-                height: 16 / 8,                     // line-height 16px
-                letterSpacing: -0.2,                // ~ -4%
-                color: const Color(0xFF154E68),     // #154E68
+                fontSize: fs,
+                fontWeight: FontWeight.w700,
+                height: 16 / 8,
+                letterSpacing: -0.2,
+                color: const Color(0xFF154E68),
               ),
             ),
           ),
@@ -947,7 +978,6 @@ class _EventRow extends StatelessWidget {
     );
   }
 }
-
 
 /// ---------------------------------------------------------------------------
 /// EVENT LIST PANE
@@ -1063,18 +1093,18 @@ class _StreakTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Container(
-            width: 1,                     // 1px
-            height: 20,                   // 20px
+            width: 1, // 1px
+            height: 20, // 20px
             decoration: BoxDecoration(
-              color: const Color(0xFFD5D5D5),   // light gray2 #D5D5D5
+              color: const Color(0xFFD5D5D5), // light gray2 #D5D5D5
               borderRadius: BorderRadius.circular(5), // radius 5px
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.04), // 0%–4% opacity
-                  offset: const Offset(0, 4),            // X:0 Y:4
-                  blurRadius: 4,                         // Blur 4
+                  offset: const Offset(0, 4), // X:0 Y:4
+                  blurRadius: 4, // Blur 4
                   spreadRadius: 0,
-                )
+                ),
               ],
             ),
           ),
@@ -1088,11 +1118,15 @@ class _StreakTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.dongle(
-                fontWeight: FontWeight.w400,          // Regular 400
-                fontSize: 24,                         // 24px
-                height: 16 / 24,                      // line-height 16px
-                letterSpacing: 0,                     // 0%
-                color: const Color(0xFF656565),       // Darkgray2 #656565
+                fontWeight: FontWeight.w400,
+                // Regular 400
+                fontSize: 24,
+                // 24px
+                height: 16 / 24,
+                // line-height 16px
+                letterSpacing: 0,
+                // 0%
+                color: const Color(0xFF656565), // Darkgray2 #656565
               ),
             ),
           ),
@@ -1128,13 +1162,16 @@ class _StreakTile extends StatelessWidget {
             },
             child: Stack(
               clipBehavior: Clip.none,
-              children: const [
-                Icon(
-                  CupertinoIcons.chat_bubble_text,
-                  size: 18,
+              children: [
+                Image.asset(
+                  AppImages.message_icon,
+                  width: 18,
+                  height: 18,
+                  fit: BoxFit.contain,
                   color: Colors.black45,
+                  colorBlendMode: BlendMode.srcIn,
                 ),
-                Positioned(right: -8, top: -8, child: _Badge(number: 2)),
+                const Positioned(right: -8, top: -8, child: _Badge(number: 2)),
               ],
             ),
           ),
@@ -1170,18 +1207,18 @@ class _AllDayTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  width: 1,                     // 1px
-                  height: 20,                   // 20px
+                  width: 1, // 1px
+                  height: 20, // 20px
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD5D5D5),   // light gray2 #D5D5D5
+                    color: const Color(0xFFD5D5D5), // light gray2 #D5D5D5
                     borderRadius: BorderRadius.circular(5), // radius 5px
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.04), // 0%–4% opacity
-                        offset: const Offset(0, 4),            // X:0 Y:4
-                        blurRadius: 4,                         // Blur 4
+                        offset: const Offset(0, 4), // X:0 Y:4
+                        blurRadius: 4, // Blur 4
                         spreadRadius: 0,
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -1189,16 +1226,21 @@ class _AllDayTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     event.title.isNotEmpty
-                        ? event.title[0].toUpperCase() + event.title.substring(1)
+                        ? event.title[0].toUpperCase() +
+                              event.title.substring(1)
                         : event.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.dongle(
-                      fontWeight: FontWeight.w400,          // Regular 400
-                      fontSize: 24,                         // 24px
-                      height: 16 / 24,                      // line-height 16px
-                      letterSpacing: 0,                     // 0%
-                      color: const Color(0xFF656565),       // Darkgray2 #656565
+                      fontWeight: FontWeight.w400,
+                      // Regular 400
+                      fontSize: 24,
+                      // 24px
+                      height: 16 / 24,
+                      // line-height 16px
+                      letterSpacing: 0,
+                      // 0%
+                      color: const Color(0xFF656565), // Darkgray2 #656565
                     ),
                   ),
                 ),
@@ -1213,10 +1255,13 @@ class _AllDayTile extends StatelessWidget {
           IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            icon: const Icon(
-              Icons.autorenew_rounded,
-              size: 18,
-              color: Colors.black26,
+            icon: Image.asset(
+              AppImages.fresh_icon,
+              width: 18,
+              height: 18,
+              fit: BoxFit.contain,
+              color: Colors.black45,
+              colorBlendMode: BlendMode.srcIn,
             ),
             onPressed: () async {
               // open editor with existing event data
@@ -1316,14 +1361,15 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
             children: [
               // left color bar
               Container(
-                width: 6,     // Figma: 6px
-                height: 26,   // Figma: 26px
+                width: 6, // Figma: 6px
+                height: 26, // Figma: 26px
                 decoration: BoxDecoration(
-                  color: const Color(0xFF34C759),          // Apple green #34C759
+                  color: const Color(0xFF34C759), // Apple green #34C759
                   borderRadius: BorderRadius.circular(11), // Radius 11px
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08), // Drop shadow 0,4, blur 4
+                      color: Colors.black.withOpacity(0.08),
+                      // Drop shadow 0,4, blur 4
                       offset: const Offset(0, 4),
                       blurRadius: 4,
                       spreadRadius: 0,
@@ -1336,7 +1382,6 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
 
               // time column
               // inside Row( children:[ ... time column ... ] )
-
               SizedBox(
                 width: 56,
                 child: InkWell(
@@ -1350,22 +1395,22 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            DateFormat('h:mm').format(e.start),   // 8:00
+                            DateFormat('h:mm').format(e.start), // 8:00
                             style: GoogleFonts.dongle(
                               fontWeight: FontWeight.w600,
-                              fontSize: 24,                       // 24px
+                              fontSize: 24, // 24px
                               height: 16 / 24,
-                              color: const Color(0xFF656565),     // Darkgray2
+                              color: const Color(0xFF656565), // Darkgray2
                             ),
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            DateFormat('a').format(e.start),      // AM / PM
+                            DateFormat('a').format(e.start), // AM / PM
                             style: GoogleFonts.dongle(
                               fontWeight: FontWeight.w400,
-                              fontSize: 11,                       // 11px
+                              fontSize: 11, // 11px
                               height: 16 / 11,
-                              color: const Color(0xFF9D9D9D),     // Gray5
+                              color: const Color(0xFF9D9D9D), // Gray5
                             ),
                           ),
                         ],
@@ -1378,17 +1423,19 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              DateFormat('h:mm').format(e.end!),  // 9:00
+                              DateFormat('h:mm').format(e.end!), // 9:00
                               style: GoogleFonts.dongle(
                                 fontWeight: FontWeight.w400,
-                                fontSize: 19,                     // 19px
+                                fontSize: 19, // 19px
                                 height: 16 / 19,
-                                color: const Color(0xFF9D9D9D),   // Gray5, lighter
+                                color: const Color(
+                                  0xFF9D9D9D,
+                                ), // Gray5, lighter
                               ),
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              DateFormat('a').format(e.end!),      // AM / PM
+                              DateFormat('a').format(e.end!), // AM / PM
                               style: GoogleFonts.dongle(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 11,
@@ -1404,7 +1451,6 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                 ),
               ),
 
-
               // title + location
               Expanded(
                 child: InkWell(
@@ -1412,20 +1458,22 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Container(
-                        width: 1,                     // 1px
-                        height: 20,                   // 20px
+                        width: 1, // 1px
+                        height: 20, // 20px
                         decoration: BoxDecoration(
-                          color: const Color(0xFFD5D5D5),   // light gray2 #D5D5D5
+                          color: const Color(0xFFD5D5D5), // light gray2 #D5D5D5
                           borderRadius: BorderRadius.circular(5), // radius 5px
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04), // 0%–4% opacity
-                              offset: const Offset(0, 4),            // X:0 Y:4
-                              blurRadius: 4,                         // Blur 4
+                              color: Colors.black.withOpacity(0.04),
+                              // 0%–4% opacity
+                              offset: const Offset(0, 4),
+                              // X:0 Y:4
+                              blurRadius: 4,
+                              // Blur 4
                               spreadRadius: 0,
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -1442,11 +1490,14 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.dongle(
-                                fontWeight: FontWeight.w400,      // Regular 400
-                                fontSize: 24,                     // 24px
-                                height: 16 / 24,                  // line-height 16px
+                                fontWeight: FontWeight.w400,
+                                // Regular 400
+                                fontSize: 24,
+                                // 24px
+                                height: 16 / 24,
+                                // line-height 16px
                                 letterSpacing: 0,
-                                color: const Color(0xFF656565),   // Darkgray2
+                                color: const Color(0xFF656565), // Darkgray2
                               ),
                             ),
                             if (e.location != null)
@@ -1455,18 +1506,21 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.dongle(
-                                  fontWeight: FontWeight.w400,        // Regular
-                                  fontSize: 13,                       // 13px
-                                  height: 16 / 13,                    // line-height 16px
+                                  fontWeight: FontWeight.w400,
+                                  // Regular
+                                  fontSize: 13,
+                                  // 13px
+                                  height: 16 / 13,
+                                  // line-height 16px
                                   letterSpacing: 0,
-                                  color: const Color(0xFF9D9D9D),     // gray5 #9D9D9D
+                                  color: const Color(
+                                    0xFF9D9D9D,
+                                  ), // gray5 #9D9D9D
                                 ),
                               ),
-
                           ],
                         ),
-                      )
-
+                      ),
                     ],
                   ),
                 ),
@@ -1582,9 +1636,15 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'New todo',
-                              style: TextStyle(
-                                color: Colors.black.withOpacity(.25),
-                                fontSize: 12,
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.w400,
+                                // Regular
+                                fontSize: 14,
+                                // 14px
+                                height: 16 / 14,
+                                // line height 16px
+                                letterSpacing: 0,
+                                color: const Color(0xFFD5D5D5), // light gray2
                               ),
                             ),
                           ),
@@ -1648,15 +1708,18 @@ class _ChecklistRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.nunito(
-                fontWeight: FontWeight.w400,        // Regular
-                fontSize: 14,                       // 14px
-                height: 16 / 14,                    // line-height 16px
-                letterSpacing: 0,                   // 0%
-                color: const Color(0xFF4D4D4D),     // Darkgray3 #4D4D4D
+                fontWeight: FontWeight.w400,
+                // Regular
+                fontSize: 14,
+                // 14px
+                height: 16 / 14,
+                // line-height 16px
+                letterSpacing: 0,
+                // 0%
+                color: const Color(0xFF4D4D4D), // Darkgray3 #4D4D4D
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -1679,17 +1742,20 @@ class _LabelWithBar extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 6,   // Figma: 6px
+          width: 6, // Figma: 6px
           height: 26, // Figma: 26px
           decoration: BoxDecoration(
             color: barColor,
             borderRadius: BorderRadius.circular(11), // Figma radius 11px
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04), // Figma: #000000, 0%–4% opacity
-                offset: const Offset(0, 4),            // X: 0, Y: 4
-                blurRadius: 4,                         // Blur: 4
-                spreadRadius: 0,                       // Spread: 0
+                color: Colors.black.withOpacity(0.04),
+                // Figma: #000000, 0%–4% opacity
+                offset: const Offset(0, 4),
+                // X: 0, Y: 4
+                blurRadius: 4,
+                // Blur: 4
+                spreadRadius: 0, // Spread: 0
               ),
             ],
           ),
@@ -1699,14 +1765,17 @@ class _LabelWithBar extends StatelessWidget {
         Text(
           text,
           style: GoogleFonts.dongle(
-            fontWeight: FontWeight.w400,                 // Regular 400
-            fontSize: 22,                                // 22px
-            height: 16 / 22,                             // line-height 16px
-            letterSpacing: 0,                            // 0px
+            fontWeight: FontWeight.w400,
+            // Regular 400
+            fontSize: 22,
+            // 22px
+            height: 16 / 22,
+            // line-height 16px
+            letterSpacing: 0,
+            // 0px
             color: textColor ?? const Color(0xFF212121), // Darkgray #212121
           ),
         ),
-
       ],
     );
   }
@@ -1720,17 +1789,19 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 15,                         // Figma: 17px
-      height: 15,                        // Figma: 17px
+      width: 15,
+      // Figma: 17px
+      height: 15,
+      // Figma: 17px
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFFFF3B30),  // red
+        color: const Color(0xFFFF3B30), // red
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         '$number',
         style: const TextStyle(
-          fontSize: 10,                  // looks right in 17×17
+          fontSize: 10, // looks right in 17×17
           color: Colors.white,
           fontWeight: FontWeight.w700,
           height: 1,
@@ -1740,15 +1811,14 @@ class _Badge extends StatelessWidget {
   }
 }
 
-
 class _GhostPill extends StatelessWidget {
   const _GhostPill({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.onTap,
   });
 
-  final IconData icon;
+  final String iconPath; // ✅ asset path
   final String label;
   final VoidCallback onTap;
 
@@ -1771,26 +1841,29 @@ class _GhostPill extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // arrow icon, slightly nudged up to align with TODAY text
             Transform.translate(
-              offset: const Offset(0, -1.5), // tweak -1 .. -2 if needed
-              child: Icon(
-                icon,
-                size: 14,
-                color: borderColor,
+              offset: const Offset(0, -1.5),
+              child: SizedBox(
+                width: 8.75,
+                height: 9.38,
+                child: Image.asset(
+                  iconPath,
+                  fit: BoxFit.contain,
+                  color: borderColor,
+                  colorBlendMode: BlendMode.srcIn,
+                ),
               ),
             ),
-            const SizedBox(width: 6),
 
+            const SizedBox(width: 6),
             Text(
               label.toUpperCase(),
-              textAlign: TextAlign.center,
               style: GoogleFonts.dongle(
-                fontWeight: FontWeight.w400,   // Regular 400
-                fontSize: 22,                  // 22px
-                height: 22 / 22,               // line-height 22px
-                letterSpacing: 0,              // 0px
-                color: borderColor,            // #B6B5B5
+                fontWeight: FontWeight.w400,
+                fontSize: 22,
+                height: 1,
+                letterSpacing: 0,
+                color: borderColor,
               ),
             ),
           ],
@@ -1799,7 +1872,6 @@ class _GhostPill extends StatelessWidget {
     );
   }
 }
-
 
 /// ---------------------------------------------------------------------------
 /// FULL-SCREEN EDITOR + CUSTOM DATE/TIME PICKERS
@@ -2100,26 +2172,39 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _title,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Title',
-                      hintStyle: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFFD1D3DA),
+                      hintStyle: GoogleFonts.dongle(
+                        fontWeight: FontWeight.w400,
+                        // Regular 400
+                        fontSize: 33,
+                        // 33px
+                        height: 16 / 33,
+                        // line-height 16px
+                        letterSpacing: 0,
+                        // 0%
+                        color: const Color(0xFFD5D5D5), // #D5D5D5 (Figma)
                       ),
                       border: InputBorder.none,
                       isCollapsed: true,
+                      contentPadding: EdgeInsets.zero,
                     ),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    style: GoogleFonts.dongle(
+                      fontWeight: FontWeight.w400,
+                      // Regular 400
+                      fontSize: 33,
+                      // 33px
+                      height: 16 / 33,
+                      // line-height 16px
+                      letterSpacing: 0,
+                      color: Colors.black, // actual text color
                     ),
                     validator: (v) => (v == null || v.trim().isEmpty)
                         ? 'Enter a title'
                         : null,
                   ),
                 ),
+
                 const SizedBox(width: 8),
                 IconButton(
                   padding: EdgeInsets.zero,
@@ -2197,10 +2282,16 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   _dateTextSingleLine(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                  style: GoogleFonts.dongle(
+                    fontWeight: FontWeight.w400,
+                    // Regular
+                    fontSize: 16,
+                    // 16px
+                    height: 16 / 16,
+                    // line-height 16px
+                    letterSpacing: 0,
+                    // 0%
+                    color: Colors.black, // text color from Figma
                   ),
                 ),
               ),
@@ -2226,15 +2317,20 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
               middleChild: _allDay
                   ? Text(
                       'All day',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.dongle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                        // 20px
+                        height: 16 / 20,
+                        // line-height 16px
+                        letterSpacing: 0,
                         color: Colors.black.withOpacity(.55),
                       ),
                     )
                   : Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
+                        // start time
                         Flexible(
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
@@ -2243,24 +2339,36 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                               DateFormat(
                                 'hh : mm a',
                               ).format(_combine(_startDate, _startTime)),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.dongle(
+                                fontWeight: FontWeight.w400,
+                                // Regular
+                                fontSize: 20,
+                                // 20px
+                                height: 16 / 20,
+                                // line-height 16px
+                                letterSpacing: 0,
+                                color: const Color(0xFFB6B5B5), // Gray4 #B6B5B5
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Text(
+
+                        // dash
+                        Text(
                           '—',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
+                          style: GoogleFonts.dongle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 20,
+                            height: 16 / 20,
+                            letterSpacing: 0,
+                            color: const Color(0xFFB6B5B5),
                           ),
                         ),
                         const SizedBox(width: 6),
+
+                        // end time
                         Flexible(
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
@@ -2269,10 +2377,13 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                               DateFormat(
                                 'hh : mm a',
                               ).format(_combine(_startDate, _endTime)),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.dongle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 20,
+                                height: 16 / 20,
+                                letterSpacing: 0,
+                                color: const Color(0xFFB6B5B5), // Gray4
                               ),
                             ),
                           ),
@@ -2297,20 +2408,29 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                   isCollapsed: true,
                   contentPadding: EdgeInsets.zero,
                   hintText: 'Location',
-                  hintStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: labelColor,
+                  hintStyle: GoogleFonts.dongle(
+                    fontWeight: FontWeight.w400,
+                    // Regular
+                    fontSize: 24,
+                    // Figma: 24px
+                    height: 16 / 24,
+                    // line height 16px
+                    letterSpacing: 0,
+                    color: const Color(0xFFD5D5D5), // #D5D5D5 from Figma
                   ),
                   border: InputBorder.none,
                 ),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                style: GoogleFonts.dongle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 24,
+                  // match placeholder size
+                  height: 16 / 24,
+                  letterSpacing: 0,
+                  color: Colors.black, // typed text color
                 ),
               ),
             ),
+
             const SizedBox(height: 24),
 
             _TodoBubble(
@@ -2334,6 +2454,26 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
                   _newNote.clear();
                 });
               },
+            ),
+
+            const SizedBox(height: 20),
+
+            Divider(
+              color: dividerColor,
+              height: 16,
+              thickness: 1.5,
+              indent: 24,
+              // left spacing
+              endIndent: 24, // right spacing
+            ),
+
+            Align(
+              alignment: Alignment.center,
+              child: LetsJamRow(
+                onTap: () {
+                  // open JAM bottom sheet / menu
+                },
+              ),
             ),
           ],
         ),
@@ -2429,18 +2569,31 @@ class _AllDayPill extends StatelessWidget {
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        height: 21,
+        // Figma height (approx – Flutter will scale)
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: value ? const Color(0xFFEDF5FF) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE1E3EC)),
+          borderRadius: BorderRadius.circular(10), // radius 10
+          border: Border.all(
+            color: const Color(0xFFDFDFDF),
+            width: 1,
+          ), // #DFDFDF
         ),
+        alignment: Alignment.center,
         child: Text(
           'All day',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: value ? const Color(0xFF4A87FF) : const Color(0xFFB8BBC5),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.dongle(
+            fontWeight: FontWeight.w400,
+            fontSize: 16,
+            // 16px
+            height: 16 / 16,
+            // line-height 16px
+            letterSpacing: 0,
+            color: value
+                ? const Color(0xFF4A87FF) // active blue (optional)
+                : const Color(0xFFB6B5B5), // Gray4 when off
           ),
         ),
       ),
@@ -2473,7 +2626,7 @@ class _TodoBubble extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F7F7),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(40),
         border: Border.all(color: const Color(0xFFEFEFEF)),
       ),
       child: Column(
@@ -2522,11 +2675,14 @@ class _TodoBubble extends StatelessWidget {
               hintText: 'New todo',
               border: InputBorder.none,
               hintStyle: GoogleFonts.nunito(
-                fontWeight: FontWeight.w400,          // Regular
-                fontSize: 14,                         // 14px
-                height: 16 / 14,                      // line-height 16px
+                fontWeight: FontWeight.w400,
+                // Regular
+                fontSize: 14,
+                // 14px
+                height: 16 / 14,
+                // line-height 16px
                 letterSpacing: 0,
-                color: const Color(0xFFD5D5D5),       // light gray2 #D5D5D5
+                color: const Color(0xFFD5D5D5), // light gray2 #D5D5D5
               ),
             ),
             style: GoogleFonts.nunito(
@@ -2534,10 +2690,9 @@ class _TodoBubble extends StatelessWidget {
               fontSize: 14,
               height: 16 / 14,
               letterSpacing: 0,
-              color: const Color(0xFF4D4D4D),         // body text color
+              color: const Color(0xFF4D4D4D), // body text color
             ),
           ),
-
 
           const SizedBox(height: 10),
           const Divider(height: 1, color: Color(0xFFE5E5E5)),
@@ -2550,13 +2705,28 @@ class _TodoBubble extends StatelessWidget {
             onSubmitted: onSubmitNote,
             maxLines: 1,
             minLines: 1,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isCollapsed: true,
               hintText: 'New notes',
               border: InputBorder.none,
-              hintStyle: TextStyle(fontSize: 12, color: hintColor),
+              hintStyle: GoogleFonts.nunito(
+                fontWeight: FontWeight.w400,
+                // Regular
+                fontSize: 11,
+                // 11px
+                height: 16 / 11,
+                // line-height 16px
+                letterSpacing: 0,
+                color: const Color(0xFFD5D5D5), // light gray2 #D5D5D5
+              ),
             ),
-            style: const TextStyle(fontSize: 12),
+            style: GoogleFonts.nunito(
+              fontWeight: FontWeight.w400,
+              fontSize: 11,
+              height: 16 / 11,
+              letterSpacing: 0,
+              color: const Color(0xFF4D4D4D), // body text color
+            ),
           ),
         ],
       ),
@@ -2618,10 +2788,7 @@ class _FlatPlusButton extends StatelessWidget {
 }
 
 class _PlusPainter extends CustomPainter {
-  _PlusPainter({
-    required this.color,
-    required this.strokeWidth,
-  });
+  _PlusPainter({required this.color, required this.strokeWidth});
 
   final Color color;
   final double strokeWidth;
@@ -2630,7 +2797,8 @@ class _PlusPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = strokeWidth // thickness of the plus stroke
+      ..strokeWidth =
+          strokeWidth // thickness of the plus stroke
       ..strokeCap = StrokeCap.round;
 
     // center of the 24×24 box
@@ -2659,4 +2827,149 @@ class _PlusPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+class LetsJamRow extends StatelessWidget {
+  const LetsJamRow({super.key, this.onTap});
 
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const Color ghostColor = Color(0xFFD5D5D5); // same gray as your Figma
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Ghost icon
+            CustomPaint(
+              size: const Size(19, 19), // 👈 match Figma (19 x 19)
+              painter: _GhostPainter(color: ghostColor),
+            ),
+
+            const SizedBox(width: 6),
+
+            // "Let's JAM" text
+            Text(
+              "Let’s JAM",
+              style: GoogleFonts.dongle(
+                fontWeight: FontWeight.w400,
+                // Regular
+                fontSize: 20,
+                // 20px
+                height: 22 / 20,
+                // line-height 22px
+                letterSpacing: 0,
+                // 0px
+                color: const Color(0xFFD5D5D5), // #D5D5D5
+              ),
+            ),
+
+            const SizedBox(width: 4),
+
+            // Down arrow
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 19, // match Figma 19px
+              color: ghostColor, // your #D5D5D5 color
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GhostPainter extends CustomPainter {
+  _GhostPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..color = color;
+
+    final bodyRect = Rect.fromLTWH(
+      size.width * 0.15,
+      size.height * 0.15,
+      size.width * 0.7,
+      size.height * 0.7,
+    );
+
+    // Rounded top (head)
+    final r = bodyRect.width / 2;
+    final center = Offset(bodyRect.center.dx, bodyRect.top + r);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: r),
+      -3.14,
+      3.14,
+      false,
+      paint,
+    );
+
+    // Sides
+    canvas.drawLine(
+      Offset(bodyRect.left, center.dy),
+      Offset(bodyRect.left, bodyRect.bottom),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(bodyRect.right, center.dy),
+      Offset(bodyRect.right, bodyRect.bottom),
+      paint,
+    );
+
+    // Wavy bottom
+    final bottomPath = Path()..moveTo(bodyRect.left, bodyRect.bottom);
+    final step = bodyRect.width / 3;
+    bottomPath.quadraticBezierTo(
+      bodyRect.left + step * 0.5,
+      bodyRect.bottom - 3,
+      bodyRect.left + step,
+      bodyRect.bottom,
+    );
+    bottomPath.quadraticBezierTo(
+      bodyRect.left + step * 1.5,
+      bodyRect.bottom + 3,
+      bodyRect.left + step * 2,
+      bodyRect.bottom,
+    );
+    bottomPath.quadraticBezierTo(
+      bodyRect.left + step * 2.5,
+      bodyRect.bottom - 3,
+      bodyRect.right,
+      bodyRect.bottom,
+    );
+    canvas.drawPath(bottomPath, paint);
+
+    // Eyes
+    final eyePaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = color;
+    final eyeY = center.dy - 2;
+    final eyeOffsetX = bodyRect.width * 0.15;
+    canvas.drawCircle(Offset(center.dx - eyeOffsetX, eyeY), 1.1, eyePaint);
+    canvas.drawCircle(Offset(center.dx + eyeOffsetX, eyeY), 1.1, eyePaint);
+
+    // Small mouth
+    final mouthPath = Path()
+      ..moveTo(center.dx - 3, center.dy + 2)
+      ..quadraticBezierTo(
+        center.dx,
+        center.dy + 4,
+        center.dx + 3,
+        center.dy + 2,
+      );
+    canvas.drawPath(mouthPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GhostPainter oldDelegate) =>
+      oldDelegate.color != color;
+}

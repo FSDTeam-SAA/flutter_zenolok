@@ -663,7 +663,7 @@ class _EventCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // small left padding so the bar is inside the rounded card
-            const SizedBox(width: 4),
+            const SizedBox(width: 10),
 
             // everything else (bar + text + icons)
             Expanded(
