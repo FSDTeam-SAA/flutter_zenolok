@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 import 'package:flutter_zenolok/features/home/presentation/screens/setting_screen.dart';
 
 import 'notification_screen.dart';
@@ -137,7 +138,7 @@ class _TopBar extends StatelessWidget {
               ),
             );
           },
-          icon: const Icon(Icons.search_rounded, color: Colors.black),
+          icon: Image.asset(AppImages.search_icon, width: 30, height: 30),
         ),
         Stack(
           children: [
@@ -164,7 +165,7 @@ class _TopBar extends StatelessWidget {
                   ),
                 );
               },
-              icon: const Icon(Icons.notifications_rounded, color: Colors.black),
+              icon: Image.asset(AppImages.notification2, width: 30, height: 30),
             ),
             Positioned(
               right: 10,
@@ -203,7 +204,7 @@ class _TopBar extends StatelessWidget {
               ),
             );
           },
-          icon: const Icon(Icons.settings_rounded, color: Colors.black),
+          icon: Image.asset(AppImages.setting, width: 30, height: 30),
         ),
       ],
     );
