@@ -22,7 +22,6 @@ import '../screens/set_new_password_screen.dart';
 class AuthController extends BaseController {
   final AuthRepository _authRepository;
   final AuthStorageService _authStorageService;
-  bool _isSuccess = false;
 
   AuthController(this._authRepository, this._authStorageService);
 
@@ -198,7 +197,6 @@ class AuthController extends BaseController {
       },
     );
   }
-
   Future refreshToken() async {
     setLoading(true);
 
@@ -212,7 +210,7 @@ class AuthController extends BaseController {
       (fail) async {
         DPrint.log("Refresh token failed: ${fail.message}");
         setLoading(false);
-        return _isSuccess = false;
+        return false;
       },
       (success) async {
         DPrint.log("Refresh token success: ${success.message}");
@@ -220,7 +218,7 @@ class AuthController extends BaseController {
         await _authStorageService.storeRefreshToken(success.data.refreshToken);
         // _authStorageService.clearAuthData();
         setLoading(false);
-        return _isSuccess = true;
+        return true;
       },
     );
     return navi;
