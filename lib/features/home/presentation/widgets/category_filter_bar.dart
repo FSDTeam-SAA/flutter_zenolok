@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../data/models/brick_model.dart';
 import '../controller/brick_controller.dart';
-import 'cateogry_widget.dart'; // for EventCategory + extension
 
 typedef CategoryFilterChanged = void Function(Set<String> activeIds);
 
@@ -207,7 +205,7 @@ class _FilterChip extends StatelessWidget {
 class _AddCircleButton extends StatelessWidget {
   final VoidCallback? onTap;
 
-  const _AddCircleButton({super.key, this.onTap});
+  const _AddCircleButton({this.onTap});
 
   @override
   Widget build(BuildContext context) {
