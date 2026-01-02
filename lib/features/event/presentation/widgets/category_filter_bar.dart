@@ -625,7 +625,6 @@ class _EventCard extends StatelessWidget {
   final bool showTinyIconsRow;
 
   const _EventCard({
-    super.key,
     this.onTap,
     required this.accentColor,
     required this.title,
@@ -721,7 +720,7 @@ class _EventCard extends StatelessWidget {
                           _DateChip(text: startDate),
                           const SizedBox(width: 6),
                           if (endDate != null)
-                            _DateChip(text: endDate!),
+                            _DateChip(text: endDate),
                         ],
                         const SizedBox(width: 70),
                         const Icon(Icons.place_outlined,
