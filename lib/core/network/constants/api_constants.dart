@@ -35,6 +35,8 @@ class ApiConstants {
   //  ADD THIS
   static EventEndpoints get events => EventEndpoints();
   static EventTodoEndpoints get eventTodos => EventTodoEndpoints();
+  static TodoCategoryEndpoints get todoCategories => TodoCategoryEndpoints();
+  static TodoItemEndpoints get todoItems => TodoItemEndpoints();
 
   static get team => null;
 
@@ -123,4 +125,43 @@ class ReportEndpoints {
 
   /// Optional — in case backend supports fetching user reports later
   final String getReports = '$_base/all';
+}
+/// TODO Categories endpoints
+class TodoCategoryEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/todo-categories';
+
+  /// GET /todo-categories - Fetch all categories
+  final String getAllCategories = _base;
+
+  /// POST /todo-categories - Create a new category
+  final String createCategory = _base;
+
+  /// GET /todo-categories/:id
+  String byId(String id) => '$_base/$id';
+
+  /// PATCH /todo-categories/:id
+  String updateCategory(String id) => '$_base/$id';
+
+  /// DELETE /todo-categories/:id
+  String deleteCategory(String id) => '$_base/$id';
+}
+
+/// TODO Items endpoints
+class TodoItemEndpoints {
+  static const String _base = '${ApiConstants.baseUrl}/todo-items';
+
+  /// POST /todo-items - Create a new todo item
+  final String createTodoItem = _base;
+
+  /// GET /todo-items/:id
+  String byId(String id) => '$_base/$id';
+
+  /// PATCH /todo-items/:id
+  String updateTodoItem(String id) => '$_base/$id';
+
+  /// DELETE /todo-items/:id
+  String deleteTodoItem(String id) => '$_base/$id';
+
+  /// GET /todo-items/category/:categoryId
+  String byCategory(String categoryId) => '$_base/category/$categoryId';
 }
