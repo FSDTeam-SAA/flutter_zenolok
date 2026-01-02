@@ -160,18 +160,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     await Get.find<EventController>().ensureTodosLoadedForDay(_selected!);
   }
 
-  TextStyle get _monthBig => const TextStyle(
-    fontSize: 42,
-    fontWeight: FontWeight.w800,
-    letterSpacing: 2,
-  );
-
-  TextStyle get _yearLight => const TextStyle(
-    fontSize: 26,
-    fontWeight: FontWeight.w700,
-    color: Colors.black54,
-  );
-
   Future<void> _openHeaderDatePicker() async {
     final result = await showModalBottomSheet<DateRangeResult>(
       context: context,
@@ -1267,7 +1255,7 @@ class _AllDayTile extends StatelessWidget {
 }
 
 class _TimedTile extends StatefulWidget {
-  const _TimedTile({required this.event, required this.onToggle, super.key});
+  const _TimedTile({required this.event, required this.onToggle});
 
   final CalendarEvent event;
   final void Function(String item, bool checked) onToggle;
@@ -1278,8 +1266,6 @@ class _TimedTile extends StatefulWidget {
 
 class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
   bool _expanded = false;
-
-  String _fmt(DateTime t) => DateFormat('h:mm a').format(t);
 
   bool _sameMonth(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month;
@@ -1614,7 +1600,7 @@ class _TimedTileState extends State<_TimedTile> with TickerProviderStateMixin {
 }
 
 class _ChecklistRow extends StatelessWidget {
-  const _ChecklistRow({required this.raw, required this.onTap, super.key});
+  const _ChecklistRow({required this.raw, required this.onTap});
 
   final String raw;
   final void Function(bool checked) onTap;
@@ -2408,10 +2394,9 @@ class _EditorRow extends StatelessWidget {
 }
 
 class _CircleIconButton extends StatelessWidget {
-  const _CircleIconButton({required this.icon, this.onTap});
+  const _CircleIconButton({required this.icon});
 
   final IconData icon;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -2429,13 +2414,7 @@ class _CircleIconButton extends StatelessWidget {
       child: Icon(icon, size: 14, color: iconColor),
     );
 
-    if (onTap == null) return child;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: child,
-    );
+    return child;
   }
 }
 
