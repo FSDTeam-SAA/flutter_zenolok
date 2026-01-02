@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'event/presentation/screens/event_screen.dart';
-import 'event_todos/presentation/screens/event_todos_screen.dart';
+import 'todos/presentation/screens/event_todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
 import 'package:flutter/cupertino.dart';
 
