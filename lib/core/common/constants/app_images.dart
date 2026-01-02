@@ -10,6 +10,7 @@ class AppImages {
   static const String sliders = 'assets/icons/sliders.png';
   static const String repeat = 'assets/icons/repeat.png';
   static const String notification2 = 'assets/icons/notification 2.png';
+  static const String setting = 'assets/icons/setting.png';
 
   // Todos Icons
   static const String collaboration = 'assets/icons/collaboration.png';
