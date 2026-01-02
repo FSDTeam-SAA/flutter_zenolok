@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'event/presentation/screens/event_screen.dart';
+import 'todos/presentation/bindings/event_todos_binding.dart';
+import 'todos/presentation/controllers/event_totos_controller.dart';
 import 'todos/presentation/screens/event_todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
 import 'package:flutter/cupertino.dart';
@@ -14,6 +17,15 @@ class AppGroundScreen extends StatefulWidget {
 
 class _AppGroundScreenState extends State<AppGroundScreen> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ensure EventTodosBinding is initialized
+    if (!Get.isRegistered<EventTodosController>()) {
+      EventTodosBinding().dependencies();
+    }
+  }
 
   // your 3 tabs
   final _pages = const <Widget>[
@@ -91,8 +103,7 @@ class _BottomItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const borderInactive = Color(0xFFE0E0E0);
-    const borderActive = Color(0xFF4C9BFF);
+    // Color constants for borders
     const iconInactive = Color(0xFFB8B8B8);
     const iconActive = Color(0xFF4C9BFF);
 
