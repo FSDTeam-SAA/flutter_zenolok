@@ -33,8 +33,8 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.05,
-        vertical: screenHeight * 0.15,
+        horizontal: screenWidth * 0.06,
+        vertical: screenHeight * 0.25,
       ),
       child: Stack(
         clipBehavior: Clip.none,
@@ -68,7 +68,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
           // Main dialog container
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F7),
+              color: const Color(0xFFF6F6F6),
               borderRadius: BorderRadius.circular(35),
             ),
             clipBehavior: Clip.antiAlias,
@@ -77,7 +77,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
               children: [
                 // Top section - Back arrow, sliders icon, and todo title
                 Container(
-                  color: Colors.white,
+                  color: const Color(0xFFF6F6F6),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,
@@ -93,8 +93,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Image.asset(AppImages.sliders,
-                          width: 20, height: 20),
+                      Image.asset(AppImages.sliders, width: 20, height: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -112,161 +111,149 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                 ),
 
                 // Options list - scrollable with gray background
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Date option
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Date option
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.iconschedule,
+                              width: 16,
+                              height: 16,
+                              color: Colors.grey.shade500,
                             ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today,
-                                  size: 20,
-                                  color: Colors.grey.shade500,
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Date',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey.shade400,
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Date',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
-                                ),
-                                Switch(
-                                  value: _hasDate,
-                                  onChanged: (value) {
-                                    setState(() => _hasDate = value);
-                                  },
-                                  activeColor: const Color(0xFF34C759),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-
-                          // Time option
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                            CustomSwitch(
+                              value: _hasDate,
+                              onChanged: (v) => setState(() => _hasDate = v),
                             ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.schedule,
-                                  size: 20,
-                                  color: Colors.grey.shade500,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Time',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
-                                ),
-                                Switch(
-                                  value: _hasTime,
-                                  onChanged: (value) {
-                                    setState(() => _hasTime = value);
-                                  },
-                                  activeColor: const Color(0xFF34C759),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Alarm option
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.notifications_none,
-                                  size: 20,
-                                  color: Colors.grey.shade500,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Alarm',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
-                                ),
-                                Switch(
-                                  value: _hasAlarm,
-                                  onChanged: (value) {
-                                    setState(() => _hasAlarm = value);
-                                  },
-                                  activeColor: const Color(0xFF34C759),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Repeat option
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.repeat,
-                                  size: 20,
-                                  color: Colors.grey.shade500,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Repeat',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
-                                ),
-                                Switch(
-                                  value: _hasRepeat,
-                                  onChanged: (value) {
-                                    setState(() => _hasRepeat = value);
-                                  },
-                                  activeColor: const Color(0xFF34C759),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
+
+                      // Time option
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.clock_icon,
+                              width: 16,
+                              height: 16,
+                              color: Colors.grey.shade500,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Time',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                            CustomSwitch(
+                              value: _hasTime,
+                              onChanged: (v) => setState(() => _hasTime = v),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Alarm option
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.notification2,
+                              width: 16,
+                              height: 16,
+                              color: Colors.grey.shade500,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Alarm',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                            CustomSwitch(
+                              value: _hasAlarm,
+                              onChanged: (v) => setState(() => _hasAlarm = v),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Repeat option
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.repeat,
+                              width: 16,
+                              height: 16,
+                              color: Colors.grey.shade500,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Repeat',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                            CustomSwitch(
+                              value: _hasRepeat,
+                              onChanged: (v) => setState(() => _hasRepeat = v),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
                 // Footer - Done button
                 Container(
-                  color: Colors.white,
+                  color: const Color(0xFFF6F6F6),
                   padding: const EdgeInsets.symmetric(
                     vertical: 16,
                     horizontal: 20,
@@ -287,7 +274,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                                 color: Colors.grey.shade400,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             Icon(
                               Icons.chevron_right,
                               size: 20,
@@ -303,6 +290,45 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CustomSwitch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const CustomSwitch({super.key, required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 64,
+        height: 28,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          color: value ? const Color(0xFF34C759) : Colors.grey.shade300,
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 39, // thumb width
+            height: 24, // thumb height
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(100), // radius
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 4),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
