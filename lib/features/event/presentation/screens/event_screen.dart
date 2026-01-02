@@ -620,7 +620,6 @@ class _EventCard extends StatelessWidget {
   final bool showTinyIconsRow;
 
   const _EventCard({
-    super.key,
     this.onTap,
     required this.accentColor,
     required this.title,
@@ -636,8 +635,7 @@ class _EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const bg = Color(0xFFF6F7F9);
     const stroke = Color(0xFFE8ECF2);
-    const mainText = Color(0xFF0F172A);
-    const subText = Color(0xFF6B7280);
+    // Color constants for text styling
     const muteIcon = Color(0xFF9AA3AF);
 
     // ── detect range vs single date from text ────────────────────────────────
