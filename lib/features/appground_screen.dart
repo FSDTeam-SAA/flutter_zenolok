@@ -5,7 +5,7 @@ import '../core/common/constants/app_images.dart';
 import 'event/presentation/screens/event_screen.dart';
 import 'todos/presentation/bindings/event_todos_binding.dart';
 import 'todos/presentation/controllers/event_totos_controller.dart';
-import 'todos/presentation/screens/event_todos_screen.dart';
+import 'todos/presentation/screens/todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
 import 'package:flutter/cupertino.dart';
 
@@ -32,7 +32,7 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
   final _pages = const <Widget>[
     CalendarHomePage(),      // Home tab
     EventsScreen(),    // Events tab (replace later)
-    EventTodosScreen(),     // Todos tab (replace later)
+    TodosScreen(),     // Todos tab (replace later)
   ];
 
 
