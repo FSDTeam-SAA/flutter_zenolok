@@ -120,7 +120,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
-                          vertical: 12,
+                          vertical: 6,
                         ),
                         child: Row(
                           children: [
@@ -128,7 +128,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               AppImages.iconschedule,
                               width: 16,
                               height: 16,
-                              color: Colors.grey.shade500,
+                              color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
@@ -153,7 +153,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
-                          vertical: 12,
+                          vertical: 6,
                         ),
                         child: Row(
                           children: [
@@ -161,7 +161,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               AppImages.clock_icon,
                               width: 16,
                               height: 16,
-                              color: Colors.grey.shade500,
+                              color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
@@ -186,7 +186,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
-                          vertical: 12,
+                          vertical: 6,
                         ),
                         child: Row(
                           children: [
@@ -194,7 +194,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               AppImages.notification2,
                               width: 16,
                               height: 16,
-                              color: Colors.grey.shade500,
+                              color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
@@ -219,7 +219,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
-                          vertical: 12,
+                          vertical: 6,
                         ),
                         child: Row(
                           children: [
