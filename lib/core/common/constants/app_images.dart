@@ -37,6 +37,7 @@ class AppImages {
   static const String today_back_icon = 'assets/icon/today_back.png';
   static const String vector_icon = 'assets/icon/vector_4.png';
   static const String all_search_icon = 'assets/icon/all_search_icon.png';
+  static const String time = 'assets/icons/time.png';
 
 
 

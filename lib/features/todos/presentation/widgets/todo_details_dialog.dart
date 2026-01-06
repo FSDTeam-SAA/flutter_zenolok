@@ -126,8 +126,8 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                           children: [
                             Image.asset(
                               AppImages.iconschedule,
-                              width: 16,
-                              height: 16,
+                              width: 25,
+                              height: 25,
                               color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
@@ -135,7 +135,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               child: Text(
                                 'Date',
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey.shade400,
                                 ),
@@ -158,9 +158,9 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                         child: Row(
                           children: [
                             Image.asset(
-                              AppImages.clock_icon,
-                              width: 16,
-                              height: 16,
+                              AppImages.time,
+                              width: 25,
+                              height: 25,
                               color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
@@ -168,16 +168,16 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               child: Text(
                                 'Time',
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey.shade400,
                                 ),
                               ),
                             ),
-                            CustomSwitch(
-                              value: _hasTime,
-                              onChanged: (v) => setState(() => _hasTime = v),
-                            ),
+                            // CustomSwitch(
+                            //   value: _hasTime,
+                            //   onChanged: (v) => setState(() => _hasTime = v),
+                            // ),
                           ],
                         ),
                       ),
@@ -192,8 +192,8 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                           children: [
                             Image.asset(
                               AppImages.notification2,
-                              width: 16,
-                              height: 16,
+                              width: 25,
+                              height: 25,
                               color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
@@ -201,7 +201,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               child: Text(
                                 'Alarm',
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey.shade400,
                                 ),
@@ -225,16 +225,16 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                           children: [
                             Image.asset(
                               AppImages.repeat,
-                              width: 16,
-                              height: 16,
-                              color: Colors.grey.shade500,
+                              width: 25,
+                              height: 25,
+                              color: Colors.black87,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 'Repeat',
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey.shade400,
                                 ),

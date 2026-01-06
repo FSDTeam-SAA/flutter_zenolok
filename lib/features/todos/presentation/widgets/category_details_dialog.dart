@@ -121,7 +121,7 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
 
     if (success) {
       if (kDebugMode) {
-        print('✅ Dialog: Todo added successfully');
+        print('Dialog: Todo added successfully');
       }
 
       // Refresh the todo list from API to get the latest data
@@ -132,7 +132,7 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
       // Trigger instant grid update
       if (widget.onTodoAdded != null) {
         if (kDebugMode) {
-          print('🔄 Dialog: Refreshing category card...');
+          print('Dialog: Refreshing category card...');
         }
         widget.onTodoAdded!();
       }

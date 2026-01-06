@@ -77,13 +77,13 @@ class CategoriesGrid extends GetView<EventTodosController> {
 
           if (success) {
             if (kDebugMode) {
-              print('✅ Category created, forcing grid refresh');
+              print(' Category created, forcing grid refresh');
               print('   Total categories now: ${controller.categories.length}');
             }
             
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Category "${result['title']}" created successfully! ✅'),
+                content: Text('Category "${result['title']}" created successfully! '),
                 backgroundColor: Colors.green,
                 duration: const Duration(milliseconds: 1500),
               ),
