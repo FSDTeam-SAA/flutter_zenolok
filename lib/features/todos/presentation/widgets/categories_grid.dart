@@ -18,6 +18,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
       print('   ID: ${category.id}');
       print('   Color: ${category.color}');
     }
+
     showDialog(
       context: context,
       builder: (context) => CategoryDetailsDialog(
@@ -285,6 +286,7 @@ class _CategoryCard extends StatefulWidget {
 
 class _CategoryCardState extends State<_CategoryCard> {
   List<String> _todos = [];
+  int _totalTodosCount = 0;
   bool _isLoading = false;
 
   @override
@@ -319,7 +321,8 @@ class _CategoryCardState extends State<_CategoryCard> {
 
       if (mounted) {
         setState(() {
-          // Show only first 3 todos in preview
+          // Store total count and show only first 3 todos in preview
+          _totalTodosCount = todos.length;
           _todos = todos
               .take(3)
               .map((todo) => todo['title'] as String)
@@ -347,18 +350,45 @@ class _CategoryCardState extends State<_CategoryCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          /// Title outside the card (top) with padding
+          /// Title with counter badge outside (top row)
           Padding(
             padding: const EdgeInsets.only(left: 20, bottom: 8),
-            child: Text(
-              widget.title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: widget.titleColor,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: widget.titleColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (_totalTodosCount > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Container(
+                      width: 15,
+                      height: 15,
+                      decoration: BoxDecoration(
+                        color: widget.titleColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          _totalTodosCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
 

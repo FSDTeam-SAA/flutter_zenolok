@@ -24,6 +24,26 @@ class ScheduledSection extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
+              const Spacer(),
+              Container(
+                width: 15,
+                height: 15,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4A4A4A),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text(
+                    '9',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 9,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
             ],
           ),
         ),

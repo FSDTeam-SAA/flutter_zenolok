@@ -100,10 +100,42 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
       return;
     }
 
+    // Validate categoryId
+    if (widget.categoryId.isEmpty) {
+      if (kDebugMode) {
+        print('❌ Dialog: Category ID is empty! Cannot create todo.');
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text('Error: Category ID not found. Please try again.'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
     final todoText = _newTodoController.text.trim();
     
     if (kDebugMode) {
       print('➕ Dialog: Adding new todo: $todoText');
+      print('   Category ID: ${widget.categoryId}');
     }
 
     // Immediately clear the form

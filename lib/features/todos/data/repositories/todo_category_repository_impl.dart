@@ -105,12 +105,22 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
   }) async {
     try {
       if (kDebugMode) {
-        print('🚀 Repository: Creating category: $name');
+        print('🚀 Repository: Creating category');
+        print('   Name: "$name"');
+        print('   Color: "$color"');
+        print('   Endpoint: ${ApiConstants.todoCategories.createCategory}');
+        print('   Request Body: {"name": "$name", "color": "$color"}');
       }
 
       final result = await _apiClient.post<CreateCategoryResponse>(
         ApiConstants.todoCategories.createCategory,
-        fromJsonT: (json) => CreateCategoryResponse.fromJson(json as Map<String, dynamic>),
+        fromJsonT: (json) {
+          if (kDebugMode) {
+            print('📦 Repository: Raw JSON received from API:');
+            print('   $json');
+          }
+          return CreateCategoryResponse.fromJson(json as Map<String, dynamic>);
+        },
         data: {
           'name': name,
           'color': color,
@@ -120,14 +130,28 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
       return result.fold(
         (failure) {
           if (kDebugMode) {
-            print('❌ Repository: Create failed - ${failure.message}');
+            print('❌ Repository: Create failed');
+            print('   Error: ${failure.message}');
           }
           return Left(failure);
         },
         (success) {
           if (kDebugMode) {
-            print('✅ Repository: Category created - ${success.data.data.name}');
+            print('✅ Repository: Category creation response received');
+            print('   Response Message: "${success.message}"');
+            print('   Status Code: ${success.statusCode}');
+            print('   Category Data:');
+            print('     ID: "${success.data.data.id}"');
+            print('     Name: "${success.data.data.name}"');
+            print('     CreatedBy: "${success.data.data.createdBy}"');
+            print('     Color: "${success.data.data.color}"');
+            print('   ID is empty: ${success.data.data.id.isEmpty}');
+            print('   Name is empty: ${success.data.data.name.isEmpty}');
           }
+
+          // Return the response data as-is, whether complete or incomplete
+          // Let the controller handle incomplete responses
+          
           return Right(
             NetworkSuccess<CategoryModel>(
               data: success.data.data,

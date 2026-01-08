@@ -101,18 +101,33 @@ class EventTodosController extends GetxController {
         return false;
       },
       (success) {
-        // Add the new category to the list
-        categories.add(success.data);
+        // Check if the response has valid data
+        final categoryData = success.data;
         
         if (kDebugMode) {
-          print('✅ Category created successfully!');
-          print('📝 New Category:');
-          print('  ID: ${success.data.id}');
-          print('  Name: ${success.data.name}');
-          print('  Color: ${success.data.color}');
-          print('  Created At: ${success.data.createdAt}');
-          print('─' * 50);
-          print('📊 Total categories now: ${categories.length}');
+          print('✅ Category creation response received');
+          print('📝 Category Data:');
+          print('  ID: ${categoryData.id}');
+          print('  Name: ${categoryData.name}');
+          print('  Color: ${categoryData.color}');
+          print('  ID is empty: ${categoryData.id.isEmpty}');
+          print('  Name is empty: ${categoryData.name.isEmpty}');
+        }
+
+        // If we have valid name, add it to the list
+        if (categoryData.name.isNotEmpty) {
+          categories.add(categoryData);
+          
+          if (kDebugMode) {
+            print('✅ Category added to list');
+            print('📊 Total categories now: ${categories.length}');
+          }
+        } else {
+          // If the response doesn't have complete data, refresh from server
+          if (kDebugMode) {
+            print('⚠️  Response incomplete, refreshing categories from server');
+          }
+          refreshCategories();
         }
 
         return true;
@@ -123,9 +138,18 @@ class EventTodosController extends GetxController {
   /// Refresh categories
   Future<void> refreshCategories() async {
     if (kDebugMode) {
-      print('🔄 Refreshing categories...');
+      print('🔄 Refreshing categories from server...');
     }
     await fetchCategories();
+    
+    if (kDebugMode) {
+      print('✅ Categories refreshed');
+      print('   Total categories now: ${categories.length}');
+      for (var i = 0; i < categories.length; i++) {
+        final cat = categories[i];
+        print('   [$i] ${cat.name} (ID: ${cat.id})');
+      }
+    }
   }
 
   /// Creates a new todo item under a category
@@ -135,6 +159,16 @@ class EventTodosController extends GetxController {
   }) async {
     isCreating.value = true;
     errorMessage.value = '';
+
+    // Validate categoryId
+    if (categoryId.isEmpty) {
+      errorMessage.value = 'Category ID is empty. Cannot create todo.';
+      isCreating.value = false;
+      if (kDebugMode) {
+        print('❌ Controller: Cannot create todo - Category ID is empty!');
+      }
+      return false;
+    }
 
     if (kDebugMode) {
       print('🚀 Creating new todo item: $text');
