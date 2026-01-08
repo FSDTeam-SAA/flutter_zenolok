@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -16,12 +17,11 @@ class DateRangeResult {
   final List<DateTime> days;
 
   DateRangeResult({required List<DateTime> days})
-      : days = days.map(_dOnly).toList()..sort((a, b) => a.compareTo(b));
+    : days = days.map(_dOnly).toList()..sort((a, b) => a.compareTo(b));
 
   DateTime get start => days.first;
   DateTime get end => days.last;
 }
-
 
 /// ---------------------------------------------------------------------------
 /// TIME RANGE BOTTOM SHEET ( FIXED TIME INPUT WITHOUT UI CHANGE)
@@ -181,27 +181,32 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
     final hasUsableStart = _startDigits.isNotEmpty;
 
     return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final cardWidth = min(constraints.maxWidth - 32, 360.0);
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final cardWidth = min(constraints.maxWidth - 32, 360.0);
 
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: cardWidth),
-                child: Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: cardWidth),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
                           children: const [
-                            Icon(Icons.access_time_rounded,
-                                size: 18, color: Colors.black54),
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 18,
+                              color: Colors.black54,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Set time',
@@ -212,175 +217,190 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF6F6F6),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 16,
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Start Time',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: _editingStart
-                                            ? _accent
-                                            : const Color(0xFFB8BBC5),
-                                      ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF6F6F6),
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 16,
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 0,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Start Time',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _editingStart
+                                          ? _accent
+                                          : const Color(0xFFB8BBC5),
                                     ),
                                   ),
-                                  Expanded(
-                                    child: Text(
-                                      'End Time',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: !_editingStart
-                                            ? _accent
-                                            : const Color(0xFFB8BBC5),
-                                      ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    'End Time',
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: !_editingStart
+                                          ? _accent
+                                          : const Color(0xFFB8BBC5),
                                     ),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _editingStart = true),
-                                      child: _TimeDigitDisplay(
-                                        rawDigits: _startDigits,
-                                        isActive: _editingStart,
-                                        accent: _accent,
-                                        alignRight: false,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text('—',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Color(0xFFB8BBC5))),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          setState(() => _editingStart = false),
-                                      child: _TimeDigitDisplay(
-                                        rawDigits: _endDigits,
-                                        isActive: !_editingStart,
-                                        accent: _accent,
-                                        alignRight: true,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _AmPmRow(
-                                      isPm: _startIsPm,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _editingStart = true),
+                                    child: _TimeDigitDisplay(
+                                      rawDigits: _startDigits,
+                                      isActive: _editingStart,
                                       accent: _accent,
-                                      onChanged: (isPm) => setState(() {
-                                        _startIsPm = isPm;
-                                        _clearEndSelection();
-                                      }),
                                       alignRight: false,
                                     ),
                                   ),
-                                  Expanded(
-                                    child: _AmPmRow(
-                                      isPm: _endIsPm,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '—',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFFB8BBC5),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _editingStart = false),
+                                    child: _TimeDigitDisplay(
+                                      rawDigits: _endDigits,
+                                      isActive: !_editingStart,
                                       accent: _accent,
-                                      onChanged: (isPm) => setState(() {
-                                        _endIsPm = isPm;
-                                        _selectedDurationMinutes = null;
-                                      }),
                                       alignRight: true,
                                     ),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: _NumberPad(
-                                      onDigit: _onDigitTap,
-                                      onBackspace: _onBackspace,
-                                      onClear: _onClear,
-                                      accent: _accent,
-                                    ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _AmPmRow(
+                                    isPm: _startIsPm,
+                                    accent: _accent,
+                                    onChanged: (isPm) => setState(() {
+                                      _startIsPm = isPm;
+                                      _clearEndSelection();
+                                    }),
+                                    alignRight: false,
                                   ),
-                                  const SizedBox(width: 8),
-                                  SizedBox(
-                                    width: 56,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.end,
-                                      children: [
-                                        _DurationChip(
-                                          label: '1h',
-                                          minutes: 60,
-                                          accent: _accent,
-                                          selected:
-                                          _selectedDurationMinutes == 60,
-                                          enabled: hasUsableStart,
-                                          onTap: () => _applyDuration(60),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        _DurationChip(
-                                          label: '1.5h',
-                                          minutes: 90,
-                                          accent: _accent,
-                                          selected:
-                                          _selectedDurationMinutes == 90,
-                                          enabled: hasUsableStart,
-                                          onTap: () => _applyDuration(90),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        _DurationChip(
-                                          label: '2h',
-                                          minutes: 120,
-                                          accent: _accent,
-                                          selected:
-                                          _selectedDurationMinutes == 120,
-                                          enabled: hasUsableStart,
-                                          onTap: () => _applyDuration(120),
-                                        ),
-                                      ],
-                                    ),
+                                ),
+                                Expanded(
+                                  child: _AmPmRow(
+                                    isPm: _endIsPm,
+                                    accent: _accent,
+                                    onChanged: (isPm) => setState(() {
+                                      _endIsPm = isPm;
+                                      _selectedDurationMinutes = null;
+                                    }),
+                                    alignRight: true,
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: _NumberPad(
+                                    onDigit: _onDigitTap,
+                                    onBackspace: _onBackspace,
+                                    onClear: _onClear,
+                                    accent: _accent,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  width: 56,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      _DurationChip(
+                                        label: '1h',
+                                        minutes: 60,
+                                        accent: _accent,
+                                        selected:
+                                            _selectedDurationMinutes == 60,
+                                        enabled: hasUsableStart,
+                                        onTap: () => _applyDuration(60),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _DurationChip(
+                                        label: '1.5h',
+                                        minutes: 90,
+                                        accent: _accent,
+                                        selected:
+                                            _selectedDurationMinutes == 90,
+                                        enabled: hasUsableStart,
+                                        onTap: () => _applyDuration(90),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _DurationChip(
+                                        label: '2h',
+                                        minutes: 120,
+                                        accent: _accent,
+                                        selected:
+                                            _selectedDurationMinutes == 120,
+                                        enabled: hasUsableStart,
+                                        onTap: () => _applyDuration(120),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerRight,
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextButton(
                             onPressed: () {
-                              final start = _digitsToTime(_startDigits,
-                                  _startIsPm, widget.initialStart);
+                              final start = _digitsToTime(
+                                _startDigits,
+                                _startIsPm,
+                                widget.initialStart,
+                              );
                               final end = _digitsToTime(
-                                  _endDigits, _endIsPm, widget.initialEnd);
+                                _endDigits,
+                                _endIsPm,
+                                widget.initialEnd,
+                              );
 
                               Navigator.pop(
                                 context,
@@ -389,10 +409,10 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                             },
                             style: TextButton.styleFrom(
                               minimumSize: const Size(0, 0),
-                              padding:
-                              const EdgeInsets.symmetric(horizontal: 4),
-                              tapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: const Text(
                               'Done',
@@ -404,14 +424,14 @@ class _TimeRangeBottomSheetState extends State<TimeRangeBottomSheet> {
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -524,15 +544,18 @@ class _TimeDigitDisplay extends StatelessWidget {
     final d4 = norm.digits4.isEmpty ? '0000' : norm.digits4;
 
     final innerRow = Row(
-      mainAxisAlignment:
-      alignRight ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: alignRight
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
       children: [
         _bubble(d4[0], norm.filled.contains(0)),
         const SizedBox(width: 4),
         _bubble(d4[1], norm.filled.contains(1)),
         const SizedBox(width: 4),
-        const Text(':',
-            style: TextStyle(fontSize: 16, color: Color(0xFFB8BBC5))),
+        const Text(
+          ':',
+          style: TextStyle(fontSize: 16, color: Color(0xFFB8BBC5)),
+        ),
         const SizedBox(width: 4),
         _bubble(d4[2], norm.filled.contains(2)),
         const SizedBox(width: 4),
@@ -588,8 +611,9 @@ class _AmPmRow extends StatelessWidget {
     }
 
     return Row(
-      mainAxisAlignment:
-      alignRight ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: alignRight
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
       children: [
         chip('AM', amSelected, false),
         const SizedBox(width: 8),
@@ -651,7 +675,9 @@ class _NumberPad extends StatelessWidget {
             onTap: onTap,
             child: Container(
               decoration: BoxDecoration(
-                color: digit == 0 ? accent.withOpacity(0.15) : Colors.transparent,
+                color: digit == 0
+                    ? accent.withOpacity(0.15)
+                    : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -758,24 +784,26 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final cardWidth = min(constraints.maxWidth - 32, 360.0);
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final cardWidth = min(constraints.maxWidth - 32, 360.0);
 
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: cardWidth),
-                child: Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: cardWidth),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 10,
+                        ),
+                        child: Row(
                           children: const [
                             Icon(
                               Icons.calendar_month_rounded,
@@ -792,57 +820,63 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF6F6F6),
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 16,
-                          ),
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 220),
-                            transitionBuilder: (child, anim) =>
-                                FadeTransition(opacity: anim, child: child),
-                            child: _mode == _DatePickerMode.yearMonth
-                                ? _YearMonthView(
-                              key: const ValueKey('yearMonth'),
-                              baseYear: _baseYear,
-                              selectedDays: _selectedDays,
-                              accent: _accent,
-                              onMonthTap: _onMonthTap,
-                            )
-                                : _MonthDaysView(
-                              key: const ValueKey('monthDays'),
-                              displayMonth: _displayMonth,
-                              selectedDays: _selectedDays,
-                              accent: _accent,
-                              onMonthChanged: (m) {
-                                setState(() => _displayMonth = m);
-                              },
-                              onDone: () {
-                                if (_selectedDays.isEmpty) {
-                                  Navigator.pop(context);
-                                  return;
-                                }
-                                final days = _selectedDays.toList()
-                                  ..sort((a, b) => a.compareTo(b));
-                                Navigator.pop(
-                                    context, DateRangeResult(days: days));
-                              },
-                            ),
-                          ),
+                      ),
+                      const SizedBox(height: 0),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF6F6F6),
+                          borderRadius: BorderRadius.circular(28),
                         ),
-                      ],
-                    ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 16,
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 0,
+                        ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 220),
+                          transitionBuilder: (child, anim) =>
+                              FadeTransition(opacity: anim, child: child),
+                          child: _mode == _DatePickerMode.yearMonth
+                              ? _YearMonthView(
+                                  key: const ValueKey('yearMonth'),
+                                  baseYear: _baseYear,
+                                  selectedDays: _selectedDays,
+                                  accent: _accent,
+                                  onMonthTap: _onMonthTap,
+                                )
+                              : _MonthDaysView(
+                                  key: const ValueKey('monthDays'),
+                                  displayMonth: _displayMonth,
+                                  selectedDays: _selectedDays,
+                                  accent: _accent,
+                                  onMonthChanged: (m) {
+                                    setState(() => _displayMonth = m);
+                                  },
+                                  onDone: () {
+                                    if (_selectedDays.isEmpty) {
+                                      Navigator.pop(context);
+                                      return;
+                                    }
+                                    final days = _selectedDays.toList()
+                                      ..sort((a, b) => a.compareTo(b));
+                                    Navigator.pop(
+                                      context,
+                                      DateRangeResult(days: days),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -868,7 +902,7 @@ class _YearMonthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget buildYear(int year) {
+    Widget buildYearSection(int year) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -880,21 +914,40 @@ class _YearMonthView extends StatelessWidget {
               color: Color(0xFF737373),
             ),
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              for (int month = 1; month <= 12; month++)
-                _DateBubble(
-                  label: '$month',
-                  selectedStart: _hasSelectionForMonth(year, month),
-                  selectedEnd: false,
-                  inRange: false,
-                  accent: accent,
-                  onTap: () => onMonthTap(year, month),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 6,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1,
+            ),
+            itemCount: 12,
+            itemBuilder: (context, index) {
+              final month = index + 1;
+              final isSelected = _hasSelectionForMonth(year, month);
+
+              return GestureDetector(
+                onTap: () => onMonthTap(year, month),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? accent : const Color(0xFFBFBFBF),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$month',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? Colors.white : Colors.white,
+                    ),
+                  ),
                 ),
-            ],
+              );
+            },
           ),
         ],
       );
@@ -903,9 +956,9 @@ class _YearMonthView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildYear(baseYear),
-        const SizedBox(height: 16),
-        buildYear(baseYear + 1),
+        buildYearSection(baseYear),
+        const SizedBox(height: 20),
+        buildYearSection(baseYear + 1),
       ],
     );
   }
@@ -981,12 +1034,18 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: const Icon(Icons.chevron_left_rounded,
-                  size: 22, color: Color(0xFFB8BBC5)),
+              icon: const Icon(
+                Icons.chevron_left_rounded,
+                size: 22,
+                color: Color(0xFFB8BBC5),
+              ),
               onPressed: () {
                 setState(() {
-                  _focusedDay =
-                      DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
+                  _focusedDay = DateTime(
+                    _focusedDay.year,
+                    _focusedDay.month - 1,
+                    1,
+                  );
                 });
                 widget.onMonthChanged(_focusedDay);
               },
@@ -1022,12 +1081,18 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: const Icon(Icons.chevron_right_rounded,
-                  size: 22, color: Color(0xFFB8BBC5)),
+              icon: const Icon(
+                Icons.chevron_right_rounded,
+                size: 22,
+                color: Color(0xFFB8BBC5),
+              ),
               onPressed: () {
                 setState(() {
-                  _focusedDay =
-                      DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
+                  _focusedDay = DateTime(
+                    _focusedDay.year,
+                    _focusedDay.month + 1,
+                    1,
+                  );
                 });
                 widget.onMonthChanged(_focusedDay);
               },
@@ -1087,8 +1152,7 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                 final bool isSunday = day.weekday == DateTime.sunday;
                 final bool isSelected = _isSelected(day);
 
-                final Color bg =
-                isSelected ? accent : const Color(0xFFD5D5D5);
+                final Color bg = isSelected ? accent : const Color(0xFFD5D5D5);
                 final Color textColor = isSelected
                     ? Colors.white
                     : (isSunday ? accent : const Color(0xFF707070));
@@ -1097,7 +1161,10 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                   child: Container(
                     width: 30,
                     height: 30,
-                    decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      shape: BoxShape.circle,
+                    ),
                     alignment: Alignment.center,
                     child: Text(
                       '${day.day}',
@@ -1111,68 +1178,11 @@ class _MonthDaysViewState extends State<_MonthDaysView> {
                 );
               },
               outsideBuilder: (context, day, focusedDay) =>
-              const SizedBox.shrink(),
+                  const SizedBox.shrink(),
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DateBubble extends StatelessWidget {
-  const _DateBubble({
-    required this.label,
-    required this.selectedStart,
-    required this.selectedEnd,
-    required this.inRange,
-    required this.accent,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selectedStart;
-  final bool selectedEnd;
-  final bool inRange;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool selected = selectedStart || selectedEnd;
-
-    final Color bg =
-    selected ? const Color(0xFFF6F6F6) : const Color(0xFFBDBDBD);
-    final Color textColor = selected ? Colors.grey : Colors.white;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: bg,
-          shape: BoxShape.circle,
-          boxShadow: selected
-              ? [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ]
-              : null,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: textColor,
-          ),
-        ),
-      ),
     );
   }
 }
