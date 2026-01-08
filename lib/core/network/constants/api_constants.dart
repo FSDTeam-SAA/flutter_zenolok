@@ -164,4 +164,7 @@ class TodoItemEndpoints {
 
   /// GET /todo-items/category/:categoryId
   String byCategory(String categoryId) => '$_base/category/$categoryId';
+
+  /// GET /todo-items/scheduled - Get all scheduled todo items
+  final String scheduled = '$_base/scheduled';
 }
