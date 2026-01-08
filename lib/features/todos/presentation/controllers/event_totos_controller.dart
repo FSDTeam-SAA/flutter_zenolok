@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_zenolok/features/todos/data/models/scheduled_todo_item_model.dart';
 import 'package:flutter_zenolok/features/todos/domain/repositories/todo_category_repository.dart';
 import 'package:flutter_zenolok/features/todos/domain/repositories/todo_item_repository.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,9 @@ class EventTodosController extends GetxController {
 
   // Observable list for categories
   final categories = <CategoryModel>[].obs;
+  final scheduledTodos = <ScheduledTodoItem>[].obs;
   final isLoading = false.obs;
+  final isLoadingScheduled = false.obs;
   final errorMessage = ''.obs;
   final isCreating = false.obs;
 
@@ -25,6 +28,7 @@ class EventTodosController extends GetxController {
   void onInit() {
     super.onInit();
     fetchCategories();
+    fetchScheduledTodos();
   }
 
   /// Fetches all categories from the API
@@ -253,4 +257,112 @@ class EventTodosController extends GetxController {
       },
     );
   }
+
+  /// Fetches scheduled todo items from the API
+  Future<void> fetchScheduledTodos() async {
+    isLoadingScheduled.value = true;
+    errorMessage.value = '';
+
+    if (kDebugMode) {
+      print('🔄 Controller: Fetching scheduled todo items from API...');
+    }
+
+    final result = await _todoItemRepository.getScheduledTodoItems();
+
+    result.fold(
+      (failure) {
+        errorMessage.value = failure.message;
+        scheduledTodos.clear();
+        if (kDebugMode) {
+          print('❌ Controller: Error fetching scheduled todos: ${failure.message}');
+        }
+      },
+      (success) {
+        scheduledTodos.value = success.data;
+        errorMessage.value = '';
+        
+        if (kDebugMode) {
+          print('✅ Controller: Scheduled todos fetched successfully!');
+          print('📊 Total scheduled todos: ${success.data.length}');
+          print('─' * 50);
+          for (int i = 0; i < success.data.length; i++) {
+            final todo = success.data[i];
+            print('Scheduled Todo ${i + 1}:');
+            print('  ID: ${todo.id}');
+            print('  Text: ${todo.text}');
+            print('  Category: ${todo.categoryId?.name ?? "No Category"}');
+            print('  Section: ${todo.sectionLabel}');
+            print('  Completed: ${todo.isCompleted}');
+            print('─' * 50);
+          }
+        }
+      },
+    );
+
+    isLoadingScheduled.value = false;
+  }
+
+  /// Refresh scheduled todos
+  Future<void> refreshScheduledTodos() async {
+    if (kDebugMode) {
+      print('🔄 Controller: Refreshing scheduled todos from server...');
+    }
+    await fetchScheduledTodos();
+    
+    if (kDebugMode) {
+      print('✅ Controller: Scheduled todos refreshed');
+      print('   Total todos now: ${scheduledTodos.length}');
+      for (var i = 0; i < scheduledTodos.length; i++) {
+        final todo = scheduledTodos[i];
+        print('   [$i] ${todo.text} (${todo.sectionLabel})');
+      }
+    }
+  }
+
+  /// Get filtered scheduled todos by category
+  List<ScheduledTodoItem> getFilteredScheduledTodos({
+    required String categoryFilter,
+    required String statusFilter,
+  }) {
+    var filtered = scheduledTodos.toList();
+
+    // Filter by category
+    if (categoryFilter != 'All') {
+      filtered = filtered
+          .where((todo) => todo.categoryId?.name == categoryFilter)
+          .toList();
+    }
+
+    // Filter by completion status
+    if (statusFilter == 'Finished') {
+      filtered = filtered.where((todo) => todo.isCompleted).toList();
+    } else if (statusFilter == 'Unfinished') {
+      filtered = filtered.where((todo) => !todo.isCompleted).toList();
+    }
+    // 'All' status shows all items
+
+    return filtered;
+  }
+
+  /// Get unique categories from scheduled todos
+  List<String> getScheduledCategories() {
+    final categories = <String>{'All'};
+    for (var todo in scheduledTodos) {
+      if (todo.categoryId?.name != null) {
+        categories.add(todo.categoryId!.name);
+      }
+    }
+    return categories.toList();
+  }
+
+  /// Get color for a category
+  String? getCategoryColor(String categoryName) {
+    for (var todo in scheduledTodos) {
+      if (todo.categoryId?.name == categoryName) {
+        return todo.categoryId?.color;
+      }
+    }
+    return null;
+  }
 }
+
