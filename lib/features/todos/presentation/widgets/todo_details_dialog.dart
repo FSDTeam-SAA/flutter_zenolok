@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:intl/intl.dart';
 
 import 'package:flutter_zenolok/core/common/constants/app_images.dart';
+import '../../../home/presentation/widgets/date_time_widget.dart';
 
 class TodoDetailsDialog extends StatefulWidget {
   final String todoTitle;
@@ -20,10 +22,64 @@ class TodoDetailsDialog extends StatefulWidget {
 }
 
 class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
+  late DateTime _selectedDate;
+  late TimeOfDay _selectedTime;
   bool _hasDate = false;
   bool _hasTime = false;
   bool _hasAlarm = false;
   bool _hasRepeat = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+    _selectedTime = TimeOfDay.now();
+  }
+
+  Future<void> _pickDate() async {
+    final result = await showModalBottomSheet<DateRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => DateRangeBottomSheet(
+        initialStart: _selectedDate,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedDate = result.start;
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final result = await showModalBottomSheet<TimeRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => TimeRangeBottomSheet(
+        initialStart: _selectedTime,
+        initialEnd: _selectedTime,
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTime = result.start;
+      });
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('MMM d, yyyy').format(date);
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat('hh:mm a').format(dt);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,68 +173,102 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Date option
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 6,
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              AppImages.iconschedule,
-                              width: 25,
-                              height: 25,
-                              color: Colors.black87,
-                            ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                'Date',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.grey.shade400,
+                      GestureDetector(
+                        onTap: _hasDate ? _pickDate : null,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                AppImages.iconschedule,
+                                width: 25,
+                                height: 25,
+                                color: _hasDate ? Colors.black87 : Colors.grey.shade400,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Date',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                    ),
+                                    if (_hasDate)
+                                      Text(
+                                        _formatDate(_selectedDate),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            CustomSwitch(
-                              value: _hasDate,
-                              onChanged: (v) => setState(() => _hasDate = v),
-                            ),
-                          ],
+                              CustomSwitch(
+                                value: _hasDate,
+                                onChanged: (v) => setState(() => _hasDate = v),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
 
                       // Time option
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 6,
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              AppImages.time,
-                              width: 25,
-                              height: 25,
-                              color: Colors.black87,
-                            ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                'Time',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.grey.shade400,
+                      GestureDetector(
+                        onTap: _hasTime ? _pickTime : null,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                AppImages.time,
+                                width: 25,
+                                height: 25,
+                                color: _hasTime ? Colors.black87 : Colors.grey.shade400,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Time',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                    ),
+                                    if (_hasTime)
+                                      Text(
+                                        _formatTime(_selectedTime),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            // CustomSwitch(
-                            //   value: _hasTime,
-                            //   onChanged: (v) => setState(() => _hasTime = v),
-                            // ),
-                          ],
+                              CustomSwitch(
+                                value: _hasTime,
+                                onChanged: (v) => setState(() => _hasTime = v),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -194,23 +284,23 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               AppImages.notification2,
                               width: 25,
                               height: 25,
-                              color: Colors.black87,
+                              color: Colors.grey.shade400,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 'Alarm',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey.shade400,
                                 ),
                               ),
                             ),
-                            CustomSwitch(
-                              value: _hasAlarm,
-                              onChanged: (v) => setState(() => _hasAlarm = v),
-                            ),
+                            // CustomSwitch(
+                            //   value: _hasAlarm,
+                            //   onChanged: (v) => setState(() => _hasAlarm = v),
+                            // ),
                           ],
                         ),
                       ),
@@ -227,23 +317,23 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                               AppImages.repeat,
                               width: 25,
                               height: 25,
-                              color: Colors.black87,
+                              color: Colors.grey.shade400,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 'Repeat',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   color: Colors.grey.shade400,
                                 ),
                               ),
                             ),
-                            CustomSwitch(
-                              value: _hasRepeat,
-                              onChanged: (v) => setState(() => _hasRepeat = v),
-                            ),
+                            // CustomSwitch(
+                            //   value: _hasRepeat,
+                            //   onChanged: (v) => setState(() => _hasRepeat = v),
+                            // ),
                           ],
                         ),
                       ),
