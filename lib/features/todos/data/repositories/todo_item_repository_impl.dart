@@ -6,6 +6,7 @@ import 'package:flutter_zenolok/core/network/models/network_failure.dart';
 import 'package:flutter_zenolok/core/network/models/network_success.dart';
 
 import '../../domain/repositories/todo_item_repository.dart';
+import '../models/scheduled_todo_item_model.dart';
 import '../models/todo_item_model.dart';
 import '../models/todo_item_response.dart';
 
@@ -145,6 +146,85 @@ class TodoItemRepositoryImpl implements TodoItemRepository {
       return Left(
         ServerFailure(
           message: 'Failed to fetch todo items: $e',
+          statusCode: 500,
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Either<NetworkFailure, NetworkSuccess<List<ScheduledTodoItem>>>> getScheduledTodoItems() async {
+    try {
+      if (kDebugMode) {
+        print('🔄 Repository: Fetching scheduled todo items');
+        print('   Endpoint: ${ApiConstants.todoItems.scheduled}');
+      }
+
+      final result = await _apiClient.get<List<ScheduledTodoItem>>(
+        ApiConstants.todoItems.scheduled,
+        fromJsonT: (json) {
+          if (kDebugMode) {
+            print('📦 Repository fromJsonT: received type ${json.runtimeType}');
+            print('   Value: $json');
+          }
+
+          if (json is List) {
+            if (kDebugMode) {
+              print('   ✅ Parsing as List with ${json.length} items');
+            }
+            return json
+                .map((item) {
+                  if (kDebugMode) {
+                    print('   Parsing scheduled item: $item');
+                  }
+                  return ScheduledTodoItem.fromJson(item as Map<String, dynamic>);
+                })
+                .toList();
+          }
+
+          if (kDebugMode) {
+            print('   ❌ Not a List! Type: ${json.runtimeType}');
+          }
+
+          return <ScheduledTodoItem>[];
+        },
+      );
+
+      if (kDebugMode) {
+        print('✅ Repository: Result received');
+      }
+
+      return result.fold(
+        (failure) {
+          if (kDebugMode) {
+            print('❌ Repository: Fetch failed - ${failure.message}');
+          }
+          return Left(failure);
+        },
+        (success) {
+          if (kDebugMode) {
+            print('✅ Repository: Success with ${success.data.length} scheduled todos');
+            for (int i = 0; i < success.data.length; i++) {
+              print('   ${i + 1}. ${success.data[i].text} (${success.data[i].sectionLabel})');
+            }
+          }
+          return Right(
+            NetworkSuccess<List<ScheduledTodoItem>>(
+              data: success.data,
+              message: success.message,
+              statusCode: success.statusCode,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Repository Exception: $e');
+        print('   Stack trace: ${StackTrace.current}');
+      }
+      return Left(
+        ServerFailure(
+          message: 'Failed to fetch scheduled todo items: $e',
           statusCode: 500,
         ),
       );
