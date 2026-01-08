@@ -39,6 +39,10 @@ class AppImages {
   static const String all_search_icon = 'assets/icon/all_search_icon.png';
   static const String time = 'assets/icons/time.png';
 
+  //datepicker icons
+  static const String dateicon = 'assets/icons/date.png';
+  
+
 
 
 

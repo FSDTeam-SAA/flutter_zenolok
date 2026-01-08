@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -800,17 +801,16 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 30,
+                          horizontal: 35,
                           vertical: 10,
                         ),
                         child: Row(
-                          children: const [
-                            Icon(
-                              Icons.calendar_month_rounded,
-                              size: 18,
-                              color: Colors.black54,
-                            ),
-                            SizedBox(width: 8),
+                          children:[
+                            Image.asset(AppImages.dateicon,
+                            color: Colors.black87,
+                                width: 16,
+                                height: 16),
+                            const SizedBox(width: 6),
                             Text(
                               'Choose a date',
                               style: TextStyle(
