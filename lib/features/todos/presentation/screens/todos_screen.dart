@@ -16,7 +16,12 @@ class TodosScreen extends GetView<EventTodosController> {
     return AppScaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => controller.refreshCategories(),
+          onRefresh: () async {
+            await Future.wait([
+              controller.refreshCategories(),
+              controller.refreshScheduledTodos(),
+            ]);
+          },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
