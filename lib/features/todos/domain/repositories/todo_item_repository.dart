@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_zenolok/core/network/models/network_failure.dart';
 import 'package:flutter_zenolok/core/network/models/network_success.dart';
 
+import '../../data/models/scheduled_todo_item_model.dart';
 import '../../data/models/todo_item_model.dart';
 
 abstract class TodoItemRepository {
@@ -15,6 +16,9 @@ abstract class TodoItemRepository {
   Future<Either<NetworkFailure, NetworkSuccess<List<TodoItem>>>> getTodoItemsByCategory({
     required String categoryId,
   });
+
+  /// Get scheduled todo items
+  Future<Either<NetworkFailure, NetworkSuccess<List<ScheduledTodoItem>>>> getScheduledTodoItems();
 
   /// Update todo item
   Future<Either<NetworkFailure, NetworkSuccess<TodoItem>>> updateTodoItem({
