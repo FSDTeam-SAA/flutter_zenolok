@@ -12,9 +12,9 @@ import '../../../home/presentation/screens/searchScreen.dart';
 import '../../../home/presentation/screens/setting_screen.dart';
 
 import '../../../home/presentation/widgets/category_filter_bar.dart';
-import '../../../home/presentation/widgets/cateogry_widget.dart'; // ✅ contains CategoryEditorScreen (as you use it)
+import '../../../home/presentation/widgets/cateogry_widget.dart'; //  contains CategoryEditorScreen (as you use it)
 
-// ✅ IMPORTANT:
+//  IMPORTANT:
 // EventsScreen will navigate to EventEditorScreen (the editor you showed in your example).
 // Make sure EventEditorScreen is accessible here via an import.
 // If you already have it in a separate file, import it instead of this comment.
@@ -58,7 +58,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   DateTime get _anchor => DateTime.now();
 
-  // ✅ Single-select category behavior (same as your editor)
+  //  Single-select category behavior (same as your editor)
   Set<String> _editorFilters = <String>{};
   String? _selectedBrickId;
 
@@ -90,7 +90,7 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Future<void> _openEdit(CalendarEvent original) async {
-    // ✅ open editor (same signature as your example)
+    //  open editor (same signature as your example)
     final edited = await Navigator.of(context).push<CalendarEvent>(
       PageRouteBuilder<CalendarEvent>(
         pageBuilder: (context, animation, secondaryAnimation) {
@@ -119,10 +119,10 @@ class _EventsScreenState extends State<EventsScreen> {
 
     final ec = Get.find<EventController>();
 
-    // ✅ update backend/store using SAME id
+    //  update backend/store using SAME id
     await ec.updateEventFromUi(original.id, edited);
 
-    // ✅ refresh list and keep current tab + filters
+    //  refresh list and keep current tab + filters
     await ec.refreshEventsUI();
     await ec.changeTabUI(_selected);
     ec.applyBrickFiltersUI(_editorFilters);
@@ -144,7 +144,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 const _TopBar(),
                 const SizedBox(height: 8),
 
-                // ✅ Match CalendarHomePage brick design (no extra padding wrapper)
+                //  Match CalendarHomePage brick design (no extra padding wrapper)
                 CategoryFilterBar(
                   activeIds: _editorFilters,
                   onChange: (newSet) {
@@ -199,7 +199,7 @@ class _EventsScreenState extends State<EventsScreen> {
                       ? const Center(child: CircularProgressIndicator())
                       : _buildSection(
                           uiEvents,
-                          // ✅ Pass the ORIGINAL apiEvents so we can open editor with CalendarEvent
+                          //  Pass the ORIGINAL apiEvents so we can open editor with CalendarEvent
                           apiEvents: apiEvents,
                           onTapApiEvent: _openEdit,
                         ),
@@ -311,13 +311,13 @@ class _EventsScreenState extends State<EventsScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, i) {
         final ui = events[i];
-        final api = apiEvents[i]; // ✅ same index order (mapped from apiEvents)
+        final api = apiEvents[i]; // same index order (mapped from apiEvents)
 
         return row(
           label: labelFor(ui.start),
           card: _eventCardFrom(
             ui,
-            onTap: () => onTapApiEvent(api), // ✅ CLICK -> EDIT
+            onTap: () => onTapApiEvent(api), // CLICK -> EDIT
           ),
         );
       },
@@ -661,16 +661,16 @@ class _EventCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // ✅ vertical color bar just before text
+                      // vertical color bar just before text
                       Container(
-                        width: 6, // 👈 6px like Figma
-                        height: 18, // 👈 18px height
+                        width: 6, //  6px like Figma
+                        height: 18, // 18px height
                         margin: const EdgeInsets.only(right: 6),
                         decoration: BoxDecoration(
                           color: barColor,
                           // your dynamic color (all day / streak / time)
                           borderRadius: BorderRadius.circular(2),
-                          // 👈 radius 2px
+                          //  radius 2px
                           boxShadow: [
                             BoxShadow(
                               offset: const Offset(0, 4), // Y = 4
@@ -871,7 +871,7 @@ class _EventCard extends StatelessWidget {
       ),
     );
 
-    // ✅ CLICKABLE CARD -> EDIT
+    // CLICKABLE CARD -> EDIT
     if (onTap == null) return card;
 
     return InkWell(
