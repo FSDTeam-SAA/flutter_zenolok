@@ -239,11 +239,11 @@ class _FilterChip extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          // crossAxisAlignment: CrossAxisAlignment.baseline, // ✅
-          textBaseline: TextBaseline.alphabetic,           // ✅ required
+          // crossAxisAlignment: CrossAxisAlignment.baseline, 
+          textBaseline: TextBaseline.alphabetic,           // required
           children: [
             Transform.translate(
-              offset: const Offset(0, 0), // ✅ change to 0.5 if needed
+              offset: const Offset(0, 0), // change to 0.5 if needed
               child: Icon(icon, size: 15, color: contentColor),
             ),
             const SizedBox(width: 4),
