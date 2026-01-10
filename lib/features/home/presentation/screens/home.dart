@@ -303,7 +303,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
                     ),
 
-                    // ✅ loading bar in header
+                    //  loading bar in header
                     Obx(
                       () => Get.find<EventController>().loading.value
                           ? const LinearProgressIndicator(minHeight: 2)
@@ -349,7 +349,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                             fit: BoxFit.contain,
                             color: Colors.black87,
                             // colorBlendMode: BlendMode.srcIn,
-                            filterQuality: FilterQuality.none, // ✅ makes edges sharper
+                            filterQuality: FilterQuality.none, // makes edges sharper
                             isAntiAlias: false,
                           ),
 
@@ -371,32 +371,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     IconButton(
                       iconSize: 28,
                       onPressed: () {
-                        Navigator.of(context).push(
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const SettingsScreen(),
-                            transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  const begin = Offset(1.0, 0.0);
-                                  const end = Offset.zero;
-                                  const curve = Curves.easeInOut;
-                                  final tween = Tween(
-                                    begin: begin,
-                                    end: end,
-                                  ).chain(CurveTween(curve: curve));
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
-                          ),
-                        );
+                      Get.to (() => const SettingsScreen());
                       },
                       icon: Image.asset(
                         AppImages.setting_icon,
