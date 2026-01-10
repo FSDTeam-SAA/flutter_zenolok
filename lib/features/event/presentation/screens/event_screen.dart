@@ -144,54 +144,41 @@ class _EventsScreenState extends State<EventsScreen> {
                 const _TopBar(),
                 const SizedBox(height: 8),
 
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
-                  child: CategoryFilterBar(
-                    activeIds: _editorFilters,
-                    onChange: (newSet) {
-                      if (newSet.isEmpty) return;
+                // ✅ Match CalendarHomePage brick design (no extra padding wrapper)
+                CategoryFilterBar(
+                  activeIds: _editorFilters,
+                  onChange: (newSet) {
+                    setState(() {
+                      _editorFilters
+                        ..clear()
+                        ..addAll(newSet);
+                    });
 
-                      String selectedId;
+                    controller.applyBrickFiltersUI(_editorFilters);
+                  },
+                  onAddPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const CategoryEditorScreen(),
+                      ),
+                    );
 
-                      if (newSet.length > _editorFilters.length) {
-                        selectedId = newSet.firstWhere(
-                          (id) => !_editorFilters.contains(id),
-                          orElse: () => newSet.last,
-                        );
-                      } else {
-                        selectedId = newSet.first;
-                      }
+                    await Get.find<BrickController>().loadBricks();
+                    final bricks = Get.find<BrickController>().bricks;
 
+                    // Auto-select last brick if none selected
+                    if (_editorFilters.isEmpty && bricks.isNotEmpty) {
+                      final lastId = bricks.last.id;
                       setState(() {
-                        _selectedBrickId = selectedId;
-                        _editorFilters = {selectedId};
+                        _selectedBrickId = lastId;
+                        _editorFilters = {lastId};
                       });
 
                       controller.applyBrickFiltersUI(_editorFilters);
-                    },
-                    onAddPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const CategoryEditorScreen(),
-                        ),
-                      );
-
-                      await Get.find<BrickController>().loadBricks();
-                      final bricks = Get.find<BrickController>().bricks;
-
-                      if (_selectedBrickId == null && bricks.isNotEmpty) {
-                        final lastId = bricks.last.id;
-                        setState(() {
-                          _selectedBrickId = lastId;
-                          _editorFilters = {lastId};
-                        });
-
-                        controller.applyBrickFiltersUI(_editorFilters);
-                      } else {
-                        setState(() {});
-                      }
-                    },
-                  ),
+                    } else {
+                      setState(() {});
+                    }
+                  },
                 ),
 
                 const SizedBox(height: 10),
