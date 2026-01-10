@@ -148,7 +148,7 @@ class CategoryFilterBar extends StatelessWidget {
         final List<BrickModel> bricks = controller.bricks;
 
         return SizedBox(
-          height: 37, // closer to design
+          height: 28, // closer to design
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -158,7 +158,7 @@ class CategoryFilterBar extends StatelessWidget {
               _FilterChip(
                 icon: Icons.manage_search,
                 label: 'All',
-                color: const Color(0xFFB6B5B5), // ✅ CHANGE HERE (was 0xFF9CA3AF)
+                color: const Color(0xFFB6B5B5), //  CHANGE HERE (was 0xFF9CA3AF)
                 filled: activeIds.isEmpty,
                 onTap: () => onChange(<String>{}),
               ),
@@ -221,8 +221,8 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ SELECTED => outline (like screenshot)
-    // ✅ NOT selected => filled color + white text
+    //  SELECTED => outline (like screenshot)
+    //  NOT selected => filled color + white text
     final bgColor = filled ? Colors.white : color;
     final borderColor = color; // keep border always same color
     final contentColor = filled ? color : Colors.white;
