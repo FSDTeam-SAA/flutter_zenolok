@@ -302,7 +302,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
     final cellGapV = max(8.0, rowHeight * 0.3);
 
-    // ✅ UI FIX (streak yellow line looks continuous like your screenshots)
+    //  UI FIX (streak yellow line looks continuous like your screenshots)
     final cellGapH = 5.0;
 
     final calHeight = dowHeight + rowHeight * 6;
@@ -502,7 +502,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     child: SizedBox(
                       // height: 21,
                       // width: 309,
-                      // ✅ fixed width like Figma (remove if you want full width)
+                      // fixed width like Figma (remove if you want full width)
                       child: CategoryFilterBar(
                         activeIds: _filters,
                         onChange: (newSet) => setState(() {
@@ -561,7 +561,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                                 _focused.value = foc;
                               });
 
-                              // ✅ load todos for events of this day (NO UI change)
+                              //  load todos for events of this day (NO UI change)
                               await Get.find<EventController>()
                                   .ensureTodosLoadedForDay(_selected!);
                             },
