@@ -36,18 +36,70 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
   Widget build(BuildContext context) {
     final BrickController controller = Get.find<BrickController>();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: Obx(() {
-          final CategoryDesign initial = controller.design.value;
-          final bool isSaving = controller.isLoading.value;
-          final String? errorText = controller.errorMessage.value;
+    return Obx(() {
+      final CategoryDesign initial = controller.design.value;
+      final bool isSaving = controller.isLoading.value;
+      final String? errorText = controller.errorMessage.value;
+      final bool _hasColor = initial.color != null;
 
-          final bottomKeyboard = MediaQuery.of(context).viewInsets.bottom;
+      final addTextColor = (_hasColor && !isSaving)
+          ? const Color(0xFF444444)
+          : const Color(0xFFE0E0E0);
 
-          return GestureDetector(
+      final canAdd = _hasColor && !isSaving;
+
+      final bottomKeyboard = MediaQuery.of(context).viewInsets.bottom;
+
+      return Scaffold(
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: GestureDetector(
+              onTap: () => Get.back(),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 20,
+                color: Colors.black,
+              ),
+            ),
+            onPressed: _hasColor ? () => Get.back() : null,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: InkWell(
+                onTap: canAdd
+                    ? () async {
+                        final BrickModel? created =
+                            await controller.createBrick();
+                        if (created != null) Get.back(result: created);
+                      }
+                    : null,
+                child: Row(
+                  children: [
+                    Text(
+                      isSaving ? 'Adding...' : 'Add',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: addTextColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.chevron_right, size: 18, color: addTextColor),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.translucent,
             child: SingleChildScrollView(
@@ -63,10 +115,10 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
                 },
               ),
             ),
-          );
-        }),
-      ),
-    );
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -289,8 +341,9 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
     _nameController = TextEditingController(text: _name);
     _nameFocus = FocusNode();
 
-    // 👉 NEW: focus name field when screen opens (if color already chosen)
+    // 👉 Sync initial design with controller
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _notify(); // Ensure controller has the current design
       if (_hasColor) {
         _nameFocus.requestFocus();
       }
@@ -318,59 +371,14 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
   @override
   Widget build(BuildContext context) {
     final pillColor =
-    _hasColor ? _selectedColor! : const Color(0xFFF1F1F1);
+        _hasColor ? _selectedColor! : const Color(0xFFF1F1F1);
     final pillText = _nameController.text.trim().isEmpty
         ? 'Bricks'
         : _nameController.text.trim();
 
-    final enabledBackColor =
-    _hasColor ? const Color(0xFF444444) : const Color(0xFFDDDDDD);
-
-    final addTextColor = (_hasColor && !widget.isSaving)
-        ? const Color(0xFF444444)
-        : const Color(0xFFE0E0E0);
-
-    final canAdd = _hasColor && !widget.isSaving;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // TOP ROW
-        Row(
-          children: [
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 18,
-                color: enabledBackColor,
-              ),
-              onPressed: _hasColor ? () => Get.back() : null,
-            ),
-            const Spacer(),
-            InkWell(
-              onTap: canAdd ? widget.onAdd : null,
-              child: Row(
-                children: [
-                  Text(
-                    widget.isSaving ? 'Adding...' : 'Add',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: addTextColor,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.chevron_right, size: 18, color: addTextColor),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 10),
-
         // PILL
         Center(
           child: _CategoryHeaderPill(
@@ -390,7 +398,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
             children: [
               TextField(
                 controller: _nameController,
-                focusNode: _nameFocus, // 👉 NEW: attach focus node here
+                focusNode: _nameFocus,
                 readOnly: !_hasColor,
                 textAlign: TextAlign.center,
                 decoration: const InputDecoration(
@@ -434,7 +442,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _colors.length,
               gridDelegate:
-              const SliverGridDelegateWithFixedCrossAxisCount(
+                  const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 10,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
@@ -450,7 +458,6 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                     setState(() => _selectedColor = c);
                     _notify();
 
-                    // 👉 NEW: as soon as user picks a color, show blinking cursor
                     _nameFocus.requestFocus();
                   },
                   child: Container(
@@ -524,8 +531,8 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _icons.length,
                 gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 8, // ✅ like screenshot
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 8,
                   mainAxisSpacing: 14,
                   crossAxisSpacing: 14,
                 ),
@@ -537,19 +544,19 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                   final iconColor = !_hasColor
                       ? const Color(0xFFD0D0D0)
                       : (isSelected
-                      ? const Color(0xFF4A4A4A)
-                      : const Color(0xFFB0B0B0));
+                          ? const Color(0xFF4A4A4A)
+                          : const Color(0xFFB0B0B0));
 
                   return GestureDetector(
                     onTap: _hasColor
                         ? () {
-                      setState(() => _selectedIcon = opt);
-                      _notify();
-                    }
+                            setState(() => _selectedIcon = opt);
+                            _notify(); // Update controller with new icon
+                          }
                         : null,
                     child: AnimatedContainer(
                       duration:
-                      const Duration(milliseconds: 120),
+                          const Duration(milliseconds: 120),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: (isSelected && _hasColor)
