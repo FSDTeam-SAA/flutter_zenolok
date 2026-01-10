@@ -65,7 +65,7 @@ class EventController extends GetxController {
     await loadTabEventsUI(selectedTab);
   }
 
-  /// ✅ Loads events for Upcoming / Past / All
+  ///  Loads events for Upcoming / Past / All
   /// Backend supports filter=past but since your repo currently uses date range,
   /// we load a WIDE range and filter locally.
   Future<void> loadTabEventsUI(TabKind tab) async {
@@ -153,10 +153,10 @@ class EventController extends GetxController {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // ✅ YOUR EXISTING CODE (UNCHANGED)
+  //  YOUR EXISTING CODE (UNCHANGED)
   // ───────────────────────────────────────────────────────────────────────────
 
-  /// ✅ loads month events
+  ///  loads month events
   /// FIX:
   /// - update() so GetBuilder rebuilds
   /// - preserve checklist if already loaded / or keep API embedded todos
