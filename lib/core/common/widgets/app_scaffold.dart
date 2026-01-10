@@ -7,6 +7,7 @@ class AppScaffold extends StatelessWidget {
   final bool removePadding;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
+  final Color? backgroundColor;
 
   const AppScaffold({
     super.key,
@@ -16,6 +17,7 @@ class AppScaffold extends StatelessWidget {
     this.removePadding = false,
     this.floatingActionButton,
     this.bottomNavigationBar,
+    this.backgroundColor,
   });
 
   @override
@@ -29,6 +31,7 @@ class AppScaffold extends StatelessWidget {
       ),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
+      backgroundColor: backgroundColor,
     );
   }
 }
