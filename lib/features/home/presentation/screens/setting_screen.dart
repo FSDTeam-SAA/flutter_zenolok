@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/core/common/widgets/app_scaffold.dart';
 import 'package:get/get.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
+import 'bricks_manage_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -39,9 +40,16 @@ class SettingsScreen extends StatelessWidget {
                     // Settings items
                     _buildSettingTile(
                       icon: Icons.verified_rounded,
-                      title: 'minical pro',
-                      subtitle: 'Remove Ads & Unlock Features',
-                      onTap: () {},
+                      title: 'Bricks Manage',
+                      // subtitle: 'Remove Ads & Unlock Features',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const BricksManageScreen(),
+                          ),
+                        );
+                      },
                     ),
                     _buildSettingTile(
                       icon: Icons.remove_red_eye_outlined,
