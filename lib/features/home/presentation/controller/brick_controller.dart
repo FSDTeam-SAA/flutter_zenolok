@@ -66,7 +66,6 @@ class BrickController extends GetxController {
 
     isLoading.value = true;
     errorMessage.value = null;
-    update(); // ✅ so GetBuilder UIs can show loading if you want
 
     final request = CreateBrickRequestModel(
       name: d.name.trim().isEmpty ? 'Bricks' : d.name.trim(),
@@ -84,13 +83,7 @@ class BrickController extends GetxController {
           (success) {
         created = success.data;
 
-        // ✅ Update list
         bricks.add(success.data);
-
-        // ✅ IMPORTANT: rebuild GetBuilder widgets immediately
-        update();
-
-        // Optional: also refresh Rx listeners
         bricks.refresh();
 
         resetDesign();
@@ -98,7 +91,6 @@ class BrickController extends GetxController {
     );
 
     isLoading.value = false;
-    update(); // ✅ reflect loading false in GetBuilder screens
 
     return created;
   }
@@ -106,7 +98,6 @@ class BrickController extends GetxController {
   Future<void> loadBricks() async {
     isLoading.value = true;
     errorMessage.value = null;
-    update(); // ✅ rebuild before fetch (optional)
 
     final Either<NetworkFailure, NetworkSuccess<List<BrickModel>>> result =
     await _repository.getBricks();
@@ -114,15 +105,11 @@ class BrickController extends GetxController {
     result.fold(
           (failure) => errorMessage.value = failure.message,
           (success) {
-        // ✅ Update list FIRST
         bricks.assignAll(success.data);
         bricks.refresh();
       },
     );
 
     isLoading.value = false;
-
-    // ✅ IMPORTANT: rebuild AFTER the list is updated
-    update();
   }
 }
