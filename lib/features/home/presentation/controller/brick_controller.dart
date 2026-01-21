@@ -8,6 +8,7 @@ import '../../../../core/network/models/network_success.dart';
 import '../../data/models/brick_model.dart';
 import '../../data/models/category_design.dart';
 import '../../data/models/create_brick_request_model.dart';
+import '../../data/models/update_brick_request_model.dart';
 import '../../domain/repo/brick_repo.dart';
 
 class BrickController extends GetxController {
@@ -111,5 +112,48 @@ class BrickController extends GetxController {
     );
 
     isLoading.value = false;
+  }
+
+  Future<BrickModel?> updateBrick(String brickId) async {
+    final d = design.value;
+
+    if (d.color == null) {
+      errorMessage.value = 'Select a color before updating the brick.';
+      return null;
+    }
+
+    isLoading.value = true;
+    errorMessage.value = null;
+
+    final request = UpdateBrickRequestModel(
+      name: d.name.trim().isEmpty ? 'Bricks' : d.name.trim(),
+      color: _colorToHex(d.color!),
+      icon: d.iconKey,
+    );
+
+    final Either<NetworkFailure, NetworkSuccess<BrickModel>> result =
+    await _repository.updateBrick(brickId, request);
+
+    BrickModel? updated;
+
+    result.fold(
+          (failure) => errorMessage.value = failure.message,
+          (success) {
+        updated = success.data;
+
+        // Update the brick in the list
+        final index = bricks.indexWhere((b) => b.id == brickId);
+        if (index != -1) {
+          bricks[index] = success.data;
+          bricks.refresh();
+        }
+
+        resetDesign();
+      },
+    );
+
+    isLoading.value = false;
+
+    return updated;
   }
 }
