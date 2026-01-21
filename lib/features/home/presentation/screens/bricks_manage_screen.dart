@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../data/models/brick_model.dart';
 import '../controller/brick_controller.dart';
+import 'brick_edit_screen.dart';
 
 class BricksManageScreen extends StatefulWidget {
   const BricksManageScreen({super.key});
@@ -193,10 +194,13 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
 
     return GestureDetector(
       onLongPress: () => _showDeleteConfirmation(brick),
-      onTap: () {
-        // TODO: Navigate to edit screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Edit functionality coming soon')),
+      onTap: () async {
+        // Navigate to edit screen
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BrickEditScreen(brick: brick),
+          ),
         );
       },
       child: Container(
