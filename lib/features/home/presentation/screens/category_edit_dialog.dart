@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../todos/data/models/category_model.dart';
 import '../../../todos/presentation/controllers/event_totos_controller.dart';
-import '../../../todos/presentation/widgets/categories_grid.dart';
+import 'todos_categories_manage_screen.dart';
 
 class CategoryEditDialog extends StatefulWidget {
   final CategoryModel category;
@@ -18,20 +18,8 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
   late TextEditingController _nameController;
   late Color _selectedColor;
 
-  final List<Color> _colors = [
-    const Color(0xFFFF5722), // Red Orange
-    const Color(0xFFFFC107), // Amber
-    const Color(0xFF4CAF50), // Green
-    const Color(0xFF00BCD4), // Cyan
-    const Color(0xFF2196F3), // Blue
-    const Color(0xFF9C27B0), // Purple
-    const Color(0xFFE91E63), // Pink
-    const Color(0xFF009688), // Teal
-    const Color(0xFF673AB7), // Deep Purple
-    const Color(0xFFF44336), // Red
-    const Color(0xFF3F51B5), // Indigo
-    const Color(0xFF00796B), // Dark Teal
-  ];
+  // Use the same color palette as NewCategoryDialog
+  static const List<Color> _colors = TodosCategoriesManageScreen.categoryColors;
 
   @override
   void initState() {
@@ -125,9 +113,9 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
+                  crossAxisCount: 10,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
                 ),
                 itemCount: _colors.length,
                 itemBuilder: (context, index) {
@@ -145,7 +133,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                         color: color,
                         shape: BoxShape.circle,
                         border: isSelected
-                            ? Border.all(color: Colors.black, width: 3)
+                            ? Border.all(color: Colors.black, width: 2)
                             : null,
                       ),
                       child: isSelected
@@ -153,7 +141,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                               child: Icon(
                                 Icons.check,
                                 color: Colors.white,
-                                size: 24,
+                                size: 16,
                               ),
                             )
                           : null,
@@ -193,7 +181,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                                 Navigator.pop(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
+                                    content: const Text(
                                       'Category updated successfully',
                                     ),
                                     backgroundColor: Colors.green,
