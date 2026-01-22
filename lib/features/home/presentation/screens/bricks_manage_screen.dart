@@ -166,7 +166,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
             children: [
               // Add New Bricks Button
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -184,14 +184,18 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                           _brickController.loadBricks();
                         }
                       },
-                      icon: const Icon(Icons.add, size: 20),
-                      label: const Text('Add New Brick'),
+                      icon: const Icon(
+                        Icons.add,
+                        size: 20,
+                        ),
+
+                      label: const Text('Add'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                          horizontal: 8,
+                          vertical: 6,
                         ),
                       ),
                     ),
@@ -201,7 +205,10 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
               // Bricks Grid
               Expanded(
                 child: GridView.builder(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
