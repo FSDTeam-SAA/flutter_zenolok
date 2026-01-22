@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../data/models/brick_model.dart';
 import '../controller/brick_controller.dart';
+import '../widgets/cateogry_widget.dart';
 import 'brick_edit_screen.dart';
 
 class BricksManageScreen extends StatefulWidget {
@@ -161,19 +162,60 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
             );
           }
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(24),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 2.5,
-            ),
-            itemCount: bricks.length,
-            itemBuilder: (context, index) {
-              final brick = bricks[index];
-              return _buildBrickCard(brick);
-            },
+          return Column(
+            children: [
+              // Add New Bricks Button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        _brickController.resetDesign();
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CategoryEditorScreen(),
+                          ),
+                        );
+                        // Reload bricks if creation was successful
+                        if (result != null) {
+                          _brickController.loadBricks();
+                        }
+                      },
+                      icon: const Icon(Icons.add, size: 20),
+                      label: const Text('Add New Brick'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Bricks Grid
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(24),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 2.5,
+                  ),
+                  itemCount: bricks.length,
+                  itemBuilder: (context, index) {
+                    final brick = bricks[index];
+                    return _buildBrickCard(brick);
+                  },
+                ),
+              ),
+            ],
           );
         }),
       ),
