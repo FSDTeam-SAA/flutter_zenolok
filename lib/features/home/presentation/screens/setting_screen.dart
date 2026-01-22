@@ -43,12 +43,7 @@ class SettingsScreen extends StatelessWidget {
                       title: 'Bricks Manage',
                       // subtitle: 'Remove Ads & Unlock Features',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const BricksManageScreen(),
-                          ),
-                        );
+                        Get.to (() => const BricksManageScreen());
                       },
                     ),
                     _buildSettingTile(
