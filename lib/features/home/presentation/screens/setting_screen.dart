@@ -3,6 +3,7 @@ import 'package:flutter_zenolok/core/common/widgets/app_scaffold.dart';
 import 'package:get/get.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
 import 'bricks_manage_screen.dart';
+import 'todos_categories_manage_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -43,13 +44,15 @@ class SettingsScreen extends StatelessWidget {
                       title: 'Bricks Manage',
                       // subtitle: 'Remove Ads & Unlock Features',
                       onTap: () {
-                        Get.to (() => const BricksManageScreen());
+                        Get.to(() => const BricksManageScreen());
                       },
                     ),
                     _buildSettingTile(
                       icon: Icons.remove_red_eye_outlined,
-                      title: 'Appearance',
-                      onTap: () {},
+                      title: 'Todos Categories Manage',
+                      onTap: () {
+                        Get.to(() => const TodosCategoriesManageScreen());
+                      },
                     ),
                     _buildSettingTile(
                       icon: Icons.calendar_today_outlined,
