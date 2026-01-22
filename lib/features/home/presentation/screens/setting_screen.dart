@@ -56,13 +56,38 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     _buildSettingTile(
                       icon: Icons.calendar_today_outlined,
-                      title: 'Edit Event',
+                      title: 'Language',
                       onTap: () {},
                     ),
                     _buildSettingTile(
                       icon: Icons.notifications_outlined,
-                      title: 'Notification, Badge',
+                      title: 'Manage weeks start day',
                       onTap: () {},
+                    ),
+                      _buildSettingTile(
+                      icon: Icons.timelapse_outlined,
+                      title: 'Switch time format',
+                      onTap: () {},
+                    ),
+                        _buildSettingTile(
+                      icon: Icons.notifications_outlined,
+                      title: 'Alarm preset',
+                      onTap: () {},
+                    ),
+                    _buildSettingTile(
+                      icon: Icons.dark_mode_outlined,
+                      title: 'Dark Mode',
+                      onTap: () {}
+                    ),
+                     _buildSettingTile(
+                      icon: Icons.notification_add,
+                      title: 'Notifications & Reminders',
+                      onTap: () {}
+                    ),
+                     _buildSettingTile(
+                      icon: Icons.calendar_month_outlined,
+                      title: 'Calendar',
+                      onTap: () {}
                     ),
 
                     const SizedBox(height: 24),
