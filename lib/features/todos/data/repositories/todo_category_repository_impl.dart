@@ -13,11 +13,11 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
   final ApiClient _apiClient;
 
   TodoCategoryRepositoryImpl({required ApiClient apiClient})
-      : _apiClient = apiClient;
+    : _apiClient = apiClient;
 
   @override
   Future<Either<NetworkFailure, NetworkSuccess<List<CategoryModel>>>>
-      getAllCategories() async {
+  getAllCategories() async {
     try {
       if (kDebugMode) {
         print('🔄 Repository: Fetching categories');
@@ -36,7 +36,10 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
           // Handle List<dynamic> from API response's data field
           if (json is List) {
             return json
-                .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
+                .map(
+                  (item) =>
+                      CategoryModel.fromJson(item as Map<String, dynamic>),
+                )
                 .toList();
           }
 
@@ -44,7 +47,10 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
           if (json is Map<String, dynamic>) {
             final dataList = json['data'] as List<dynamic>? ?? [];
             return dataList
-                .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
+                .map(
+                  (item) =>
+                      CategoryModel.fromJson(item as Map<String, dynamic>),
+                )
                 .toList();
           }
 
@@ -69,7 +75,9 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
         },
         (success) {
           if (kDebugMode) {
-            print('✅ Repository: Success with ${success.data.length} categories');
+            print(
+              '✅ Repository: Success with ${success.data.length} categories',
+            );
             for (int i = 0; i < success.data.length; i++) {
               print('   ${i + 1}. ${success.data[i].name}');
             }
@@ -121,10 +129,7 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
           }
           return CreateCategoryResponse.fromJson(json as Map<String, dynamic>);
         },
-        data: {
-          'name': name,
-          'color': color,
-        },
+        data: {'name': name, 'color': color},
       );
 
       return result.fold(
@@ -151,7 +156,7 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
 
           // Return the response data as-is, whether complete or incomplete
           // Let the controller handle incomplete responses
-          
+
           return Right(
             NetworkSuccess<CategoryModel>(
               data: success.data.data,
@@ -168,6 +173,77 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
       return Left(
         ServerFailure(
           message: 'Failed to create category: $e',
+          statusCode: 500,
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Either<NetworkFailure, NetworkSuccess<CategoryModel>>> updateCategory({
+    required String categoryId,
+    required String name,
+    required String color,
+  }) async {
+    try {
+      if (kDebugMode) {
+        print('🔄 Repository: Updating category');
+        print('   ID: "$categoryId"');
+        print('   Name: "$name"');
+        print('   Color: "$color"');
+        print(
+          '   Endpoint: ${ApiConstants.todoCategories.updateCategory(categoryId)}',
+        );
+        print('   Request Body: {"name": "$name", "color": "$color"}');
+      }
+
+      final result = await _apiClient.patch<CategoryModel>(
+        ApiConstants.todoCategories.updateCategory(categoryId),
+        fromJsonT: (json) {
+          if (kDebugMode) {
+            print('📦 Repository: Raw JSON received from API:');
+            print('   $json');
+          }
+          return CategoryModel.fromJson(json as Map<String, dynamic>);
+        },
+        data: {'name': name, 'color': color},
+      );
+
+      return result.fold(
+        (failure) {
+          if (kDebugMode) {
+            print('❌ Repository: Update failed');
+            print('   Error: ${failure.message}');
+          }
+          return Left(failure);
+        },
+        (success) {
+          if (kDebugMode) {
+            print('✅ Repository: Category update response received');
+            print('   Response Message: "${success.message}"');
+            print('   Status Code: ${success.statusCode}');
+            print('   Updated Category:');
+            print('     ID: "${success.data.id}"');
+            print('     Name: "${success.data.name}"');
+            print('     Color: "${success.data.color}"');
+          }
+
+          return Right(
+            NetworkSuccess<CategoryModel>(
+              data: success.data,
+              message: success.message,
+              statusCode: success.statusCode,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Repository Exception: $e');
+      }
+      return Left(
+        ServerFailure(
+          message: 'Failed to update category: $e',
           statusCode: 500,
         ),
       );
