@@ -32,11 +32,6 @@ class BrickController extends GetxController {
     errorMessage.value = null;
   }
 
-
-
-
-
-
   /// ✅ Editor state (start grey)
   final Rx<CategoryDesign> design = const CategoryDesign(
     color: null,
@@ -75,21 +70,18 @@ class BrickController extends GetxController {
     );
 
     final Either<NetworkFailure, NetworkSuccess<BrickModel>> result =
-    await _repository.createBrick(request);
+        await _repository.createBrick(request);
 
     BrickModel? created;
 
-    result.fold(
-          (failure) => errorMessage.value = failure.message,
-          (success) {
-        created = success.data;
+    result.fold((failure) => errorMessage.value = failure.message, (success) {
+      created = success.data;
 
-        bricks.add(success.data);
-        bricks.refresh();
+      bricks.add(success.data);
+      bricks.refresh();
 
-        resetDesign();
-      },
-    );
+      resetDesign();
+    });
 
     isLoading.value = false;
 
@@ -101,15 +93,12 @@ class BrickController extends GetxController {
     errorMessage.value = null;
 
     final Either<NetworkFailure, NetworkSuccess<List<BrickModel>>> result =
-    await _repository.getBricks();
+        await _repository.getBricks();
 
-    result.fold(
-          (failure) => errorMessage.value = failure.message,
-          (success) {
-        bricks.assignAll(success.data);
-        bricks.refresh();
-      },
-    );
+    result.fold((failure) => errorMessage.value = failure.message, (success) {
+      bricks.assignAll(success.data);
+      bricks.refresh();
+    });
 
     isLoading.value = false;
   }
@@ -132,28 +121,46 @@ class BrickController extends GetxController {
     );
 
     final Either<NetworkFailure, NetworkSuccess<BrickModel>> result =
-    await _repository.updateBrick(brickId, request);
+        await _repository.updateBrick(brickId, request);
 
     BrickModel? updated;
 
-    result.fold(
-          (failure) => errorMessage.value = failure.message,
-          (success) {
-        updated = success.data;
+    result.fold((failure) => errorMessage.value = failure.message, (success) {
+      updated = success.data;
 
-        // Update the brick in the list
-        final index = bricks.indexWhere((b) => b.id == brickId);
-        if (index != -1) {
-          bricks[index] = success.data;
-          bricks.refresh();
-        }
+      // Update the brick in the list
+      final index = bricks.indexWhere((b) => b.id == brickId);
+      if (index != -1) {
+        bricks[index] = success.data;
+        bricks.refresh();
+      }
 
-        resetDesign();
-      },
-    );
+      resetDesign();
+    });
 
     isLoading.value = false;
 
     return updated;
+  }
+
+  Future<bool> deleteBrick(String brickId) async {
+    isLoading.value = true;
+    errorMessage.value = null;
+
+    final Either<NetworkFailure, NetworkSuccess<void>> result =
+        await _repository.deleteBrick(brickId);
+
+    bool success = false;
+
+    result.fold((failure) => errorMessage.value = failure.message, (_) {
+      success = true;
+      // Remove the brick from the list
+      bricks.removeWhere((b) => b.id == brickId);
+      bricks.refresh();
+    });
+
+    isLoading.value = false;
+
+    return success;
   }
 }
