@@ -141,6 +141,7 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 childAspectRatio: 1.2,
+                mainAxisExtent: 48,
               ),
               itemCount: controller.categories.length,
               itemBuilder: (context, index) {
@@ -177,32 +178,37 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
             ),
           ],
         ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Category Name
-            Expanded(
-              child: Center(
-                child: Text(
-                  category.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Edit Icon
-            Icon(Icons.edit_outlined, color: Colors.white, size: 20),
-          ],
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+       child: Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+    // Category Name
+    Expanded(
+      child: Text(
+        category.name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
+      ),
+    ),
+
+    const SizedBox(width: 8),
+
+    // Edit Icon
+    const Icon(
+      Icons.edit_outlined,
+      color: Colors.white,
+      size: 18,
+    ),
+  ],
+),
+
       ),
     );
   }
