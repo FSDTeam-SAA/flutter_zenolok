@@ -19,25 +19,31 @@ class _BrickEditScreenState extends State<BrickEditScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill the controller with current brick data
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = Get.find<BrickController>();
-      
-      // Convert hex color to Flutter Color
-      final color = _hexToColor(widget.brick.color);
-      
-      // Find the icon from the icon key
-      final icon = _iconFromKey(widget.brick.icon);
-      
-      controller.updateDesign(
-        CategoryDesign(
-          color: color,
-          icon: icon,
-          iconKey: widget.brick.icon,
-          name: widget.brick.name,
-        ),
-      );
-    });
+    // Pre-fill the controller with current brick data immediately
+    final controller = Get.find<BrickController>();
+
+    // Convert hex color to Flutter Color
+    final color = _hexToColor(widget.brick.color);
+
+    // Find the icon from the icon key
+    final icon = _iconFromKey(widget.brick.icon);
+
+    controller.updateDesign(
+      CategoryDesign(
+        color: color,
+        icon: icon,
+        iconKey: widget.brick.icon,
+        name: widget.brick.name,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Reset design when leaving the screen
+    final controller = Get.find<BrickController>();
+    controller.resetDesign();
+    super.dispose();
   }
 
   Color _hexToColor(String hex) {
@@ -142,8 +148,8 @@ class _BrickEditScreenState extends State<BrickEditScreen> {
               child: InkWell(
                 onTap: canUpdate
                     ? () async {
-                        final BrickModel? updated =
-                            await controller.updateBrick(widget.brick.id);
+                        final BrickModel? updated = await controller
+                            .updateBrick(widget.brick.id);
                         if (updated != null) Get.back(result: updated);
                       }
                     : null,
@@ -177,8 +183,9 @@ class _BrickEditScreenState extends State<BrickEditScreen> {
                 errorText: errorText,
                 onChanged: controller.updateDesign,
                 onAdd: () async {
-                  final BrickModel? updated =
-                      await controller.updateBrick(widget.brick.id);
+                  final BrickModel? updated = await controller.updateBrick(
+                    widget.brick.id,
+                  );
                   if (updated != null) Get.back(result: updated);
                 },
               ),
