@@ -166,7 +166,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
             children: [
               // Add New Bricks Button
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -197,6 +197,9 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                           horizontal: 8,
                           vertical: 6,
                         ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ],
@@ -214,6 +217,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                     childAspectRatio: 2.5,
+                    mainAxisExtent: 48,
                   ),
                   itemCount: bricks.length,
                   itemBuilder: (context, index) {
@@ -258,7 +262,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
             // Icon on the left
