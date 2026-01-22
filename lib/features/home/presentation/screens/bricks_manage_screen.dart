@@ -107,83 +107,75 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
         ),
       ),
       body: SafeArea(
-        child: Obx(
-          () {
-            final isLoading = _brickController.isLoading.value;
-            final errorMessage = _brickController.errorMessage.value;
-            final bricks = _brickController.bricks;
+        child: Obx(() {
+          final isLoading = _brickController.isLoading.value;
+          final errorMessage = _brickController.errorMessage.value;
+          final bricks = _brickController.bricks;
 
-            if (isLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+          if (isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            if (errorMessage != null) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: Colors.red,
+          if (errorMessage != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      'Error: $errorMessage',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16, color: Colors.red),
                     ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Text(
-                        'Error: $errorMessage',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16, color: Colors.red),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () => _brickController.loadBricks(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (bricks.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.inbox_outlined,
-                      size: 48,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No bricks found',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return GridView.builder(
-              padding: const EdgeInsets.all(24),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 2.5,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => _brickController.loadBricks(),
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
-              itemCount: bricks.length,
-              itemBuilder: (context, index) {
-                final brick = bricks[index];
-                return _buildBrickCard(brick);
-              },
             );
-          },
-        ),
+          }
+
+          if (bricks.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.inbox_outlined,
+                    size: 48,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No bricks found',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(24),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 2.5,
+            ),
+            itemCount: bricks.length,
+            itemBuilder: (context, index) {
+              final brick = bricks[index];
+              return _buildBrickCard(brick);
+            },
+          );
+        }),
       ),
     );
   }
@@ -195,13 +187,15 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
     return GestureDetector(
       onLongPress: () => _showDeleteConfirmation(brick),
       onTap: () async {
-        // Navigate to edit screen
-        await Navigator.push(
+        // Navigate to edit screen and reload bricks on return
+        final result = await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => BrickEditScreen(brick: brick),
-          ),
+          MaterialPageRoute(builder: (_) => BrickEditScreen(brick: brick)),
         );
+        // Reload bricks if update was successful
+        if (result != null) {
+          _brickController.loadBricks();
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -219,11 +213,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
         child: Row(
           children: [
             // Icon on the left
-            Icon(
-              brickIcon,
-              color: Colors.white,
-              size: 28,
-            ),
+            Icon(brickIcon, color: Colors.white, size: 28),
             const SizedBox(width: 12),
             // Brick name on the right
             Expanded(
@@ -294,14 +284,29 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-                        // TODO: Implement delete API call
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Delete functionality coming soon'),
-                          ),
+                        // Call delete API
+                        final success = await _brickController.deleteBrick(
+                          brick.id,
                         );
+                        if (success && mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '"${brick.name}" deleted successfully',
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else if (!success && mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to delete "${brick.name}"'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                       child: const Text(
                         'Delete',
