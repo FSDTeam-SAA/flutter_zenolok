@@ -10,6 +10,53 @@ import 'category_edit_dialog.dart';
 class TodosCategoriesManageScreen extends GetView<EventTodosController> {
   const TodosCategoriesManageScreen({super.key});
 
+  static const List<Color> categoryColors = [
+    // Row 1 - Bright colors
+    Color(0xFFFF383C),
+    Color(0xFFFF8D28),
+    Color(0xFFFFCC00),
+    Color(0xFF34C759),
+    Color(0xFF00C0E8),
+    Color(0xFF0088FF),
+    Color(0xFF6155F5),
+    Color(0xFFCB30E0),
+    Color(0xFFFF2D55),
+    Color(0xFFAC7F5E),
+    // Row 2 - Light/Pastel colors
+    Color(0xFFFFC2BD),
+    Color(0xFFFFD4AE),
+    Color(0xFFFFF4C6),
+    Color(0xFFE4F3E8),
+    Color(0xFFCAEBF2),
+    Color(0xFFE0EBF3),
+    Color(0xFFEAE9F4),
+    Color(0xFFF4E5F6),
+    Color(0xFFFFE8EC),
+    Color(0xFFEEE4DC),
+    // Row 3 - Medium/Muted colors
+    Color(0xFFC36062),
+    Color(0xFFE6D6C8),
+    Color(0xFFDFD5AD),
+    Color(0xFFCCDED0),
+    Color(0xFFABC3C8),
+    Color(0xFFB3C1CD),
+    Color(0xFFB3C1CD),
+    Color(0xFFB8B6CA),
+    Color(0xFFC8939D),
+    Color(0xFFA69588),
+    // Row 4 - Dark colors
+    Color(0xFF9C2426),
+    Color(0xFFBD7434),
+    Color(0xFF72611E),
+    Color(0xFF3F694A),
+    Color(0xFF1E6372),
+    Color(0xFF26537A),
+    Color(0xFF514E73),
+    Color(0xFF674B6B),
+    Color(0xFF732D3A),
+    Color(0xFF5B4230),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -87,27 +134,19 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
               );
             }
 
-            return SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    // Categories List
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.categories.length,
-                      itemBuilder: (context, index) {
-                        final category = controller.categories[index];
-                        return _buildCategoryCard(context, category);
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+            return GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 1.2,
               ),
+              itemCount: controller.categories.length,
+              itemBuilder: (context, index) {
+                final category = controller.categories[index];
+                return _buildCategoryCard(context, category);
+              },
             );
           }),
         ),
@@ -127,7 +166,6 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
       },
       onLongPress: () => _showDeleteConfirmation(context, category),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: categoryColor,
           borderRadius: BorderRadius.circular(12),
@@ -139,24 +177,28 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Category Name
             Expanded(
-              child: Text(
-                category.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+              child: Center(
+                child: Text(
+                  category.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(height: 8),
             // Edit Icon
             Icon(Icons.edit_outlined, color: Colors.white, size: 20),
           ],
