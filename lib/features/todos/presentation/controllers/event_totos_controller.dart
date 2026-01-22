@@ -21,8 +21,8 @@ class EventTodosController extends GetxController {
   EventTodosController({
     required TodoCategoryRepository categoryRepository,
     required TodoItemRepository todoItemRepository,
-  })  : _categoryRepository = categoryRepository,
-        _todoItemRepository = todoItemRepository;
+  }) : _categoryRepository = categoryRepository,
+       _todoItemRepository = todoItemRepository;
 
   @override
   void onInit() {
@@ -53,7 +53,7 @@ class EventTodosController extends GetxController {
       (success) {
         categories.value = success.data;
         errorMessage.value = '';
-        
+
         if (kDebugMode) {
           print('✅ Categories fetched successfully!');
           print('📊 Total categories: ${success.data.length}');
@@ -107,7 +107,7 @@ class EventTodosController extends GetxController {
       (success) {
         // Check if the response has valid data
         final categoryData = success.data;
-        
+
         if (kDebugMode) {
           print('✅ Category creation response received');
           print('📝 Category Data:');
@@ -121,7 +121,7 @@ class EventTodosController extends GetxController {
         // If we have valid name, add it to the list
         if (categoryData.name.isNotEmpty) {
           categories.add(categoryData);
-          
+
           if (kDebugMode) {
             print('✅ Category added to list');
             print('📊 Total categories now: ${categories.length}');
@@ -145,7 +145,7 @@ class EventTodosController extends GetxController {
       print('🔄 Refreshing categories from server...');
     }
     await fetchCategories();
-    
+
     if (kDebugMode) {
       print('✅ Categories refreshed');
       print('   Total categories now: ${categories.length}');
@@ -233,21 +233,27 @@ class EventTodosController extends GetxController {
           print('✅ Controller: Todo items fetched successfully!');
           print('📊 Total todos: ${success.data.length}');
           for (int i = 0; i < success.data.length; i++) {
-            print('  ${i + 1}. ${success.data[i].text} (Completed: ${success.data[i].isCompleted})');
+            print(
+              '  ${i + 1}. ${success.data[i].text} (Completed: ${success.data[i].isCompleted})',
+            );
           }
         }
-        
+
         // Convert TodoItem to Map<String, dynamic> for dialog
         final mappedTodos = success.data
-            .map((todo) => {
-                  'id': todo.id,
-                  'title': todo.text,
-                  'checked': todo.isCompleted,
-                })
+            .map(
+              (todo) => {
+                'id': todo.id,
+                'title': todo.text,
+                'checked': todo.isCompleted,
+              },
+            )
             .toList();
 
         if (kDebugMode) {
-          print('🎯 Controller: Converted to Map, count: ${mappedTodos.length}');
+          print(
+            '🎯 Controller: Converted to Map, count: ${mappedTodos.length}',
+          );
           for (int i = 0; i < mappedTodos.length; i++) {
             print('   ${i + 1}. ${mappedTodos[i]['title']}');
           }
@@ -274,13 +280,15 @@ class EventTodosController extends GetxController {
         errorMessage.value = failure.message;
         scheduledTodos.clear();
         if (kDebugMode) {
-          print('❌ Controller: Error fetching scheduled todos: ${failure.message}');
+          print(
+            '❌ Controller: Error fetching scheduled todos: ${failure.message}',
+          );
         }
       },
       (success) {
         scheduledTodos.value = success.data;
         errorMessage.value = '';
-        
+
         if (kDebugMode) {
           print('✅ Controller: Scheduled todos fetched successfully!');
           print('📊 Total scheduled todos: ${success.data.length}');
@@ -308,7 +316,7 @@ class EventTodosController extends GetxController {
       print('🔄 Controller: Refreshing scheduled todos from server...');
     }
     await fetchScheduledTodos();
-    
+
     if (kDebugMode) {
       print('✅ Controller: Scheduled todos refreshed');
       print('   Total todos now: ${scheduledTodos.length}');
@@ -317,6 +325,57 @@ class EventTodosController extends GetxController {
         print('   [$i] ${todo.text} (${todo.sectionLabel})');
       }
     }
+  }
+
+  /// Updates an existing category
+  Future<bool> updateCategory({
+    required String categoryId,
+    required String name,
+    required String color,
+  }) async {
+    isCreating.value = true;
+    errorMessage.value = '';
+
+    if (kDebugMode) {
+      print('🚀 Updating category: $name with color $color');
+      print('   Category ID: $categoryId');
+    }
+
+    final result = await _categoryRepository.updateCategory(
+      categoryId: categoryId,
+      name: name,
+      color: color,
+    );
+
+    isCreating.value = false;
+
+    return result.fold(
+      (failure) {
+        errorMessage.value = failure.message;
+        if (kDebugMode) {
+          print('❌ Error updating category: ${failure.message}');
+        }
+        return false;
+      },
+      (success) {
+        // Update the category in the list
+        final index = categories.indexWhere((cat) => cat.id == categoryId);
+        if (index != -1) {
+          categories[index] = success.data;
+          categories.refresh();
+
+          if (kDebugMode) {
+            print('✅ Category updated successfully!');
+            print('📝 Updated Category:');
+            print('  ID: ${success.data.id}');
+            print('  Name: ${success.data.name}');
+            print('  Color: ${success.data.color}');
+          }
+        }
+
+        return true;
+      },
+    );
   }
 
   /// Get filtered scheduled todos by category
@@ -365,4 +424,3 @@ class EventTodosController extends GetxController {
     return null;
   }
 }
-
