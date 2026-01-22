@@ -227,9 +227,8 @@ class _FilterChip extends StatelessWidget {
     final borderColor = color; // keep border always same color
     final contentColor = filled ? color : Colors.white;
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
       child: Container(
           padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
         decoration: BoxDecoration(
