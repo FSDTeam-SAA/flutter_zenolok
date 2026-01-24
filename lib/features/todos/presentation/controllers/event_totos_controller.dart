@@ -17,6 +17,7 @@ class EventTodosController extends GetxController {
   final isLoadingScheduled = false.obs;
   final errorMessage = ''.obs;
   final isCreating = false.obs;
+  final isDeleting = false.obs;
 
   EventTodosController({
     required TodoCategoryRepository categoryRepository,
@@ -422,5 +423,42 @@ class EventTodosController extends GetxController {
       }
     }
     return null;
+  }
+
+  /// Deletes a category
+  Future<bool> deleteCategory({required String categoryId}) async {
+    isDeleting.value = true;
+    errorMessage.value = '';
+
+    if (kDebugMode) {
+      print('🗑️ Deleting category: $categoryId');
+    }
+
+    final result = await _categoryRepository.deleteCategory(
+      categoryId: categoryId,
+    );
+
+    isDeleting.value = false;
+
+    return result.fold(
+      (failure) {
+        errorMessage.value = failure.message;
+        if (kDebugMode) {
+          print('❌ Error deleting category: ${failure.message}');
+        }
+        return false;
+      },
+      (success) {
+        // Remove the category from the list
+        categories.removeWhere((category) => category.id == categoryId);
+
+        if (kDebugMode) {
+          print('✅ Category deleted successfully!');
+          print('📊 Total categories now: ${categories.length}');
+        }
+
+        return true;
+      },
+    );
   }
 }
