@@ -31,7 +31,9 @@ class CategoriesGrid extends GetView<EventTodosController> {
           final key = _cardKeys[category.id];
           if (key?.currentState != null && key!.currentState!.mounted) {
             if (kDebugMode) {
-              print('🎯 Grid: Refreshing category card ${category.id} instantly');
+              print(
+                '🎯 Grid: Refreshing category card ${category.id} instantly',
+              );
             }
             key.currentState!.refreshTodos();
           }
@@ -40,7 +42,9 @@ class CategoriesGrid extends GetView<EventTodosController> {
     ).then((_) {
       // Refresh the specific category card when dialog closes
       if (kDebugMode) {
-        print('🎯 Grid: Dialog closed, refreshing category card ${category.id}');
+        print(
+          '🎯 Grid: Dialog closed, refreshing category card ${category.id}',
+        );
       }
       // Refresh the category card for the one we just added todos to
       final key = _cardKeys[category.id];
@@ -48,6 +52,71 @@ class CategoriesGrid extends GetView<EventTodosController> {
         key.currentState!.refreshTodos();
       }
     });
+  }
+
+  Future<void> _showDeleteConfirmation(
+    BuildContext context,
+    String categoryId,
+    String categoryName,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Category'),
+        content: Text(
+          'Are you sure you want to delete "$categoryName"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Delete the category
+      final success = await controller.deleteCategory(categoryId: categoryId);
+
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Category "$categoryName" deleted successfully!'),
+              backgroundColor: Colors.green,
+              duration: const Duration(milliseconds: 1500),
+            ),
+          );
+
+          // Remove the key for the deleted category
+          _cardKeys.remove(categoryId);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Failed to delete category: ${controller.errorMessage.value}',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _openNewCategoryDialog(BuildContext context) async {
@@ -62,9 +131,8 @@ class CategoriesGrid extends GetView<EventTodosController> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
         );
 
         // Call controller to create category
@@ -81,29 +149,33 @@ class CategoriesGrid extends GetView<EventTodosController> {
               print(' Category created, forcing grid refresh');
               print('   Total categories now: ${controller.categories.length}');
             }
-            
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Category "${result['title']}" created successfully! '),
+                content: Text(
+                  'Category "${result['title']}" created successfully! ',
+                ),
                 backgroundColor: Colors.green,
                 duration: const Duration(milliseconds: 1500),
               ),
             );
-            
+
             // Force refresh of the observable list to ensure grid rebuilds
             // This explicitly notifies all listeners about the change
             controller.categories.refresh();
-            
+
             // Clear GlobalKeys to ensure new cards are properly initialized
             _cardKeys.clear();
-            
+
             if (kDebugMode) {
               print('🔄 Grid refresh triggered, card keys cleared');
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to create category: ${controller.errorMessage.value}'),
+                content: Text(
+                  'Failed to create category: ${controller.errorMessage.value}',
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -132,9 +204,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
       }
 
       if (controller.isLoading.value) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       }
 
       if (controller.errorMessage.value.isNotEmpty) {
@@ -151,7 +221,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
       }
 
       final categories = controller.categories;
-      
+
       if (kDebugMode) {
         print('📊 Building grid with ${categories.length} categories');
         for (int i = 0; i < categories.length; i++) {
@@ -200,6 +270,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
             title: c.name,
             titleColor: _hexToColor(c.color),
             onTap: () => _openCategory(context, leftIndex),
+            onLongPress: () => _showDeleteConfirmation(context, c.id, c.name),
           );
         } else {
           leftChild = _AddCategoryCard(
@@ -220,6 +291,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
             title: c.name,
             titleColor: _hexToColor(c.color),
             onTap: () => _openCategory(context, rightIndex),
+            onLongPress: () => _showDeleteConfirmation(context, c.id, c.name),
           );
         } else if (rightIndex == categories.length) {
           rightChild = _AddCategoryCard(
@@ -271,6 +343,7 @@ class _CategoryCard extends StatefulWidget {
   final String title;
   final Color titleColor;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   const _CategoryCard({
     required super.key,
@@ -278,6 +351,7 @@ class _CategoryCard extends StatefulWidget {
     required this.title,
     required this.titleColor,
     required this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -316,7 +390,9 @@ class _CategoryCardState extends State<_CategoryCard> {
       );
 
       if (kDebugMode) {
-        print('🎨 CategoryCard: Fetched ${todos.length} todos for ${widget.title}');
+        print(
+          '🎨 CategoryCard: Fetched ${todos.length} todos for ${widget.title}',
+        );
       }
 
       if (mounted) {
@@ -346,6 +422,7 @@ class _CategoryCardState extends State<_CategoryCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -408,9 +485,7 @@ class _CategoryCardState extends State<_CategoryCard> {
                   if (_isLoading)
                     const SizedBox(
                       height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   else if (_todos.isNotEmpty)
                     ..._todos.map(
@@ -555,14 +630,14 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
 
   void _onAdd() {
     if (_nameController.text.trim().isEmpty || _selectedColor == null) return;
-    
+
     // Convert Color to hex string
-    final hexColor = '#${_selectedColor!.value.toRadixString(16).substring(2).toUpperCase()}';
-    
-    Navigator.of(context).pop({
-      'title': _nameController.text.trim(),
-      'color': hexColor,
-    });
+    final hexColor =
+        '#${_selectedColor!.value.toRadixString(16).substring(2).toUpperCase()}';
+
+    Navigator.of(
+      context,
+    ).pop({'title': _nameController.text.trim(), 'color': hexColor});
   }
 
   @override
