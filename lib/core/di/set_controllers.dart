@@ -10,11 +10,12 @@ void setupController() {
   // Splash Controller (lazy load - will be initialized when splash screen opens)
   Get.lazyPut<SplashController>(() => SplashController());
 
-  // Event Todos Controller
-  Get.lazyPut<EventTodosController>(
-    () => EventTodosController(
+  // Event Todos Controller - Use Get.put to instantiate immediately
+  Get.put<EventTodosController>(
+    EventTodosController(
       categoryRepository: Get.find(),
       todoItemRepository: Get.find(),
     ),
+    permanent: true,
   );
 }
