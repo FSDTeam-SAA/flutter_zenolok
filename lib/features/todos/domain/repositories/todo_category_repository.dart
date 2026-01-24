@@ -23,4 +23,10 @@ abstract class TodoCategoryRepository {
     required String name,
     required String color,
   });
+
+  /// Deletes a todo category
+  /// Returns either a [NetworkFailure] or a success message
+  Future<Either<NetworkFailure, NetworkSuccess<void>>> deleteCategory({
+    required String categoryId,
+  });
 }
