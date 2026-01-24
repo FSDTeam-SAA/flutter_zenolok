@@ -62,9 +62,16 @@ class CategoriesGrid extends GetView<EventTodosController> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
+        title: const Text('Delete Category',
+         style: TextStyle(fontSize: 18,
+         color: Colors.white
+         ),
+         
+         ),
+        
         content: Text(
           'Are you sure you want to delete "$categoryName"? This action cannot be undone.',
+          style: const TextStyle(color: Colors.white),
         ),
         actions: [
           TextButton(
