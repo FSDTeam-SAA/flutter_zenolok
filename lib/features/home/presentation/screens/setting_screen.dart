@@ -4,9 +4,17 @@ import 'package:get/get.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
 import 'bricks_manage_screen.dart';
 import 'todos_categories_manage_screen.dart';
+import 'week_start_day_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _is24HourFormat = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,14 +70,24 @@ class SettingsScreen extends StatelessWidget {
                     _buildSettingTile(
                       icon: Icons.notifications_outlined,
                       title: 'Manage weeks start day',
-                      onTap: () {},
+                      onTap: () {
+                        // Get.to(() => const WeekStartDayScreen());
+                      },
                     ),
-                      _buildSettingTile(
+                    _buildSettingTile(
                       icon: Icons.timelapse_outlined,
                       title: 'Switch time format',
                       onTap: () {},
+                      trailing: Switch(
+                        value: _is24HourFormat,
+                        onChanged: (value) {
+                          setState(() {
+                            _is24HourFormat = value;
+                          });
+                        },
+                      ),
                     ),
-                        _buildSettingTile(
+                    _buildSettingTile(
                       icon: Icons.notifications_outlined,
                       title: 'Alarm preset',
                       onTap: () {},
@@ -77,17 +95,17 @@ class SettingsScreen extends StatelessWidget {
                     _buildSettingTile(
                       icon: Icons.dark_mode_outlined,
                       title: 'Dark Mode',
-                      onTap: () {}
+                      onTap: () {},
                     ),
-                     _buildSettingTile(
+                    _buildSettingTile(
                       icon: Icons.notification_add,
                       title: 'Notifications & Reminders',
-                      onTap: () {}
+                      onTap: () {},
                     ),
-                     _buildSettingTile(
+                    _buildSettingTile(
                       icon: Icons.calendar_month_outlined,
                       title: 'Calendar',
-                      onTap: () {}
+                      onTap: () {},
                     ),
 
                     const SizedBox(height: 24),
@@ -279,9 +297,10 @@ class SettingsScreen extends StatelessWidget {
     required String title,
     String? subtitle,
     required VoidCallback onTap,
+    Widget? trailing,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: trailing == null ? onTap : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Row(
@@ -323,8 +342,8 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
 
-            // Chevron arrow
-            Icon(Icons.chevron_right, color: Colors.grey[400], size: 24),
+            // Chevron arrow or trailing widget
+            trailing ?? Icon(Icons.chevron_right, color: Colors.grey[400], size: 24),
           ],
         ),
       ),
