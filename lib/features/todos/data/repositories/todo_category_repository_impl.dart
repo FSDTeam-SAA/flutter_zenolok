@@ -249,4 +249,65 @@ class TodoCategoryRepositoryImpl implements TodoCategoryRepository {
       );
     }
   }
+
+  @override
+  Future<Either<NetworkFailure, NetworkSuccess<void>>> deleteCategory({
+    required String categoryId,
+  }) async {
+    try {
+      if (kDebugMode) {
+        print('🗑️ Repository: Deleting category');
+        print('   ID: "$categoryId"');
+        print(
+          '   Endpoint: ${ApiConstants.todoCategories.deleteCategory(categoryId)}',
+        );
+      }
+
+      final result = await _apiClient.delete<void>(
+        ApiConstants.todoCategories.deleteCategory(categoryId),
+        fromJsonT: (json) {
+          if (kDebugMode) {
+            print('📦 Repository: Delete response received');
+            print('   $json');
+          }
+          return null;
+        },
+      );
+
+      return result.fold(
+        (failure) {
+          if (kDebugMode) {
+            print('❌ Repository: Delete failed');
+            print('   Error: ${failure.message}');
+          }
+          return Left(failure);
+        },
+        (success) {
+          if (kDebugMode) {
+            print('✅ Repository: Category deleted successfully');
+            print('   Response Message: "${success.message}"');
+            print('   Status Code: ${success.statusCode}');
+          }
+
+          return Right(
+            NetworkSuccess<void>(
+              data: null,
+              message: success.message,
+              statusCode: success.statusCode,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Repository Exception: $e');
+      }
+      return Left(
+        ServerFailure(
+          message: 'Failed to delete category: $e',
+          statusCode: 500,
+        ),
+      );
+    }
+  }
 }
