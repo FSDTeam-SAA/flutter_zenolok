@@ -461,4 +461,33 @@ class EventTodosController extends GetxController {
       },
     );
   }
+
+  /// Deletes a todo item
+  Future<bool> deleteTodoItem({required String todoItemId}) async {
+    errorMessage.value = '';
+
+    if (kDebugMode) {
+      print('🗑️ Deleting todo item: $todoItemId');
+    }
+
+    final result = await _todoItemRepository.deleteTodoItem(
+      todoItemId: todoItemId,
+    );
+
+    return result.fold(
+      (failure) {
+        errorMessage.value = failure.message;
+        if (kDebugMode) {
+          print('❌ Error deleting todo item: ${failure.message}');
+        }
+        return false;
+      },
+      (success) {
+        if (kDebugMode) {
+          print('✅ Todo item deleted successfully!');
+        }
+        return true;
+      },
+    );
+  }
 }
