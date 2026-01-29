@@ -55,13 +55,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Get.to(() => const BricksManageScreen());
                       },
                     ),
-                    _buildSettingTile(
-                      icon: Icons.remove_red_eye_outlined,
-                      title: 'Todos Categories Manage',
-                      onTap: () {
-                        Get.to(() => const TodosCategoriesManageScreen());
-                      },
-                    ),
+                    // _buildSettingTile(
+                    //   icon: Icons.remove_red_eye_outlined,
+                    //   title: 'Todos Categories Manage',
+                    //   onTap: () {
+                    //     Get.to(() => const TodosCategoriesManageScreen());
+                    //   },
+                    // ),
                     _buildSettingTile(
                       icon: Icons.calendar_today_outlined,
                       title: 'Language',
