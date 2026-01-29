@@ -238,7 +238,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                       label: const Text('Delete Category'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
+                        side: const BorderSide(color: Colors.transparent),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 10,
