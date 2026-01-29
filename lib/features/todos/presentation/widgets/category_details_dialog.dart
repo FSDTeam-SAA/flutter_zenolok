@@ -33,6 +33,7 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
   final FocusNode _focusNode = FocusNode();
   bool _isTyping = false;
   bool _isLoading = true;
+  final Set<int> _deletingIndices = {}; // Track which items are being deleted
 
   @override
   void initState() {
@@ -369,90 +370,163 @@ class _CategoryDetailsDialogState extends State<CategoryDetailsDialog> {
 
                       // Existing todos
                       final todo = _todos[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Checkbox circle
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _todos[index]['checked'] =
-                                      !_todos[index]['checked'];
-                                });
-                              },
-                              child: Container(
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: widget.categoryColor,
-                                    width: 2.5,
+                      final isDeleting = _deletingIndices.contains(index);
+                      
+                      return AnimatedSize(
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 400),
+                          opacity: isDeleting ? 0.0 : 1.0,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Checkbox circle
+                                GestureDetector(
+                                  onTap: () async {
+                                    // Immediately show checked state
+                                    setState(() {
+                                      _todos[index]['checked'] = true;
+                                    });
+
+                                    if (kDebugMode) {
+                                      print('🗑️ Deleting todo item: ${todo['id']}');
+                                    }
+
+                                    // Wait 2 seconds before starting fade animation
+                                    await Future.delayed(const Duration(milliseconds: 2000));
+
+                                    // Start the fade/shrink animation
+                                    if (mounted) {
+                                      setState(() {
+                                        _deletingIndices.add(index);
+                                      });
+                                    }
+
+                                    // Wait for animation to complete
+                                    await Future.delayed(const Duration(milliseconds: 500));
+
+                                    // Call the delete API
+                                    final controller = Get.find<EventTodosController>();
+                                    final success = await controller.deleteTodoItem(
+                                      todoItemId: todo['id'],
+                                    );
+
+                                    if (success) {
+                                      if (kDebugMode) {
+                                        print('✅ Todo item deleted successfully');
+                                      }
+
+                                      // Remove from the list
+                                      if (mounted) {
+                                        setState(() {
+                                          _deletingIndices.remove(index);
+                                          _todos.removeAt(index);
+                                        });
+
+                                        // Refresh the category card
+                                        if (widget.onTodoAdded != null) {
+                                          widget.onTodoAdded!();
+                                        }
+                                      }
+                                    } else {
+                                      if (kDebugMode) {
+                                        print('❌ Failed to delete todo item');
+                                      }
+
+                                      // Revert the checked state and animation if deletion failed
+                                      if (mounted) {
+                                        setState(() {
+                                          _deletingIndices.remove(index);
+                                          _todos[index]['checked'] = false;
+                                        });
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to delete: ${controller.errorMessage.value}',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 22,
+                                    height: 22,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: widget.categoryColor,
+                                        width: 2.5,
+                                      ),
+                                      color: todo['checked']
+                                          ? widget.categoryColor
+                                          : Colors.transparent,
+                                    ),
+                                    child: todo['checked']
+                                        ? const Icon(
+                                            Icons.check,
+                                            size: 14,
+                                            color: Colors.white,
+                                          )
+                                        : null,
                                   ),
-                                  color: todo['checked']
-                                      ? widget.categoryColor
-                                      : Colors.transparent,
                                 ),
-                                child: todo['checked']
-                                    ? const Icon(
-                                        Icons.check,
-                                        size: 14,
-                                        color: Colors.white,
-                                      )
-                                    : null,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Todo title
-                            Expanded(
-                              child: Text(
-                                todo['title'],
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w400,
-                                  color: todo['checked']
-                                      ? Colors.grey
-                                      : Colors.black87,
-                                  decoration: todo['checked']
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                ),
-                              ),
-                            ),
-                            // Icons on the right
-                            Image.asset(
-                              AppImages.iconschedule,
-                              width: 16,
-                              height: 16,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(width: 2),
-                            Image.asset(
-                              AppImages.repeat,
-                              width: 20,
-                              height: 20,
-                            ),
-                            const SizedBox(width: 2),
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => TodoDetailsDialog(
-                                    todoTitle: todo['title'],
-                                    categoryTitle: widget.categoryTitle,
-                                    categoryColor: widget.categoryColor,
+                                const SizedBox(width: 12),
+                                // Todo title
+                                Expanded(
+                                  child: Text(
+                                    todo['title'],
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                      color: todo['checked']
+                                          ? Colors.grey
+                                          : Colors.black87,
+                                      decoration: todo['checked']
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                    ),
                                   ),
-                                );
-                              },
-                              child: Image.asset(
-                                AppImages.sliders,
-                                width: 16,
-                                height: 16,
-                              ),
+                                ),
+                                // Icons on the right
+                                Image.asset(
+                                  AppImages.iconschedule,
+                                  width: 16,
+                                  height: 16,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(width: 2),
+                                Image.asset(
+                                  AppImages.repeat,
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                const SizedBox(width: 2),
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => TodoDetailsDialog(
+                                        todoTitle: todo['title'],
+                                        categoryTitle: widget.categoryTitle,
+                                        categoryColor: widget.categoryColor,
+                                      ),
+                                    );
+                                  },
+                                  child: Image.asset(
+                                    AppImages.sliders,
+                                    width: 16,
+                                    height: 16,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       );
                     },
