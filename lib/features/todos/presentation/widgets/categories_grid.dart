@@ -4,6 +4,7 @@ import 'package:flutter_zenolok/core/common/constants/app_images.dart';
 import 'package:get/get.dart';
 import '../controllers/event_totos_controller.dart';
 import 'category_details_dialog.dart';
+import '../../../home/presentation/screens/category_edit_dialog.dart';
 
 class CategoriesGrid extends GetView<EventTodosController> {
   CategoriesGrid({super.key});
@@ -51,6 +52,29 @@ class CategoriesGrid extends GetView<EventTodosController> {
       if (key?.currentState != null && key!.currentState!.mounted) {
         key.currentState!.refreshTodos();
       }
+    });
+  }
+
+  void _openEditCategory(BuildContext context, int index) {
+    final category = controller.categories[index];
+    if (kDebugMode) {
+      print('✏️ Grid: Opening category edit');
+      print('   Name: ${category.name}');
+      print('   ID: ${category.id}');
+      print('   Color: ${category.color}');
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => CategoryEditDialog(
+        category: category,
+      ),
+    ).then((_) {
+      // Refresh categories after edit
+      if (kDebugMode) {
+        print('✏️ Grid: Edit dialog closed, refreshing categories');
+      }
+      controller.refreshCategories();
     });
   }
 
@@ -278,6 +302,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
             titleColor: _hexToColor(c.color),
             onTap: () => _openCategory(context, leftIndex),
             onLongPress: () => _showDeleteConfirmation(context, c.id, c.name),
+            onTitleTap: () => _openEditCategory(context, leftIndex),
           );
         } else {
           leftChild = _AddCategoryCard(
@@ -299,6 +324,7 @@ class CategoriesGrid extends GetView<EventTodosController> {
             titleColor: _hexToColor(c.color),
             onTap: () => _openCategory(context, rightIndex),
             onLongPress: () => _showDeleteConfirmation(context, c.id, c.name),
+            onTitleTap: () => _openEditCategory(context, rightIndex),
           );
         } else if (rightIndex == categories.length) {
           rightChild = _AddCategoryCard(
@@ -351,6 +377,7 @@ class _CategoryCard extends StatefulWidget {
   final Color titleColor;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
+  final VoidCallback? onTitleTap;
 
   const _CategoryCard({
     required super.key,
@@ -359,6 +386,7 @@ class _CategoryCard extends StatefulWidget {
     required this.titleColor,
     required this.onTap,
     this.onLongPress,
+    this.onTitleTap,
   });
 
   @override
@@ -440,15 +468,18 @@ class _CategoryCardState extends State<_CategoryCard> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: widget.titleColor,
+                GestureDetector(
+                  onTap: widget.onTitleTap,
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: widget.titleColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 if (_totalTodosCount > 0)
                   Padding(
@@ -652,7 +683,7 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final dialogWidth = (screenWidth * 0.85).clamp(260.0, 420.0);
-    final dialogHeight = (screenHeight * 0.40).clamp(320.0, 640.0);
+    final maxDialogHeight = screenHeight * 0.85; // Maximum height (allow more space)
 
     const horizontalPadding = 12.0;
     const circleSpacing = 0.0;
@@ -660,19 +691,22 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: (screenWidth - dialogWidth) / 2,
-        vertical: (screenHeight - dialogHeight) / 2,
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 40,
       ),
-      child: Center(
-        child: Container(
-          width: dialogWidth,
-          height: dialogHeight,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF6F6F6),
-            borderRadius: BorderRadius.circular(35),
-          ),
+      child: Container(
+        width: dialogWidth,
+        constraints: BoxConstraints(
+          maxHeight: maxDialogHeight,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F6F6),
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Header
               Padding(
@@ -744,7 +778,7 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: horizontalPadding,
-                  vertical: 2,
+                  vertical: 8,
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -785,10 +819,7 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
 
               // Collaboration + Add
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 50,
-                ),
+                padding: const EdgeInsets.fromLTRB(12, 20, 12, 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
