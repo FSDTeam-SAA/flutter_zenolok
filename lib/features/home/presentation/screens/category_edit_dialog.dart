@@ -63,15 +63,10 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(
-        horizontal: 24,
-        vertical: 40,
-      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Container(
         width: dialogWidth,
-        constraints: BoxConstraints(
-          maxHeight: maxDialogHeight,
-        ),
+        constraints: BoxConstraints(maxHeight: maxDialogHeight),
         decoration: BoxDecoration(
           color: const Color(0xFFF6F6F6),
           borderRadius: BorderRadius.circular(35),
@@ -190,41 +185,44 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
 
               // Delete Button Section
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete Category'),
-                          content: Text(
-                            'Are you sure you want to delete "${widget.category.name}"? This action cannot be undone.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end, //  right align
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Category', style: TextStyle(color: Colors.white),),
+                            content: Text(
+                              'Are you sure you want to delete "${widget.category.name}"? This action cannot be undone.',
+                              style: const TextStyle(color: Colors.white70),
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
                               ),
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirmed == true && mounted) {
-                        final success = await controller.deleteCategory(
-                          categoryId: widget.category.id,
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
                         );
 
-                        if (success && mounted) {
-                          if (context.mounted) {
+                        if (confirmed == true && mounted) {
+                          final success = await controller.deleteCategory(
+                            categoryId: widget.category.id,
+                          );
+
+                          if (success && context.mounted) {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -235,23 +233,27 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                             );
                           }
                         }
-                      }
-                    },
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Delete Category'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      },
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      label: const Text('Delete Category'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 10,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
+
               const SizedBox(height: 12),
 
               // Collaboration Section - Icon + Avatars
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                 child: Row(
                   children: [
                     // Collaboration Icon - Click to show all users
@@ -272,7 +274,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Show avatars of already shared persons
                     Expanded(
                       child: widget.category.participants.isEmpty
@@ -293,7 +295,8 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                                     padding: const EdgeInsets.only(right: 8),
                                     child: CircleAvatar(
                                       radius: 16,
-                                      backgroundColor: _selectedColor.withOpacity(0.2),
+                                      backgroundColor: _selectedColor
+                                          .withOpacity(0.2),
                                       child: Text(
                                         widget.category.participants[index]
                                             .substring(0, 1)
@@ -333,7 +336,8 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                     ),
                     Obx(
                       () => GestureDetector(
-                        onTap: controller.isCreating.value ||
+                        onTap:
+                            controller.isCreating.value ||
                                 _nameController.text.trim().isEmpty
                             ? null
                             : () async {
@@ -352,9 +356,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                                           'Category updated successfully',
                                         ),
                                         backgroundColor: Colors.green,
-                                        duration: Duration(
-                                          milliseconds: 1500,
-                                        ),
+                                        duration: Duration(milliseconds: 1500),
                                       ),
                                     );
                                   }
@@ -369,7 +371,8 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: controller.isCreating.value ||
+                                color:
+                                    controller.isCreating.value ||
                                         _nameController.text.trim().isEmpty
                                     ? Colors.grey.shade400
                                     : Colors.grey.shade600,
@@ -378,7 +381,8 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                             const SizedBox(width: 4),
                             Icon(
                               Icons.chevron_right,
-                              color: controller.isCreating.value ||
+                              color:
+                                  controller.isCreating.value ||
                                       _nameController.text.trim().isEmpty
                                   ? Colors.grey.shade400
                                   : Colors.grey.shade600,
