@@ -6,10 +6,19 @@ import '../controllers/event_totos_controller.dart';
 import 'category_details_dialog.dart';
 import '../../../home/presentation/screens/category_edit_dialog.dart';
 
-class CategoriesGrid extends GetView<EventTodosController> {
-  CategoriesGrid({super.key});
+class CategoriesGrid extends StatefulWidget {
+  const CategoriesGrid({super.key});
 
+  @override
+  State<CategoriesGrid> createState() => _CategoriesGridState();
+}
+
+class _CategoriesGridState extends State<CategoriesGrid> {
   final Map<String, GlobalKey<_CategoryCardState>> _cardKeys = {};
+  String? _draggingCategoryId;
+  int? _hoverIndex;
+
+  EventTodosController get controller => Get.find<EventTodosController>();
 
   void _openCategory(BuildContext context, int index) {
     final category = controller.categories[index];
@@ -76,78 +85,6 @@ class CategoriesGrid extends GetView<EventTodosController> {
       }
       controller.refreshCategories();
     });
-  }
-
-  Future<void> _showDeleteConfirmation(
-    BuildContext context,
-    String categoryId,
-    String categoryName,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Category',
-         style: TextStyle(fontSize: 18,
-         color: Colors.white
-         ),
-         
-         ),
-        
-        content: Text(
-          'Are you sure you want to delete "$categoryName"? This action cannot be undone.',
-          style: const TextStyle(color: Colors.white),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && context.mounted) {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-
-      // Delete the category
-      final success = await controller.deleteCategory(categoryId: categoryId);
-
-      if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Category "$categoryName" deleted successfully!'),
-              backgroundColor: Colors.green,
-              duration: const Duration(milliseconds: 1500),
-            ),
-          );
-
-          // Remove the key for the deleted category
-          _cardKeys.remove(categoryId);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Failed to delete category: ${controller.errorMessage.value}',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
   }
 
   Future<void> _openNewCategoryDialog(BuildContext context) async {
@@ -224,6 +161,25 @@ class CategoriesGrid extends GetView<EventTodosController> {
     return Color(int.parse('0x$hexColor'));
   }
 
+  void _onReorder(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return;
+    
+    setState(() {
+      final categories = controller.categories;
+      final item = categories.removeAt(oldIndex);
+      categories.insert(newIndex, item);
+      controller.categories.refresh();
+    });
+
+    if (kDebugMode) {
+      print('🔄 Reordered category from index $oldIndex to $newIndex');
+      print('   New order: ${controller.categories.map((c) => c.name).join(", ")}');
+    }
+
+    // TODO: Optionally save order to backend
+    // controller.updateCategoryOrder(controller.categories.map((c) => c.id).toList());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -295,14 +251,72 @@ class CategoriesGrid extends GetView<EventTodosController> {
           if (!_cardKeys.containsKey(c.id)) {
             _cardKeys[c.id] = GlobalKey<_CategoryCardState>();
           }
-          leftChild = _CategoryCard(
+          
+          final categoryCard = _CategoryCard(
             key: _cardKeys[c.id],
             categoryId: c.id,
             title: c.name,
             titleColor: _hexToColor(c.color),
             onTap: () => _openCategory(context, leftIndex),
-            onLongPress: () => _showDeleteConfirmation(context, c.id, c.name),
             onTitleTap: () => _openEditCategory(context, leftIndex),
+          );
+
+          // Wrap with drag target and draggable
+          leftChild = DragTarget<int>(
+            onAcceptWithDetails: (details) {
+              _onReorder(details.data, leftIndex);
+            },
+            onWillAcceptWithDetails: (details) {
+              setState(() => _hoverIndex = leftIndex);
+              return details.data != leftIndex;
+            },
+            onLeave: (_) {
+              setState(() => _hoverIndex = null);
+            },
+            builder: (context, candidateData, rejectedData) {
+              return LongPressDraggable<int>(
+                data: leftIndex,
+                onDragStarted: () {
+                  setState(() => _draggingCategoryId = c.id);
+                },
+                onDragEnd: (_) {
+                  setState(() {
+                    _draggingCategoryId = null;
+                    _hoverIndex = null;
+                  });
+                },
+                feedback: Material(
+                  color: Colors.transparent,
+                  child: Transform.scale(
+                    scale: 1.05,
+                    child: Opacity(
+                      opacity: 0.85,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.42,
+                        child: categoryCard,
+                      ),
+                    ),
+                  ),
+                ),
+                childWhenDragging: Opacity(
+                  opacity: 0.3,
+                  child: categoryCard,
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    border: _hoverIndex == leftIndex
+                        ? Border.all(
+                            color: _hexToColor(c.color).withOpacity(0.6),
+                            width: 3,
+                          )
+                        : null,
+                  ),
+                  child: categoryCard,
+                ),
+              );
+            },
           );
         } else {
           leftChild = _AddCategoryCard(
@@ -317,14 +331,72 @@ class CategoriesGrid extends GetView<EventTodosController> {
           if (!_cardKeys.containsKey(c.id)) {
             _cardKeys[c.id] = GlobalKey<_CategoryCardState>();
           }
-          rightChild = _CategoryCard(
+          
+          final categoryCard = _CategoryCard(
             key: _cardKeys[c.id],
             categoryId: c.id,
             title: c.name,
             titleColor: _hexToColor(c.color),
             onTap: () => _openCategory(context, rightIndex),
-            onLongPress: () => _showDeleteConfirmation(context, c.id, c.name),
             onTitleTap: () => _openEditCategory(context, rightIndex),
+          );
+
+          // Wrap with drag target and draggable
+          rightChild = DragTarget<int>(
+            onAcceptWithDetails: (details) {
+              _onReorder(details.data, rightIndex);
+            },
+            onWillAcceptWithDetails: (details) {
+              setState(() => _hoverIndex = rightIndex);
+              return details.data != rightIndex;
+            },
+            onLeave: (_) {
+              setState(() => _hoverIndex = null);
+            },
+            builder: (context, candidateData, rejectedData) {
+              return LongPressDraggable<int>(
+                data: rightIndex,
+                onDragStarted: () {
+                  setState(() => _draggingCategoryId = c.id);
+                },
+                onDragEnd: (_) {
+                  setState(() {
+                    _draggingCategoryId = null;
+                    _hoverIndex = null;
+                  });
+                },
+                feedback: Material(
+                  color: Colors.transparent,
+                  child: Transform.scale(
+                    scale: 1.05,
+                    child: Opacity(
+                      opacity: 0.85,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.42,
+                        child: categoryCard,
+                      ),
+                    ),
+                  ),
+                ),
+                childWhenDragging: Opacity(
+                  opacity: 0.3,
+                  child: categoryCard,
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    border: _hoverIndex == rightIndex
+                        ? Border.all(
+                            color: _hexToColor(c.color).withOpacity(0.6),
+                            width: 3,
+                          )
+                        : null,
+                  ),
+                  child: categoryCard,
+                ),
+              );
+            },
           );
         } else if (rightIndex == categories.length) {
           rightChild = _AddCategoryCard(
@@ -376,7 +448,6 @@ class _CategoryCard extends StatefulWidget {
   final String title;
   final Color titleColor;
   final VoidCallback onTap;
-  final VoidCallback? onLongPress;
   final VoidCallback? onTitleTap;
 
   const _CategoryCard({
@@ -385,7 +456,6 @@ class _CategoryCard extends StatefulWidget {
     required this.title,
     required this.titleColor,
     required this.onTap,
-    this.onLongPress,
     this.onTitleTap,
   });
 
@@ -457,7 +527,6 @@ class _CategoryCardState extends State<_CategoryCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      onLongPress: widget.onLongPress,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
