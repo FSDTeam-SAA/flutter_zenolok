@@ -35,7 +35,7 @@ class TodosScreen extends GetView<EventTodosController> {
                   const ScheduledSection(),
                   const SizedBox(height: 24),
                  
-                  CategoriesGrid(),
+                  const CategoriesGrid(),
                   const SizedBox(height: 24),
                 ],
               ),
