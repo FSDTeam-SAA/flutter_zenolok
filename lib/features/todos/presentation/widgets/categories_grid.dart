@@ -13,12 +13,28 @@ class CategoriesGrid extends StatefulWidget {
   State<CategoriesGrid> createState() => _CategoriesGridState();
 }
 
-class _CategoriesGridState extends State<CategoriesGrid> {
+class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStateMixin {
   final Map<String, GlobalKey<_CategoryCardState>> _cardKeys = {};
   String? _draggingCategoryId;
   int? _hoverIndex;
+  AnimationController? _shakeController;
 
   EventTodosController get controller => Get.find<EventTodosController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _shakeController?.dispose();
+    super.dispose();
+  }
 
   void _openCategory(BuildContext context, int index) {
     final category = controller.categories[index];
@@ -166,13 +182,18 @@ class _CategoriesGridState extends State<CategoriesGrid> {
     
     setState(() {
       final categories = controller.categories;
-      final item = categories.removeAt(oldIndex);
-      categories.insert(newIndex, item);
+      // Swap the two categories directly
+      final temp = categories[oldIndex];
+      categories[oldIndex] = categories[newIndex];
+      categories[newIndex] = temp;
       controller.categories.refresh();
+      
+      // Clear hover state after reorder
+      _hoverIndex = null;
     });
 
     if (kDebugMode) {
-      print('🔄 Reordered category from index $oldIndex to $newIndex');
+      print('🔄 Swapped categories at index $oldIndex and $newIndex');
       print('   New order: ${controller.categories.map((c) => c.name).join(", ")}');
     }
 
@@ -267,7 +288,9 @@ class _CategoriesGridState extends State<CategoriesGrid> {
               _onReorder(details.data, leftIndex);
             },
             onWillAcceptWithDetails: (details) {
-              setState(() => _hoverIndex = leftIndex);
+              if (details.data != leftIndex) {
+                setState(() => _hoverIndex = leftIndex);
+              }
               return details.data != leftIndex;
             },
             onLeave: (_) {
@@ -287,20 +310,26 @@ class _CategoriesGridState extends State<CategoriesGrid> {
                 },
                 feedback: Material(
                   color: Colors.transparent,
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(35),
                   child: Transform.scale(
-                    scale: 1.05,
-                    child: Opacity(
-                      opacity: 0.85,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.42,
-                        child: categoryCard,
+                    scale: 1.1,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.42,
+                      child: _DraggingCategoryFeedback(
+                        categoryName: c.name,
+                        categoryColor: _hexToColor(c.color),
+                        cardKey: _cardKeys[c.id],
                       ),
                     ),
                   ),
                 ),
                 childWhenDragging: Opacity(
-                  opacity: 0.3,
-                  child: categoryCard,
+                  opacity: 0.2,
+                  child: Transform.scale(
+                    scale: 0.95,
+                    child: categoryCard,
+                  ),
                 ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -313,7 +342,24 @@ class _CategoriesGridState extends State<CategoriesGrid> {
                           )
                         : null,
                   ),
-                  child: categoryCard,
+                  child: _draggingCategoryId != null
+                      ? AnimatedBuilder(
+                          animation: _shakeController!,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _shakeController!.value * 0.02 - 0.01,
+                              child: Transform.translate(
+                                offset: Offset(
+                                  _shakeController!.value * 2 - 1,
+                                  0,
+                                ),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: categoryCard,
+                        )
+                      : categoryCard,
                 ),
               );
             },
@@ -347,7 +393,9 @@ class _CategoriesGridState extends State<CategoriesGrid> {
               _onReorder(details.data, rightIndex);
             },
             onWillAcceptWithDetails: (details) {
-              setState(() => _hoverIndex = rightIndex);
+              if (details.data != rightIndex) {
+                setState(() => _hoverIndex = rightIndex);
+              }
               return details.data != rightIndex;
             },
             onLeave: (_) {
@@ -367,20 +415,26 @@ class _CategoriesGridState extends State<CategoriesGrid> {
                 },
                 feedback: Material(
                   color: Colors.transparent,
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(35),
                   child: Transform.scale(
-                    scale: 1.05,
-                    child: Opacity(
-                      opacity: 0.85,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.42,
-                        child: categoryCard,
+                    scale: 1.1,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.42,
+                      child: _DraggingCategoryFeedback(
+                        categoryName: c.name,
+                        categoryColor: _hexToColor(c.color),
+                        cardKey: _cardKeys[c.id],
                       ),
                     ),
                   ),
                 ),
                 childWhenDragging: Opacity(
-                  opacity: 0.3,
-                  child: categoryCard,
+                  opacity: 0.2,
+                  child: Transform.scale(
+                    scale: 0.95,
+                    child: categoryCard,
+                  ),
                 ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -393,7 +447,24 @@ class _CategoriesGridState extends State<CategoriesGrid> {
                           )
                         : null,
                   ),
-                  child: categoryCard,
+                  child: _draggingCategoryId != null
+                      ? AnimatedBuilder(
+                          animation: _shakeController!,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _shakeController!.value * 0.02 - 0.01,
+                              child: Transform.translate(
+                                offset: Offset(
+                                  _shakeController!.value * 2 - 1,
+                                  0,
+                                ),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: categoryCard,
+                        )
+                      : categoryCard,
                 ),
               );
             },
@@ -480,6 +551,11 @@ class _CategoryCardState extends State<_CategoryCard> {
       _fetchTodos();
     }
   }
+
+  // Public method to get current todos for drag feedback
+  List<String> get currentTodos => _todos;
+  int get totalCount => _totalTodosCount;
+  bool get isLoading => _isLoading;
 
   Future<void> _fetchTodos() async {
     if (mounted) {
@@ -1015,3 +1091,173 @@ class _DashedBorderPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+class _DraggingCategoryFeedback extends StatelessWidget {
+  final String categoryName;
+  final Color categoryColor;
+  final GlobalKey<_CategoryCardState>? cardKey;
+
+  const _DraggingCategoryFeedback({
+    required this.categoryName,
+    required this.categoryColor,
+    this.cardKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Get todos from the card state if available
+    final cardState = cardKey?.currentState;
+    final todos = cardState?.currentTodos ?? [];
+    final totalCount = cardState?.totalCount ?? 0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7F8),
+        borderRadius: BorderRadius.circular(35),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 25,
+            spreadRadius: 3,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title with counter badge
+          Padding(
+            padding: const EdgeInsets.only(left: 20, bottom: 8, top: 8, right: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    categoryName,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: categoryColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (totalCount > 0)
+                  Container(
+                    width: 15,
+                    height: 15,
+                    decoration: BoxDecoration(
+                      color: categoryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        totalCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Card content with todos
+          Container(
+            height: 140,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F7F8),
+              borderRadius: BorderRadius.circular(35),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (todos.isNotEmpty)
+                  ...todos.take(3).map(
+                    (todo) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFD0D0D0),
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              todo,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFFD0D0D0),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'No todos yet',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFFD0D0D0),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                const Spacer(),
+                const Text(
+                  'New todo',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFFD0D0D0),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
