@@ -579,6 +579,7 @@ class _CategoryCardState extends State<_CategoryCard> {
           /// Actual card
           Container(
             height: 140,
+            width: double.infinity,
             decoration: BoxDecoration(
               color: const Color(0xFFF7F7F8),
               borderRadius: BorderRadius.circular(35),
@@ -620,28 +621,28 @@ class _CategoryCardState extends State<_CategoryCard> {
                     )
                   else
                     // Empty state - same layout as with items
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        children: [
-                          const _TodoCircle(),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'No todos yet',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFFD0D0D0),
-                                fontWeight: FontWeight.w400,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: 4),
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(bottom: 8.0),
+                  //     child: Row(
+                  //       children: [
+                  //         const _TodoCircle(),
+                  //         const SizedBox(width: 8),
+                  //         Expanded(
+                  //           child: Text(
+                  //             'No todos yet',
+                  //             style: const TextStyle(
+                  //               fontSize: 13,
+                  //               color: Color(0xFFD0D0D0),
+                  //               fontWeight: FontWeight.w400,
+                  //             ),
+                  //             overflow: TextOverflow.ellipsis,
+                  //             maxLines: 1,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // const SizedBox(height: 4),
                   const Text(
                     'New todo',
                     style: TextStyle(
