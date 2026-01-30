@@ -807,13 +807,14 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                         child: Row(
                           children:[
                             Image.asset(AppImages.dateicon,
-                            color: Colors.black87,
+                            color: Colors.white.withOpacity(0.87),
                                 width: 16,
                                 height: 16),
                             const SizedBox(width: 6),
                             Text(
                               'Choose a date',
                               style: TextStyle(
+                                color: Colors.white.withOpacity(0.87),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                               ),
