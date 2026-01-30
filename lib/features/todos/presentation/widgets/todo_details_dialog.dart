@@ -28,6 +28,7 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
   bool _hasTime = false;
   bool _hasAlarm = false;
   bool _hasRepeat = false;
+  String _selectedAlarmOption = 'No alert';
 
   @override
   void initState() {
@@ -79,6 +80,96 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     return DateFormat('hh:mm a').format(dt);
+  }
+
+  Future<void> _selectAlarm() async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 120),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Blurred dark background
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(color: Colors.white.withOpacity(0.0)),
+              ),
+            ),
+            // Main dialog container
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF6F6F6),
+                borderRadius: BorderRadius.circular(35),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Icon(
+                            Icons.chevron_left,
+                            size: 24,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Select Alarm',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Alarm options
+                  _AlarmOption(
+                    title: 'No alert',
+                    isSelected: _selectedAlarmOption == 'No alert',
+                    onTap: () => Navigator.pop(context, 'No alert'),
+                  ),
+                  _AlarmOption(
+                    title: 'Preset 1',
+                    isSelected: _selectedAlarmOption == 'Preset 1',
+                    onTap: () => Navigator.pop(context, 'Preset 1'),
+                  ),
+                  _AlarmOption(
+                    title: 'Preset 2',
+                    isSelected: _selectedAlarmOption == 'Preset 2',
+                    onTap: () => Navigator.pop(context, 'Preset 2'),
+                  ),
+                  _AlarmOption(
+                    title: 'Preset 3',
+                    isSelected: _selectedAlarmOption == 'Preset 3',
+                    onTap: () => Navigator.pop(context, 'Preset 3'),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedAlarmOption = result;
+        _hasAlarm = result != 'No alert';
+      });
+    }
   }
 
   @override
@@ -273,35 +364,39 @@ class _TodoDetailsDialogState extends State<TodoDetailsDialog> {
                       ),
 
                       // Alarm option
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 6,
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              AppImages.notification2,
-                              width: 25,
-                              height: 25,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                'Alarm',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.grey.shade400,
+                      GestureDetector(
+                        onTap: _selectAlarm,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                AppImages.notification2,
+                                width: 25,
+                                height: 25,
+                                color: _hasAlarm ? Colors.black87 : Colors.grey.shade400,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  _hasAlarm ? _selectedAlarmOption : 'Alarm',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: _hasAlarm ? FontWeight.w600 : FontWeight.w400,
+                                    color: _hasAlarm ? Colors.black87 : Colors.grey.shade400,
+                                  ),
                                 ),
                               ),
-                            ),
-                            // CustomSwitch(
-                            //   value: _hasAlarm,
-                            //   onChanged: (v) => setState(() => _hasAlarm = v),
-                            // ),
-                          ],
+                              // Icon(
+                              //   Icons.chevron_right,
+                              //   size: 20,
+                              //   color: Colors.grey.shade400,
+                              // ),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -418,6 +513,56 @@ class CustomSwitch extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AlarmOption extends StatelessWidget {
+  final String title;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AlarmOption({
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected
+              ? Border.all(color: const Color(0xFF34C759), width: 2)
+              : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? Colors.black87 : Colors.grey.shade600,
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF34C759),
+                size: 22,
+              ),
+          ],
         ),
       ),
     );
