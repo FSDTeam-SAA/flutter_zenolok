@@ -19,6 +19,10 @@ class SettingsScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
         iconTheme: IconThemeData(color: Colors.black),
         elevation: 0,
         centerTitle: true,
@@ -181,7 +185,7 @@ class SettingsScreen extends StatelessWidget {
                             final confirmed = await showDialog<bool>(
                               context: context,
                               barrierDismissible: true,
-                              barrierColor: Colors.black.withOpacity(0.6),
+                              barrierColor: Colors.black.withValues(alpha: 0.6),
                               builder: (context) {
                                 return Dialog(
                                   backgroundColor: Colors.transparent,
