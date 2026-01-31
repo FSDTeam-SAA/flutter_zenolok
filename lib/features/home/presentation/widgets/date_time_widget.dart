@@ -525,7 +525,7 @@ class _TimeDigitDisplay extends StatelessWidget {
       height: 26,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: highlight ? accent.withOpacity(0.18) : const Color(0xFFE5E5E5),
+        color: highlight ? accent.withValues(alpha: 0.18) : const Color(0xFFE5E5E5),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -596,7 +596,7 @@ class _AmPmRow extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: selected ? accent.withOpacity(0.18) : Colors.transparent,
+            color: selected ? accent.withValues(alpha: 0.18) : Colors.transparent,
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
@@ -677,7 +677,7 @@ class _NumberPad extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: digit == 0
-                    ? accent.withOpacity(0.15)
+                    ? accent.withValues(alpha: 0.15)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
@@ -807,14 +807,14 @@ class _DateRangeBottomSheetState extends State<DateRangeBottomSheet> {
                         child: Row(
                           children:[
                             Image.asset(AppImages.dateicon,
-                            color: Colors.white.withOpacity(0.87),
+                            color: Colors.white.withValues(alpha: 0.87),
                                 width: 16,
                                 height: 16),
                             const SizedBox(width: 6),
                             Text(
                               'Choose a date',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.87),
+                                color: Colors.white.withValues(alpha: 0.87),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                               ),
