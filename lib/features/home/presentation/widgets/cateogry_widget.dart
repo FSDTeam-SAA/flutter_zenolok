@@ -40,13 +40,13 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
       final CategoryDesign initial = controller.design.value;
       final bool isSaving = controller.isLoading.value;
       final String? errorText = controller.errorMessage.value;
-      final bool _hasColor = initial.color != null;
+      final bool hasColor = initial.color != null;
 
-      final addTextColor = (_hasColor && !isSaving)
+      final addTextColor = (hasColor && !isSaving)
           ? const Color(0xFF444444)
           : const Color(0xFFE0E0E0);
 
-      final canAdd = _hasColor && !isSaving;
+      final canAdd = hasColor && !isSaving;
 
       final bottomKeyboard = MediaQuery.of(context).viewInsets.bottom;
 
@@ -67,7 +67,7 @@ class _CategoryEditorScreenState extends State<CategoryEditorScreen> {
                 color: Colors.black,
               ),
             ),
-            onPressed: _hasColor ? () => Get.back() : null,
+            onPressed: hasColor ? () => Get.back() : null,
           ),
           actions: [
             Padding(
@@ -451,7 +451,7 @@ class _CategoryEditorWidgetState extends State<CategoryEditorWidget> {
                 final c = _colors[index];
                 final isSelected = _selectedColor == c;
                 final isWhite =
-                    c.value == const Color(0xFFFFFFFF).value;
+                    c.toARGB32() == const Color(0xFFFFFFFF).toARGB32();
 
                 return GestureDetector(
                   onTap: () {
