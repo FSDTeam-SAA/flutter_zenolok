@@ -6,9 +6,11 @@ import '../../../home/data/models/calendar_event.dart';
 import '../../../home/presentation/controller/event_controller.dart';
 import '../../../home/presentation/controller/brick_controller.dart';
 
+import '../../../home/presentation/screens/event_editor_screen.dart';
 import '../../../home/presentation/screens/home.dart';
 import '../../../home/presentation/screens/notification_screen.dart';
-import '../../../home/presentation/screens/searchScreen.dart';
+
+import '../../../home/presentation/screens/search_screen.dart';
 import '../../../home/presentation/screens/setting_screen.dart';
 
 import '../../../home/presentation/widgets/category_filter_bar.dart';
