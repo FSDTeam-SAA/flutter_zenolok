@@ -116,13 +116,13 @@ class _BrickEditScreenState extends State<BrickEditScreen> {
       final CategoryDesign initial = controller.design.value;
       final bool isSaving = controller.isLoading.value;
       final String? errorText = controller.errorMessage.value;
-      final bool _hasColor = initial.color != null;
+      final bool hasColor = initial.color != null;
 
-      final updateTextColor = (_hasColor && !isSaving)
+      final updateTextColor = (hasColor && !isSaving)
           ? const Color(0xFF444444)
           : const Color(0xFFE0E0E0);
 
-      final canUpdate = _hasColor && !isSaving;
+      final canUpdate = hasColor && !isSaving;
 
       final bottomKeyboard = MediaQuery.of(context).viewInsets.bottom;
 
