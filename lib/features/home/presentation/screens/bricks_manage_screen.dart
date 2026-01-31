@@ -95,6 +95,10 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
         iconTheme: const IconThemeData(color: Colors.black),
         elevation: 0,
         centerTitle: true,
@@ -256,7 +260,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: brickColor.withOpacity(0.3),
+              color: brickColor.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -291,8 +295,8 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.6),
-      builder: (context) {
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.symmetric(horizontal: 40),
@@ -327,7 +331,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pop(dialogContext),
                       child: const Text(
                         'Cancel',
                         style: TextStyle(
@@ -338,12 +342,15 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        Navigator.pop(context);
+                        Navigator.pop(dialogContext);
                         // Call delete API
                         final success = await _brickController.deleteBrick(
                           brick.id,
                         );
-                        if (success && mounted) {
+                        
+                        if (!mounted) return;
+
+                        if (success) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -352,7 +359,7 @@ class _BricksManageScreenState extends State<BricksManageScreen> {
                               backgroundColor: Colors.green,
                             ),
                           );
-                        } else if (!success && mounted) {
+                        } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Failed to delete "${brick.name}"'),
