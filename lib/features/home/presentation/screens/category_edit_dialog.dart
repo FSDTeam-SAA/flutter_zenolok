@@ -45,7 +45,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
   }
 
   String _colorToHex(Color color) {
-    final value = color.value.toRadixString(16).padLeft(8, '0');
+    final value = color.toARGB32().toRadixString(16).padLeft(8, '0');
     return '#${value.substring(2).toUpperCase()}';
   }
 
@@ -160,7 +160,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                       mainAxisSpacing: circleSpacing,
                       crossAxisSpacing: circleSpacing,
                       children: _colors.map((c) {
-                        final isSelected = _selectedColor.value == c.value;
+                        final isSelected = _selectedColor.toARGB32() == c.toARGB32();
                         return GestureDetector(
                           onTap: () => setState(() => _selectedColor = c),
                           child: Center(
@@ -296,7 +296,7 @@ class _CategoryEditDialogState extends State<CategoryEditDialog> {
                                     child: CircleAvatar(
                                       radius: 16,
                                       backgroundColor: _selectedColor
-                                          .withOpacity(0.2),
+                                          .withValues(alpha: 0.2),
                                       child: Text(
                                         widget.category.participants[index]
                                             .substring(0, 1)
