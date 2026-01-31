@@ -391,7 +391,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: categoryColor.withOpacity(0.16),
+                color: categoryColor.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
