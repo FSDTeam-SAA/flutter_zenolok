@@ -48,7 +48,7 @@ class BrickFilterBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected ? (bg ?? const Color(0xFFEFF3F9)) : const Color(0xFFF6F7FB),
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: Colors.black.withOpacity(.06)),
+            border: Border.all(color: Colors.black.withValues(alpha: .06)),
           ),
           child: DefaultTextStyle.merge(
             style: const TextStyle(
@@ -126,7 +126,7 @@ class BrickFilterBar extends StatelessWidget {
             // Bricks chips
             for (final b in bricks) ...[
               chip(
-                bg: _hexToColor(b.color).withOpacity(.15),
+                bg: _hexToColor(b.color).withValues(alpha: .15),
                 selected: activeIds.contains(b.id),
                 onTap: () {
                   final next = {...activeIds};
