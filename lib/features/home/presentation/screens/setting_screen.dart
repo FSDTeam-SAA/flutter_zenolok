@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zenolok/core/common/widgets/app_scaffold.dart';
+import 'package:flutter_zenolok/features/todos/presentation/widgets/custom_switch.dart';
 import 'package:get/get.dart';
 import '../../../auth/presentation/controller/auth_controller.dart';
+import '../controller/settings_controller.dart';
 import 'bricks_manage_screen.dart';
-import 'todos_categories_manage_screen.dart';
 import 'week_start_day_screen.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool _is24HourFormat = false;
 
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
+    final settingsController = Get.put(SettingsController());
 
     return AppScaffold(
       backgroundColor: Colors.white,
@@ -71,32 +66,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.notifications_outlined,
                       title: 'Manage weeks start day',
                       onTap: () {
-                        // Get.to(() => const WeekStartDayScreen());
+                        Get.to(() => const WeekStartDayScreen());
                       },
                     ),
-                    _buildSettingTile(
+                    Obx(() => _buildSettingTile(
                       icon: Icons.timelapse_outlined,
                       title: 'Switch time format',
                       onTap: () {},
-                      trailing: Switch(
-                        value: _is24HourFormat,
+                      trailing: CustomSwitch(
+                        value: settingsController.is24HourFormat.value,
                         onChanged: (value) {
-                          setState(() {
-                            _is24HourFormat = value;
-                          });
+                          settingsController.toggle24HourFormat(value);
                         },
                       ),
-                    ),
+                    )),
                     _buildSettingTile(
                       icon: Icons.notifications_outlined,
                       title: 'Alarm preset',
                       onTap: () {},
                     ),
-                    _buildSettingTile(
+                    Obx(() => _buildSettingTile(
                       icon: Icons.dark_mode_outlined,
                       title: 'Dark Mode',
                       onTap: () {},
-                    ),
+                      trailing: CustomSwitch(
+                        value: settingsController.isDarkMode.value,
+                        onChanged: (value) {
+                          settingsController.toggleThemeMode(value);
+                        },
+                      ),
+                    )),
                     _buildSettingTile(
                       icon: Icons.notification_add,
                       title: 'Notifications & Reminders',
