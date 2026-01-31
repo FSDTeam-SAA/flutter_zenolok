@@ -101,6 +101,7 @@ class BrickController extends GetxController {
     });
 
     isLoading.value = false;
+    update(); // ✅ Notify GetBuilder widgets
   }
 
   Future<BrickModel?> updateBrick(String brickId) async {
@@ -139,6 +140,7 @@ class BrickController extends GetxController {
     });
 
     isLoading.value = false;
+    update(); // ✅ Notify GetBuilder widgets
 
     return updated;
   }
@@ -160,6 +162,7 @@ class BrickController extends GetxController {
     });
 
     isLoading.value = false;
+    update(); // ✅ Notify GetBuilder widgets
 
     return success;
   }
