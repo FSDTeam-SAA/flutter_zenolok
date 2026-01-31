@@ -315,7 +315,7 @@ class _AllDayScreenState extends State<AllDayScreen> {
                                 children: [
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: kPrimaryBlue.withOpacity(0.08),
+                                      color: kPrimaryBlue.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     padding: const EdgeInsets.symmetric(
@@ -1464,7 +1464,7 @@ class _ChatExpandedScreenState extends State<ChatExpandedScreen> {
 //                                 children: [
 //                                   Container(
 //                                     decoration: BoxDecoration(
-//                                       color: kPrimaryBlue.withOpacity(0.08),
+//                                       color: kPrimaryBlue.withValues(alpha: 0.08),
 //                                       borderRadius: BorderRadius.circular(999),
 //                                     ),
 //                                     padding: const EdgeInsets.symmetric(
