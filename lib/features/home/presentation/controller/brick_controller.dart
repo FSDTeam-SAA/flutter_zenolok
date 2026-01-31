@@ -48,7 +48,7 @@ class BrickController extends GetxController {
 
   /// Flutter Color -> "#RRGGBB"
   String _colorToHex(Color color) {
-    final value = color.value.toRadixString(16).padLeft(8, '0'); // AARRGGBB
+    final value = color.toARGB32().toRadixString(16).padLeft(8, '0'); // AARRGGBB
     return '#${value.substring(2).toUpperCase()}'; // RRGGBB
   }
 
