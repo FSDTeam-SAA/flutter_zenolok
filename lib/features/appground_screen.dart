@@ -7,10 +7,6 @@ import 'todos/presentation/bindings/event_todos_binding.dart';
 import 'todos/presentation/controllers/event_totos_controller.dart';
 import 'todos/presentation/screens/todos_screen.dart';
 import 'home/presentation/screens/home.dart'; // where CalendarHomePage is
-import 'home/presentation/bindings/brick_binding.dart';
-import 'home/presentation/bindings/event_binding.dart';
-import 'home/presentation/controller/brick_controller.dart';
-import 'home/presentation/controller/event_controller.dart';
 import 'package:flutter/cupertino.dart';
 
 class AppGroundScreen extends StatefulWidget {
@@ -26,18 +22,9 @@ class _AppGroundScreenState extends State<AppGroundScreen> {
   @override
   void initState() {
     super.initState();
-    
-    // ✅ Initialize all bindings to ensure data loads on first app launch
+    // Ensure EventTodosBinding is initialized
     if (!Get.isRegistered<EventTodosController>()) {
       EventTodosBinding().dependencies();
-    }
-    
-    if (!Get.isRegistered<BrickController>()) {
-      BrickBinding().dependencies();
-    }
-    
-    if (!Get.isRegistered<EventController>()) {
-      EventBinding().dependencies();
     }
   }
 
