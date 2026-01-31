@@ -402,15 +402,6 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                         color: Colors.black,
                         colorBlendMode: BlendMode.srcIn,
                       ),
-
-
-                    ),
-
-                    //  loading bar in header
-                    Obx(
-                      () => Get.find<EventController>().loading.value
-                          ? const LinearProgressIndicator(minHeight: 2)
-                          : const SizedBox.shrink(),
                     ),
 
                     Stack(
@@ -487,6 +478,16 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     ),
                   ],
                 ),
+              ),
+
+              //  loading bar
+              Obx(
+                () => Get.find<EventController>().loading.value
+                    ? const SizedBox(
+                        height: 2,
+                        child: LinearProgressIndicator(minHeight: 2),
+                      )
+                    : const SizedBox.shrink(),
               ),
 
               const SizedBox(height: 2),
