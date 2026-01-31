@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../../../core/common/widgets/app_scaffold.dart';
 import '../../../todos/data/models/category_model.dart';
 import '../../../todos/presentation/controllers/event_totos_controller.dart';
-import '../../../todos/presentation/widgets/categories_grid.dart';
 import 'category_edit_dialog.dart';
 
 class TodosCategoriesManageScreen extends GetView<EventTodosController> {
@@ -172,7 +171,7 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: categoryColor.withOpacity(0.3),
+              color: categoryColor.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -223,7 +222,7 @@ class TodosCategoriesManageScreen extends GetView<EventTodosController> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.6),
+      barrierColor: Colors.black.withValues(alpha: 0.6),
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.transparent,
