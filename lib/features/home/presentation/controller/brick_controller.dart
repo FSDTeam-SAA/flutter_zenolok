@@ -101,6 +101,7 @@ class BrickController extends GetxController {
     });
 
     isLoading.value = false;
+    update(); // ✅ Notify GetBuilder widgets to rebuild
   }
 
   Future<BrickModel?> updateBrick(String brickId) async {
