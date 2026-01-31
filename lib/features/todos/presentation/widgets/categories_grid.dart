@@ -1015,7 +1015,7 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
   }
 }
 
-/// Optional: just normal border; jodi dashed chai alada painter লাগবে
+/// Optional: just normal border with dashed effect
 class _DashedAddBox extends StatelessWidget {
   const _DashedAddBox();
 
