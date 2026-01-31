@@ -15,8 +15,8 @@ class CategoriesGrid extends StatefulWidget {
 
 class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStateMixin {
   final Map<String, GlobalKey<_CategoryCardState>> _cardKeys = {};
-  String? _draggingCategoryId;
-  int? _hoverIndex;
+  final _draggingCategoryId = Rxn<String>();
+  final _hoverIndex = Rxn<int>();
   AnimationController? _shakeController;
 
   EventTodosController get controller => Get.find<EventTodosController>();
@@ -25,7 +25,7 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
   void initState() {
     super.initState();
     _shakeController = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     )..repeat(reverse: true);
   }
@@ -180,17 +180,15 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
   void _onReorder(int oldIndex, int newIndex) {
     if (oldIndex == newIndex) return;
     
-    setState(() {
-      final categories = controller.categories;
-      // Swap the two categories directly
-      final temp = categories[oldIndex];
-      categories[oldIndex] = categories[newIndex];
-      categories[newIndex] = temp;
-      controller.categories.refresh();
-      
-      // Clear hover state after reorder
-      _hoverIndex = null;
-    });
+    final categories = controller.categories;
+    // Swap the two categories directly
+    final temp = categories[oldIndex];
+    categories[oldIndex] = categories[newIndex];
+    categories[newIndex] = temp;
+    controller.categories.refresh();
+    
+    // Clear hover state after reorder
+    _hoverIndex.value = null;
 
     if (kDebugMode) {
       print('🔄 Swapped categories at index $oldIndex and $newIndex');
@@ -289,24 +287,22 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
             },
             onWillAcceptWithDetails: (details) {
               if (details.data != leftIndex) {
-                setState(() => _hoverIndex = leftIndex);
+                _hoverIndex.value = leftIndex;
               }
               return details.data != leftIndex;
             },
             onLeave: (_) {
-              setState(() => _hoverIndex = null);
+              _hoverIndex.value = null;
             },
             builder: (context, candidateData, rejectedData) {
               return LongPressDraggable<int>(
                 data: leftIndex,
                 onDragStarted: () {
-                  setState(() => _draggingCategoryId = c.id);
+                  _draggingCategoryId.value = c.id;
                 },
                 onDragEnd: (_) {
-                  setState(() {
-                    _draggingCategoryId = null;
-                    _hoverIndex = null;
-                  });
+                  _draggingCategoryId.value = null;
+                  _hoverIndex.value = null;
                 },
                 feedback: Material(
                   color: Colors.transparent,
@@ -331,26 +327,27 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
                     child: categoryCard,
                   ),
                 ),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    border: _hoverIndex == leftIndex
-                        ? Border.all(
-                            color: _hexToColor(c.color).withOpacity(0.6),
-                            width: 3,
-                          )
-                        : null,
-                  ),
-                  child: _draggingCategoryId != null
+                child: Obx(
+                  () => AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: _hoverIndex.value == leftIndex
+                          ? Border.all(
+                              color: _hexToColor(c.color).withOpacity(0.6),
+                              width: 3,
+                            )
+                          : null,
+                    ),
+                    child: _draggingCategoryId.value != null
                       ? AnimatedBuilder(
                           animation: _shakeController!,
                           builder: (context, child) {
                             return Transform.rotate(
-                              angle: _shakeController!.value * 0.02 - 0.01,
+                              angle: _shakeController!.value * 0.05 - 0.025,
                               child: Transform.translate(
                                 offset: Offset(
-                                  _shakeController!.value * 2 - 1,
+                                  _shakeController!.value * 4 - 2,
                                   0,
                                 ),
                                 child: child,
@@ -360,6 +357,7 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
                           child: categoryCard,
                         )
                       : categoryCard,
+                  ),
                 ),
               );
             },
@@ -394,24 +392,22 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
             },
             onWillAcceptWithDetails: (details) {
               if (details.data != rightIndex) {
-                setState(() => _hoverIndex = rightIndex);
+                _hoverIndex.value = rightIndex;
               }
               return details.data != rightIndex;
             },
             onLeave: (_) {
-              setState(() => _hoverIndex = null);
+              _hoverIndex.value = null;
             },
             builder: (context, candidateData, rejectedData) {
               return LongPressDraggable<int>(
                 data: rightIndex,
                 onDragStarted: () {
-                  setState(() => _draggingCategoryId = c.id);
+                  _draggingCategoryId.value = c.id;
                 },
                 onDragEnd: (_) {
-                  setState(() {
-                    _draggingCategoryId = null;
-                    _hoverIndex = null;
-                  });
+                  _draggingCategoryId.value = null;
+                  _hoverIndex.value = null;
                 },
                 feedback: Material(
                   color: Colors.transparent,
@@ -436,26 +432,27 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
                     child: categoryCard,
                   ),
                 ),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    border: _hoverIndex == rightIndex
-                        ? Border.all(
-                            color: _hexToColor(c.color).withOpacity(0.6),
-                            width: 3,
-                          )
-                        : null,
-                  ),
-                  child: _draggingCategoryId != null
-                      ? AnimatedBuilder(
+                child: Obx(
+                  () => AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: _hoverIndex.value == rightIndex
+                          ? Border.all(
+                              color: _hexToColor(c.color).withOpacity(0.6),
+                              width: 3,
+                            )
+                          : null,
+                    ),
+                    child: _draggingCategoryId.value != null
+                        ? AnimatedBuilder(
                           animation: _shakeController!,
                           builder: (context, child) {
                             return Transform.rotate(
-                              angle: _shakeController!.value * 0.02 - 0.01,
+                              angle: _shakeController!.value * 0.05 - 0.025,
                               child: Transform.translate(
                                 offset: Offset(
-                                  _shakeController!.value * 2 - 1,
+                                  _shakeController!.value * 4 - 2,
                                   0,
                                 ),
                                 child: child,
@@ -465,6 +462,7 @@ class _CategoriesGridState extends State<CategoriesGrid> with TickerProviderStat
                           child: categoryCard,
                         )
                       : categoryCard,
+                  ),
                 ),
               );
             },
@@ -535,9 +533,9 @@ class _CategoryCard extends StatefulWidget {
 }
 
 class _CategoryCardState extends State<_CategoryCard> {
-  List<String> _todos = [];
-  int _totalTodosCount = 0;
-  bool _isLoading = false;
+  final _todos = <String>[].obs;
+  final _totalTodosCount = 0.obs;
+  final _isLoading = false.obs;
 
   @override
   void initState() {
@@ -553,16 +551,12 @@ class _CategoryCardState extends State<_CategoryCard> {
   }
 
   // Public method to get current todos for drag feedback
-  List<String> get currentTodos => _todos;
-  int get totalCount => _totalTodosCount;
-  bool get isLoading => _isLoading;
+  List<String> get currentTodos => _todos.toList();
+  int get totalCount => _totalTodosCount.value;
+  bool get isLoading => _isLoading.value;
 
   Future<void> _fetchTodos() async {
-    if (mounted) {
-      setState(() {
-        _isLoading = true;
-      });
-    }
+    _isLoading.value = true;
 
     try {
       final controller = Get.find<EventTodosController>();
@@ -576,26 +570,18 @@ class _CategoryCardState extends State<_CategoryCard> {
         );
       }
 
-      if (mounted) {
-        setState(() {
-          // Store total count and show only first 3 todos in preview
-          _totalTodosCount = todos.length;
-          _todos = todos
-              .take(3)
-              .map((todo) => todo['title'] as String)
-              .toList();
-          _isLoading = false;
-        });
-      }
+      // Store total count and show only first 3 todos in preview
+      _totalTodosCount.value = todos.length;
+      _todos.value = todos
+          .take(3)
+          .map((todo) => todo['title'] as String)
+          .toList();
+      _isLoading.value = false;
     } catch (e) {
       if (kDebugMode) {
         print('❌ CategoryCard: Error fetching todos - $e');
       }
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      _isLoading.value = false;
     }
   }
 
@@ -608,71 +594,74 @@ class _CategoryCardState extends State<_CategoryCard> {
         mainAxisSize: MainAxisSize.min,
         children: [
           /// Title with counter badge outside (top row)
-          Padding(
-            padding: const EdgeInsets.only(left: 20, bottom: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: widget.onTitleTap,
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: widget.titleColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (_totalTodosCount > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Container(
-                      width: 15,
-                      height: 15,
-                      decoration: BoxDecoration(
+          Obx(
+            () => Padding(
+              padding: const EdgeInsets.only(left: 20, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: widget.onTitleTap,
+                    child: Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         color: widget.titleColor,
-                        shape: BoxShape.circle,
                       ),
-                      child: Center(
-                        child: Text(
-                          _totalTodosCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 9,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (_totalTodosCount.value > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Container(
+                        width: 15,
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: widget.titleColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            _totalTodosCount.value.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 9,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
 
           /// Actual card
-          Container(
-            height: 140,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7F7F8),
-              borderRadius: BorderRadius.circular(35),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_isLoading)
-                    const SizedBox(
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  else if (_todos.isNotEmpty)
-                    ..._todos.map(
+          Obx(
+            () => Container(
+              height: 140,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F7F8),
+                borderRadius: BorderRadius.circular(35),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_isLoading.value)
+                      const SizedBox(
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else if (_todos.isNotEmpty)
+                      ..._todos.map(
                       (t) => Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
@@ -719,15 +708,16 @@ class _CategoryCardState extends State<_CategoryCard> {
                   //     ),
                   //   ),
                   // const SizedBox(height: 4),
-                  const Text(
-                    'New todo',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFFD0D0D0),
-                      fontWeight: FontWeight.w400,
+                    const Text(
+                      'New todo',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFFD0D0D0),
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -782,8 +772,8 @@ class NewCategoryDialog extends StatefulWidget {
 
 class _NewCategoryDialogState extends State<NewCategoryDialog> {
   final TextEditingController _nameController = TextEditingController();
-  Color? _selectedColor;
-  bool _isEditingName = true;
+  final _selectedColor = Rxn<Color>();
+  final _isEditingName = true.obs;
   final FocusNode _focusNode = FocusNode();
 
   final List<Color> _palette = const [
@@ -813,11 +803,11 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
   }
 
   void _onAdd() {
-    if (_nameController.text.trim().isEmpty || _selectedColor == null) return;
+    if (_nameController.text.trim().isEmpty || _selectedColor.value == null) return;
 
     // Convert Color to hex string
     final hexColor =
-        '#${_selectedColor!.value.toRadixString(16).substring(2).toUpperCase()}';
+        '#${_selectedColor.value!.value.toRadixString(16).substring(2).toUpperCase()}';
 
     Navigator.of(
       context,
@@ -855,161 +845,166 @@ class _NewCategoryDialogState extends State<NewCategoryDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(
-                        Icons.chevron_left,
-                        color: Colors.grey,
-                        size: 22,
+              Obx(
+                () => Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(
+                          Icons.chevron_left,
+                          color: Colors.grey,
+                          size: 22,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: _isEditingName
-                            ? SizedBox(
-                                width: dialogWidth * 0.6,
-                                child: TextField(
-                                  controller: _nameController,
-                                  focusNode: _focusNode,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: _selectedColor ?? Colors.grey,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'New Category',
-                                    hintStyle: TextStyle(
+                      Expanded(
+                        child: Center(
+                          child: _isEditingName.value
+                              ? SizedBox(
+                                  width: dialogWidth * 0.6,
+                                  child: TextField(
+                                    controller: _nameController,
+                                    focusNode: _focusNode,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.grey.shade300,
+                                      color: _selectedColor.value ?? Colors.grey,
                                     ),
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero,
-                                    isDense: true,
+                                    decoration: InputDecoration(
+                                      hintText: 'New Category',
+                                      hintStyle: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
+                                      isDense: true,
+                                    ),
+                                    onSubmitted: (_) => _isEditingName.value = false,
                                   ),
-                                  onSubmitted: (_) =>
-                                      setState(() => _isEditingName = false),
-                                ),
-                              )
-                            : GestureDetector(
-                                onTap: () {
-                                  setState(() => _isEditingName = true);
-                                  _focusNode.requestFocus();
-                                },
-                                child: Text(
-                                  _nameController.text.isEmpty
-                                      ? 'New Category'
-                                      : _nameController.text,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        _selectedColor ?? Colors.grey.shade400,
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    _isEditingName.value = true;
+                                    _focusNode.requestFocus();
+                                  },
+                                  child: Text(
+                                    _nameController.text.isEmpty
+                                        ? 'New Category'
+                                        : _nameController.text,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color:
+                                          _selectedColor.value ?? Colors.grey.shade400,
+                                    ),
                                   ),
                                 ),
-                              ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 22),
-                  ],
+                      const SizedBox(width: 22),
+                    ],
+                  ),
                 ),
               ),
 
               // Palette grid
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: 8,
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final availableWidth = constraints.maxWidth;
-                    final cellSize =
-                        (availableWidth - (cols - 1) * circleSpacing) / cols;
-                    final circleSize = cellSize * 0.78;
+              Obx(
+                () => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: 8,
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final availableWidth = constraints.maxWidth;
+                      final cellSize =
+                          (availableWidth - (cols - 1) * circleSpacing) / cols;
+                      final circleSize = cellSize * 0.78;
 
-                    return GridView.count(
-                      crossAxisCount: cols,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: circleSpacing,
-                      crossAxisSpacing: circleSpacing,
-                      children: _palette.map((c) {
-                        final isSelected = _selectedColor == c;
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedColor = c),
-                          child: Center(
-                            child: Container(
-                              width: circleSize,
-                              height: circleSize,
-                              decoration: BoxDecoration(
-                                color: c,
-                                shape: BoxShape.circle,
-                                border: isSelected
-                                    ? Border.all(color: Colors.white, width: 3)
-                                    : null,
+                      return GridView.count(
+                        crossAxisCount: cols,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        mainAxisSpacing: circleSpacing,
+                        crossAxisSpacing: circleSpacing,
+                        children: _palette.map((c) {
+                          final isSelected = _selectedColor.value == c;
+                          return GestureDetector(
+                            onTap: () => _selectedColor.value = c,
+                            child: Center(
+                              child: Container(
+                                width: circleSize,
+                                height: circleSize,
+                                decoration: BoxDecoration(
+                                  color: c,
+                                  shape: BoxShape.circle,
+                                  border: isSelected
+                                      ? Border.all(color: Colors.white, width: 3)
+                                      : null,
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
                 ),
               ),
 
               // Collaboration + Add
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 20, 12, 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          AppImages.collaboration,
-                          width: 16,
-                          height: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Collaboration',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade400,
+              Obx(
+                () => Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 20, 12, 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            AppImages.collaboration,
+                            width: 16,
+                            height: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Collaboration',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (_nameController.text.trim().isNotEmpty &&
+                          _selectedColor.value != null)
+                        GestureDetector(
+                          onTap: _onAdd,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Add',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey.shade400,
+                                size: 20,
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    if (_nameController.text.trim().isNotEmpty &&
-                        _selectedColor != null)
-                      GestureDetector(
-                        onTap: _onAdd,
-                        child: Row(
-                          children: [
-                            Text(
-                              'Add',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.chevron_right,
-                              color: Colors.grey.shade400,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
