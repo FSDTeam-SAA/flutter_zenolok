@@ -97,7 +97,7 @@ class WeekStartDayScreen extends StatelessWidget {
                                   height: 40,
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFF3B82F6).withOpacity(0.1)
+                                        ? const Color(0xFF3B82F6).withValues(alpha: 0.1)
                                         : Colors.grey[100],
                                     borderRadius: BorderRadius.circular(8),
                                   ),
